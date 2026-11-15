@@ -45,8 +45,27 @@ fi
 
 echo "cubes + json"
 hf upload "$REPO" "$PROC" . --repo-type dataset \
-  --include "manifest.json" --include "calibration.json" --include "validation.json" \
+  --include "calibration.json" --include "validation.json" \
   --include "cube/**" --commit-message "cubes and json $(date -u +%Y-%m-%dT%H:%MZ)" --format quiet
+
+# manifest last, with manifest.points describing what was actually uploaded
+TMP=$(mktemp -d)
+python - "$PROC/manifest.json" "$TMP/manifest.json" "$POINTS" "$FROM_YEAR" <<'PY'
+import json, sys
+src, dst, points, from_year = sys.argv[1], sys.argv[2], sys.argv[3] == "1", int(sys.argv[4])
+m = json.load(open(src, encoding="utf-8"))
+p = m.get("points") or {}
+if not points or not p.get("years"):
+    m["points"] = {"years": [], "tiles": []}
+elif from_year:
+    m["points"]["years"] = [max(p["years"][0], from_year), p["years"][1]]
+json.dump(m, open(dst, "w", encoding="utf-8"), indent=2)
+print("manifest.points =", m["points"]["years"], len(m["points"]["tiles"]), "tiles")
+PY
+echo "manifest"
+hf upload "$REPO" "$TMP/manifest.json" manifest.json --repo-type dataset \
+  --commit-message "manifest" --format quiet
+rm -rf "$TMP"
 
 BASE="https://huggingface.co/datasets/$REPO/resolve/main"
 echo "VITE_DATA_BASE_URL=$BASE"
