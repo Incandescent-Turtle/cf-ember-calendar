@@ -7,7 +7,7 @@ import { buildOption, legendTicks, RAMP, rowAt, ZERO_COLOR } from './option';
 import { METRIC_LABEL, metricsFor, valueOf } from './metric';
 import type { Harmonized } from '../lib/harmonize';
 import { MONTHS_SHORT } from '../lib/time';
-import { useStore, type ViewMode } from '../store';
+import { ALL_TIME, selectedCell, useStore, type ViewMode } from '../store';
 
 echarts.use([HeatmapChart, BarChart, GridComponent, TooltipComponent, VisualMapComponent, TitleComponent, CanvasRenderer]);
 
@@ -26,9 +26,10 @@ export const UNIT_TIP =
 export function Calendar({ h, currentYear }: { h: Harmonized; currentYear: number }) {
   const el = useRef<HTMLDivElement>(null);
   const chart = useRef<echarts.ECharts | null>(null);
-  const { viewMode, setViewMode, selected, setSelected, showTable, toggleTable } = useStore();
+  const { viewMode, setViewMode, window: win, setWindow, showTable, toggleTable } = useStore();
+  const selected = selectedCell(win);
   const metrics = metricsFor(viewMode);
-  const { option, vmin, vmax } = useMemo(() => buildOption({ h, metrics, currentYear, selected }), [h, viewMode, currentYear, selected]); // eslint-disable-line react-hooks/exhaustive-deps
+  const { option, vmin, vmax } = useMemo(() => buildOption({ h, metrics, currentYear, selected }), [h, viewMode, currentYear, selected?.year, selected?.month]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const c = echarts.init(el.current!, undefined, { renderer: 'canvas' });
@@ -52,10 +53,10 @@ export function Calendar({ h, currentYear }: { h: Harmonized; currentYear: numbe
     c.on('click', (p) => {
       if (p.seriesType !== 'heatmap') return;
       const [m, y] = p.value as [number, string];
-      const cur = useStore.getState().selected;
-      setSelected(cur?.year === Number(y) && cur.month === m ? null : { year: Number(y), month: m });
+      const cur = selectedCell(useStore.getState().window);
+      setWindow(cur?.year === Number(y) && cur.month === m ? ALL_TIME : { year: Number(y), month: m });
     });
-  }, [option, setSelected]);
+  }, [option, setWindow]);
 
   const caption =
     viewMode === 'harmonized'
@@ -75,7 +76,9 @@ export function Calendar({ h, currentYear }: { h: Harmonized; currentYear: numbe
           </button>
         ))}
       </div>
-      <p className="caption">{caption}</p>
+      <p className="caption">
+        {caption} Click a month to show it on the map.
+      </p>
       <div ref={el} className={`chart ${viewMode === 'split' ? 'split' : ''}`} />
       <Legend vmin={vmin} vmax={vmax} />
       <div className="calendar-foot">
@@ -88,8 +91,8 @@ export function Calendar({ h, currentYear }: { h: Harmonized; currentYear: numbe
       </div>
       {selected && (
         <p className="selected">
-          Selected: <strong>{MONTHS_SHORT[selected.month]} {selected.year}</strong>{' '}
-          <button className="link" onClick={() => setSelected(null)}>
+          Map shows <strong>{MONTHS_SHORT[selected.month]} {selected.year}</strong>{' '}
+          <button className="link" onClick={() => setWindow(ALL_TIME)}>
             clear
           </button>
         </p>

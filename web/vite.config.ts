@@ -22,10 +22,32 @@ function devData(): Plugin {
           const file = resolve(root, rel)
           if (!file.startsWith(root + sep)) continue
           if (existsSync(file) && statSync(file).isFile()) {
+            const size = statSync(file).size
             res.setHeader('Content-Type', file.endsWith('.json') ? 'application/json' : 'application/octet-stream')
-            res.setHeader('Content-Length', String(statSync(file).size))
+            res.setHeader('Accept-Ranges', 'bytes')
             res.setHeader('X-Ember-Source', root.endsWith('mock-data') ? 'mock' : 'pipeline')
-            createReadStream(file).pipe(res)
+            // Range support, like the real data host (hyparquet reads Parquet by byte ranges)
+            const m = /^bytes=(\d*)-(\d*)$/.exec(req.headers.range ?? '')
+            let start = 0
+            let end = size - 1
+            if (m) {
+              start = m[1] === '' ? Math.max(0, size - Number(m[2])) : Number(m[1])
+              end = m[1] !== '' && m[2] !== '' ? Math.min(Number(m[2]), size - 1) : size - 1
+              if (start > end || start >= size) {
+                res.statusCode = 416
+                res.setHeader('Content-Range', `bytes */${size}`)
+                res.end()
+                return
+              }
+              res.statusCode = 206
+              res.setHeader('Content-Range', `bytes ${start}-${end}/${size}`)
+            }
+            res.setHeader('Content-Length', String(end - start + 1))
+            if (req.method === 'HEAD') {
+              res.end()
+              return
+            }
+            createReadStream(file, { start, end }).pipe(res)
             return
           }
         }
