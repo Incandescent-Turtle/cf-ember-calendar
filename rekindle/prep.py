@@ -4,7 +4,8 @@
 
 Sources (choices logged in docs/DECISIONS.md, S6):
 - DEM: Copernicus GLO-30 (AWS Open Data COGs, no login), windowed reads only.
-- Fuels: MCD12Q1 v061 LC_Type1 (IGBP), year before the fire or latest; water from MOD44W v061
+- Fuels: MCD12Q1 v061 LC_Type1 (IGBP), year before the fire or latest; fractional cover from
+  MOD44B v061 (nonveg_pct, rekindle.fuel_cover); water from MOD44W v061
   and IGBP class 17. LP DAAC, Earthdata token.
 - Wind: MERRA-2 M2T1NXSLV hourly U10M/V10M (+T2M, QV2M) at the domain centre, bilinear from
   the 4 surrounding grid points, via the Earthdata cloud OPeNDAP (DAP4 CSV subset).
@@ -332,6 +333,12 @@ def main() -> None:
         lut[k] = fm
     fuel = lut[igbp.astype(np.int64)]
     nonburnable = water | (fuel == NON_BURNABLE)
+    from rekindle.fuel_cover import fetch_vcf
+
+    nonveg, vcf_src = fetch_vcf(int(str(fire["start"])[:4]), transform, ny, nx, crs, llb, raw)
+    lc_src["fuel_cover"] = vcf_src
+    log(notes, f"Fuel cover: {vcf_src['product']} {vcf_src['year']}, nearest to the grid "
+               f"(non-vegetated median {np.median(nonveg[nonveg <= 100]):.0f} %)")
     classes, counts = np.unique(igbp, return_counts=True)
     log(notes, "IGBP classes (cells): " + ", ".join(f"{int(c)}:{int(n)}" for c, n in
                                                      zip(classes, counts, strict=True)))
@@ -351,6 +358,7 @@ def main() -> None:
     np.savez_compressed(
         out / "domain.npz", elevation=z.astype(np.float32), slope_deg=slope, aspect_deg=aspect,
         fuel=fuel.astype(np.int16), nonburnable=nonburnable, igbp=igbp.astype(np.uint8),
+        nonveg_pct=nonveg,
         transform=np.array(transform)[:6], dx=a.dx)
     meta = {
         "id": a.fire, "name": fire["name"], "bbox": fire["bbox"], "crs": crs, "dx_m": a.dx,

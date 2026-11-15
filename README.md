@@ -23,6 +23,7 @@ Rekindle (`rekindle/credits.py` holds the exact strings; each was checked agains
 - **MERRA-2** hourly 10 m wind, T2M, QV2M: Global Modeling and Assimilation Office (GMAO) (2015), MERRA-2 tavg1_2d_slv_Nx: 2d,1-Hourly,Time-Averaged,Single-Level,Assimilation,Single-Level Diagnostics V5.12.4, Greenbelt, MD, USA, Goddard Earth Sciences Data and Information Services Center (GES DISC), Accessed: 2026-11-15, 10.5067/VJAFPLI1CSIV.
 - **MODIS MCD12Q1 v061** land cover (fuels): Friedl, M., & Sulla-Menashe, D. (2022). MODIS/Terra+Aqua Land Cover Type Yearly L3 Global 500m SIN Grid V061 [Data set]. NASA LP DAAC. https://doi.org/10.5067/MODIS/MCD12Q1.061
 - **MODIS MOD44W v061** water mask: Carroll, M., et al. (2024). MODIS/Terra Land Water Mask Derived from MODIS and SRTM L3 Global 250m SIN Grid V061 [Data set]. NASA LP DAAC. https://doi.org/10.5067/MODIS/MOD44W.061
+- **MODIS MOD44B v061** vegetation continuous fields (fractional cover): DiMiceli, C., Sohlberg, R., & Townshend, J. (2022). MODIS/Terra Vegetation Continuous Fields Yearly L3 Global 250m SIN Grid V061 [Data set]. NASA LP DAAC. https://doi.org/10.5067/MODIS/MOD44B.061
 - **Copernicus DEM GLO-30** (slope and aspect, from AWS Open Data): produced using Copernicus WorldDEM-30 © DLR e.V. 2010-2014 and © Airbus Defence and Space GmbH 2014-2018 provided under COPERNICUS by the European Union and ESA; all rights reserved.
 
 ## Run locally

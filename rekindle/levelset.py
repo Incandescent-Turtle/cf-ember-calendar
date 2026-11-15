@@ -85,11 +85,30 @@ def run_levelset(domain: Domain, scenario: Scenario, cfg: SolverConfig | None = 
     W = nx + 2
     burnable = domain.burnable()
     model = np.where(burnable, domain.fuel, 0).astype(np.int64)
-    fuels = _Fuels(model, scenario.moisture.as_tuple())
+    # Time-varying dead moisture: Rothermel coefficients rebuilt when the (rounded) moisture
+    # changes, cached per value. A constant series takes exactly the constant-moisture path.
+    series = scenario.moisture_series
+    varying = len({(m.d1, m.d10, m.d100) for m in series}) > 1
+    fuel_cache: dict[tuple, _Fuels] = {}
+
+    def moisture_key(t: float) -> tuple[float, ...]:
+        if not series:
+            return scenario.moisture.as_tuple()
+        m = scenario.moisture_at(t)
+        return (round(m.d1, 3), round(m.d10, 3), round(m.d100, 3), m.herb, m.woody)
+
+    def fuels_for(key: tuple[float, ...]) -> _Fuels:
+        if key not in fuel_cache:
+            fuel_cache[key] = _Fuels(model, key)
+        return fuel_cache[key]
+
+    mkey = moisture_key(0.0)
+    fuels = fuels_for(mkey)
     slope = np.zeros((ny, nx)) if domain.slope_deg is None else np.asarray(domain.slope_deg, float)
     aspect = np.zeros((ny, nx)) if domain.aspect_deg is None else np.asarray(domain.aspect_deg)
-    phis = fuels.slope_k[model] * np.tan(np.radians(slope)) ** 2
+    tan2 = np.tan(np.radians(slope)) ** 2
     up = np.radians(np.nan_to_num(aspect) + 180.0)
+    phis = fuels.slope_k[model] * tan2
     psx, psy = phis * np.sin(up), phis * np.cos(up)
 
     def pad(a: np.ndarray, fill=0.0) -> np.ndarray:
@@ -148,7 +167,13 @@ def run_levelset(domain: Domain, scenario: Scenario, cfg: SolverConfig | None = 
         g[:] = np.clip(d, -big, big)
         fill_pad(phi)
 
-    can_burn = burnable & (fuels.r0[model] > 0)
+    if varying:  # a cell can burn if it spreads at the driest moisture in the series
+        driest = min(series, key=lambda m: (m.d1, m.d10, m.d100))
+        dkey = (round(driest.d1, 3), round(driest.d10, 3), round(driest.d100, 3),
+                scenario.moisture.herb, scenario.moisture.woody)
+        can_burn = burnable & (_Fuels(model, dkey).r0[model] > 0)
+    else:
+        can_burn = burnable & (fuels.r0[model] > 0)
 
     def active_front() -> bool:
         """Any unburned, spreadable cell next to a burned one?"""
@@ -225,7 +250,15 @@ def run_levelset(domain: Domain, scenario: Scenario, cfg: SolverConfig | None = 
     edge_reached = False
     t_end = scenario.duration_s
     ignite(t)
+    moisture_steps = 0
     while t < t_end - 1e-9:
+        if varying:
+            k = moisture_key(t)
+            if k != mkey:
+                mkey, fuels = k, fuels_for(k)
+                psx_p[:] = pad(fuels.slope_k[model] * tan2 * np.sin(up))
+                psy_p[:] = pad(fuels.slope_k[model] * tan2 * np.cos(up))
+                moisture_steps += 1
         band = interior_flat[np.abs(phi[interior_flat]) < cfg.band_dx * dx]
         wind = wind_at(t)
         if band.size:
@@ -234,8 +267,8 @@ def run_levelset(domain: Domain, scenario: Scenario, cfg: SolverConfig | None = 
         else:
             s1 = rh = np.zeros(0)
             smax = 0.0
-        if smax <= 0 and not pending:
-            break  # nothing burning and nothing left to ignite
+        if smax <= 0 and not pending and not (varying and band.size and t < series[-1].t_s):
+            break  # nothing burning and nothing left to ignite (and no moisture recovery ahead)
         dt = cfg.dt_max_s if smax <= 0 else min(cfg.dt_max_s, cfg.cfl * dx / smax)
         if pending:
             dt = min(dt, max(pending[0].t_s - t, 1e-6))
@@ -267,7 +300,7 @@ def run_levelset(domain: Domain, scenario: Scenario, cfg: SolverConfig | None = 
             reinits += 1
             since_reinit = 0
             moved = 0.0
-            if not pending and not active_front():
+            if not pending and not active_front():  # can_burn: driest moisture if varying
                 break  # the front is stopped everywhere (barriers, fuel breaks, extinction)
         if np.any(phi2[1:-1, 1:-1][edge] <= 0):
             edge_reached = True
@@ -285,6 +318,7 @@ def run_levelset(domain: Domain, scenario: Scenario, cfg: SolverConfig | None = 
         "edge_reached": edge_reached,
         "burned_cells": int(burned.sum()),
         "burned_area_ha": float(burned.sum() * dx * dx / 1e4),
+        "moisture_updates": moisture_steps,
         "wall_s": time.perf_counter() - t_wall,
     }
     return SimResult(

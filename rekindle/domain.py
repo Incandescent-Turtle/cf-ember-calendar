@@ -17,12 +17,21 @@ def parse_t(s: str) -> dt.datetime:
     return dt.datetime.fromisoformat(s)
 
 
-def load(fire_id: str, root: Path = DATA) -> tuple[Domain, dict]:
+def load(fire_id: str, root: Path = DATA,
+         nonveg_max_pct: float | None = None) -> tuple[Domain, dict]:
+    """Prepared domain. nonveg_max_pct: cells whose MOD44B non-vegetated % exceeds it are
+    non-burnable (S6b change A; needs `nonveg_pct` from rekindle.fuel_cover)."""
     d = np.load(root / fire_id / "domain.npz")
     meta = json.loads((root / fire_id / "meta.json").read_text())
+    nonburnable = d["nonburnable"]
+    if nonveg_max_pct is not None:
+        if "nonveg_pct" not in d:
+            raise KeyError(f"{fire_id}: no nonveg_pct in domain.npz; run rekindle.fuel_cover")
+        nv = d["nonveg_pct"]
+        nonburnable = nonburnable | ((nv <= 100) & (nv > nonveg_max_pct))
     dom = Domain(
         fuel=d["fuel"], dx=float(d["dx"]), slope_deg=d["slope_deg"], aspect_deg=d["aspect_deg"],
-        nonburnable=d["nonburnable"], meta={"id": fire_id},
+        nonburnable=nonburnable, meta={"id": fire_id},
     )
     return dom, meta
 

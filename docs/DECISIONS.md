@@ -446,3 +446,18 @@ User decisions: **Chilecito is the priority.** Try to make its baseline pass the
 - `uv run python -m rekindle.export --fire <id>`
 
 New fires go in `rekindle/fires.yaml` (bbox, dates, `points_tiles`). The web tab needs no changes: what-if mode turns on when `status == "validated"`.
+
+## Pre-registration — S6b Chilecito changes (2026-11-15, 12:40, before any run)
+
+Fixed and unchanged: gate (median |Δ| ≤ mean overpass interval, 3.2 h), `rekindle/metrics.py`, ignitions, DEM, IGBP crosswalk, MERRA-2 wind, ROS sweep `[0.25 … 4]` (the only fitted parameter). Each change runs alone, then A+B; C only if A+B fail. All results get logged below, failures included.
+
+- **A. Fuel cover from MOD44B v061** (DiMiceli, Sohlberg & Townshend 2022, doi:10.5067/MODIS/MOD44B.061; year before the fire = A2025065, h12v11). A cell is non-burnable where `Percent_NonVegetated` > **50 %**, i.e. vegetated cover < 50 %. 250 m data are resampled nearest to the 90 m grid. Fill (200) keeps the IGBP fuel.
+  - Physical reason: Rothermel assumes a continuous fuel bed. A fire can't cross a landscape whose burnable fraction is below the percolation threshold. Van Nes et al. 2018 (PLoS ONE 13:e0191027) report percolation-model thresholds of 30–70 % cover, and **50 % is the midpoint**. No source gives a MODIS-VCF pixel cutoff, so this is an a-priori assumption.
+  - **A′ (sensitivity only, not eligible to claim a pass):** threshold 80 %, the example in the S6b addendum. Reported alongside A.
+  - Load is not scaled by cover; Rothermel ROS is not monotone in load at fixed depth.
+- **B. Diurnal dead fuel moisture.** EMC is computed hourly from MERRA-2 T2M/QV2M (Simard 1968; existing `estimate_dead_moisture` inputs, pressure at the ignition elevation).
+  - Each dead class relaxes toward EMC with its own time lag: m ← EMC + (m − EMC)·exp(−Δt/τ), with τ = **1 h / 10 h / 100 h** for the 1-h / 10-h / 100-h classes. This is the definition of the time-lag classes (Fosberg/NFDRS).
+  - Initial values: 1-h = EMC at t0; 10-h and 100-h = median EMC over the run, the S6 constant estimator.
+  - Solver: `Scenario.moisture_series`. Fuels are rebuilt when the moisture rounded to 0.1 % changes. A constant series must be bit-identical to constant moisture (new test).
+  - Live moisture stays at the defaults (FM 1/6 have no live load).
+- **C. Wind** (only if A+B fail): MERRA-2 nearest grid point instead of bilinear, as a sensitivity check. No new wind model.

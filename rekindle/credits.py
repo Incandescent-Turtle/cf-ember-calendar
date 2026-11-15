@@ -43,6 +43,18 @@ CREDITS: list[dict] = [
         "url": "https://doi.org/10.5067/MODIS/MOD44W.061",
     },
     {
+        "id": "mod44b",
+        "short": "MODIS MOD44B v061 Vegetation Continuous Fields (NASA LP DAAC)",
+        "use": "fractional cover: non-burnable where non-vegetated > 50 % (S6b)",
+        # Citation as given on https://www.earthdata.nasa.gov/data/catalog/lpcloud-mod44b-061
+        "citation": "DiMiceli, C., Sohlberg, R., & Townshend, J. (2022). MODIS/Terra Vegetation "
+        "Continuous Fields Yearly L3 Global 250m SIN Grid V061 [Data set]. NASA Land Processes "
+        f"Distributed Active Archive Center. https://doi.org/10.5067/MODIS/MOD44B.061. "
+        f"Date Accessed: {ACCESSED}",
+        "doi": "10.5067/MODIS/MOD44B.061",
+        "url": "https://doi.org/10.5067/MODIS/MOD44B.061",
+    },
+    {
         "id": "copdem",
         "short": "Copernicus DEM GLO-30",
         "use": "elevation → slope and aspect (reprojected to 90 m UTM)",

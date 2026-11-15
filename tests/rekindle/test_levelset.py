@@ -180,3 +180,42 @@ def test_10_determinism():
     a, b = run_levelset(dom, sc), run_levelset(dom, sc)
     assert np.array_equal(a.arrival_time_s, b.arrival_time_s)
     assert a.params_hash == b.params_hash
+
+
+def _wind_run(series=(), d1=0.06, duration=1800.0):
+    from rekindle.scenario import MoistureSample  # noqa: F401 (series built by callers)
+
+    dx, n = 10.0, 81
+    dom = Domain.uniform(n, n, dx, fuel=1)
+    c = n * dx / 2
+    sc = Scenario((Ignition(c, c),), duration_s=duration, wind=(WindSample(0.0, 4.0, 270.0),),
+                  moisture=Moisture(d1=d1), moisture_series=series)
+    return run_levelset(dom, sc, SolverConfig())
+
+
+def test_11_constant_moisture_series_is_bit_identical():
+    from rekindle.scenario import MoistureSample
+
+    m = Moisture()
+    series = tuple(MoistureSample(t, m.d1, m.d10, m.d100) for t in (0.0, 600.0, 1200.0))
+    a = _wind_run()
+    b = _wind_run(series)
+    assert np.array_equal(a.arrival_time_s, b.arrival_time_s)
+    assert b.metrics["moisture_updates"] == 0
+
+
+def test_12_moisture_series_above_extinction_pauses_then_resumes():
+    from rekindle.scenario import MoistureSample
+
+    # FM 1 extinction is 12 %: dry 0–600 s, wet (20 %) 700–1500 s, dry again from 1600 s.
+    dry, wet = 0.06, 0.20
+    series = (MoistureSample(0, dry, dry, dry), MoistureSample(600, dry, dry, dry),
+              MoistureSample(700, wet, wet, wet), MoistureSample(1500, wet, wet, wet),
+              MoistureSample(1600, dry, dry, dry))
+    res = _wind_run(series, duration=2400.0)
+    arr = res.arrival_time_s
+    fin = arr[np.isfinite(arr)]
+    # No cell first burns while every class is above extinction (with a margin for the ramps).
+    assert not np.any((fin > 720) & (fin < 1480))
+    assert fin.max() > 1600  # spread resumed after the moisture recovered
+    assert res.metrics["moisture_updates"] > 0

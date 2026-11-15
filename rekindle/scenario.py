@@ -75,6 +75,16 @@ class Moisture:
 
 
 @dataclass(frozen=True)
+class MoistureSample:
+    """Dead fuel moisture (fractions) at time t_s; live moisture comes from Scenario.moisture."""
+
+    t_s: float
+    d1: float
+    d10: float
+    d100: float
+
+
+@dataclass(frozen=True)
 class WindSample:
     t_s: float
     speed_ms: float  # 10 m wind
@@ -94,6 +104,9 @@ class Scenario:
     duration_s: float
     wind: tuple[WindSample, ...] = (WindSample(0.0, 0.0, 0.0),)
     moisture: Moisture = Moisture()
+    # Optional hourly dead moisture; overrides moisture.d1/d10/d100, linear in time,
+    # constant outside. Empty = constant `moisture`.
+    moisture_series: tuple[MoistureSample, ...] = ()
     ros_multiplier: float = 1.0
     waf: float = 0.4  # wind adjustment factor: midflame = WAF × U_20ft
     wind_limit: bool = False
@@ -114,6 +127,25 @@ class Scenario:
                 u, v = ua + f * (ub - ua), va + f * (vb - va)
                 return math.hypot(u, v), math.degrees(math.atan2(u, v)) % 360.0
         raise AssertionError("unreachable")
+
+    def moisture_at(self, t: float) -> Moisture:
+        """Moisture at time t (series interpolated linearly, live values from `moisture`)."""
+        ms = self.moisture_series
+        if not ms:
+            return self.moisture
+        if len(ms) == 1 or t <= ms[0].t_s:
+            a = b = ms[0]
+            f = 0.0
+        elif t >= ms[-1].t_s:
+            a = b = ms[-1]
+            f = 0.0
+        else:
+            k = next(i for i in range(1, len(ms)) if ms[i].t_s >= t)
+            a, b = ms[k - 1], ms[k]
+            f = (t - a.t_s) / (b.t_s - a.t_s) if b.t_s > a.t_s else 0.0
+        m = self.moisture
+        return Moisture(d1=a.d1 + f * (b.d1 - a.d1), d10=a.d10 + f * (b.d10 - a.d10),
+                        d100=a.d100 + f * (b.d100 - a.d100), herb=m.herb, woody=m.woody)
 
     def to_json(self) -> str:
         return json.dumps(asdict(self), sort_keys=True)
