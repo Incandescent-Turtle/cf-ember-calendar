@@ -44,6 +44,9 @@ export interface Harmonized {
   kN20: KUsed[];
   tSwitch: number;
   tN20: number;
+  /** t0 of the input; dekadal[t − t0] = harmonized FCD in dekad t (NaN where no k) */
+  t0: number;
+  dekadal: Float64Array;
 }
 
 export const SWITCH_DATE = '2012-02-01';
@@ -195,6 +198,7 @@ export function harmonize(a: AoiSeries, manifest: Manifest, cal: Calibration | n
   const y1 = Math.floor((t0 + nT - 1) / 36) + 2000;
   const years = Array.from({ length: y1 - y0 + 1 }, (_, i) => y0 + i);
   const rows: (MonthRow | null)[] = new Array(years.length * 12).fill(null);
+  const dekadal = new Float64Array(nT);
   for (let i = 0; i < nT; i++) {
     const t = t0 + i;
     const year = Math.floor(t / 36) + 2000;
@@ -218,12 +222,14 @@ export function harmonize(a: AoiSeries, manifest: Manifest, cal: Calibration | n
     row.nDekads++;
     if (era === 'modis') {
       const k = kModis[month];
+      dekadal[i] = k.k * m;
       row.harmonized += k.k * m;
       row.lo += k.lo * m;
       row.hi += k.hi * m;
       row.viirs += v;
       row.spliced += m;
     } else if (era === 'snpp') {
+      dekadal[i] = v;
       row.harmonized += v;
       row.lo += v;
       row.hi += v;
@@ -231,6 +237,7 @@ export function harmonize(a: AoiSeries, manifest: Manifest, cal: Calibration | n
       row.spliced += v;
     } else {
       const k = kN20[month];
+      dekadal[i] = k.k * n;
       row.harmonized += k.k * n;
       row.lo += k.lo * n;
       row.hi += k.hi * n;
@@ -239,7 +246,7 @@ export function harmonize(a: AoiSeries, manifest: Manifest, cal: Calibration | n
     }
   }
   for (const r of rows) if (r) r.partial = r.nDekads < 3;
-  return { years, rows, kModis, kN20, tSwitch, tN20 };
+  return { years, rows, kModis, kN20, tSwitch, tN20, t0, dekadal };
 }
 
 /**
