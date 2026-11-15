@@ -83,6 +83,7 @@ def connect(cfg: Config | None = None) -> duckdb.DuckDBPyConnection:
     con = duckdb.connect()
     con.execute(f"SET memory_limit = '{cfg.duckdb_memory_limit}'")
     con.execute("SET preserve_insertion_order = false")
+    con.execute("SET enable_progress_bar = false")
     if cfg.duckdb_threads:
         con.execute(f"SET threads = {int(cfg.duckdb_threads)}")
     spill = cfg.interim / "duckdb_tmp"
