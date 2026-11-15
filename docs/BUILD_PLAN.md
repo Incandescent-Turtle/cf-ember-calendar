@@ -53,9 +53,10 @@ Done: Chilecito baseline metrics reported; grid exported; panel loads a run in <
 
 ## S7 — Polish and freeze (Sun 18:00–20:00)
 - [x] Hotspot CSV export with caps and the FIRMS fallback link (done in S4).
-- [ ] 1280 px layout; CVD check (calendar ramp, map density ramp, sensor colours); captions on every chart; Rekindle wording check (CLAUDE.md).
-- [ ] Optional (priority 6): satellite basemap toggle (light stays default; EOX Sentinel-2 cloudless 2016 = CC-BY, or Esri World Imagery — check terms, add the host to the allowed network calls); bundle split (main chunk ~2 MB); dekad-of-year calendar sub-view.
-- [ ] Re-test on the **deployed** URL in a fresh profile. **20:00 feature freeze.**
+- [x] 1280 px layout; CVD check (calendar ramp, map density ramp, sensor colours); captions on every chart; Rekindle wording check (CLAUDE.md). (S7 handoff in DECISIONS.md; also: traceable map-cell tooltip.)
+- [x] Optional (priority 6): bundle split (main chunk 2.16 MB → 66 kB) and dekad-of-year calendar sub-view done. **Satellite basemap toggle cut:** EOX's current licence page puts EOxCloudless under CC BY-NC-SA 4.0 (commercial licence otherwise) and doesn't confirm a CC-BY 2016 layer.
+- [x] Downloadable global harmonized table (`pipeline.export_global`; not yet uploaded, see S7 handoff).
+- [ ] Re-test on the **deployed** URL in a fresh profile — done read-only at ~12:40 on the *current* deploy (pre-Rekindle `main`: 0 errors, no overflow at 1280/390). Repeat after merging and deploying this branch. **20:00 feature freeze.**
 
 ## S8 — Ship (you + agent; Sun 20:00–22:30)
 - [ ] Bug bash (Chrome + Firefox, incognito).
