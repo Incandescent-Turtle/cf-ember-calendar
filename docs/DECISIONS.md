@@ -461,3 +461,15 @@ Fixed and unchanged: gate (median |Δ| ≤ mean overpass interval, 3.2 h), `reki
   - Solver: `Scenario.moisture_series`. Fuels are rebuilt when the moisture rounded to 0.1 % changes. A constant series must be bit-identical to constant moisture (new test).
   - Live moisture stays at the defaults (FM 1/6 have no live load).
 - **C. Wind** (only if A+B fail): MERRA-2 nearest grid point instead of bilinear, as a sensitivity check. No new wind model.
+
+## S6b results log (Chilecito; gate 3.21 h; every attempt, failures included)
+
+Run with `rekindle.hindcast --tag <variant>`. Per-variant sweep JSON and figures are in `docs/report/rekindle/chilecito-2026_<variant>_{calibration.json,calibration.png,baseline_map.png}`.
+
+| variant | change | best ×ROS | median \|Δ\| (h) | median Δ (h) | hit | Sørensen | area km² | gate |
+|---|---|---|---|---|---|---|---|---|
+| S6 | none | 1.41 | 13.3 | −10.4 | 0.66 | 0.14 | 1,479 | fail |
+| s6b_A | MOD44B non-veg > 50 % → non-burnable (20 % of domain) | 1.41 | 12.87 | −9.13 | 0.65 | 0.17 | 1,155 | fail |
+
+- A: median Δ crosses 0 between ×0.71 (+13.1 h) and ×1.0 (−2.5 h), but |Δ| stays > 12 h at every multiplier. The *spatial pattern* is wrong (some pixels far too early, others far too late), not the overall speed. Detections themselves sit on 13–26 % non-vegetated cells, and the domain median is 32 %, so the mask removes little of the fire's path.
+- Infrastructure: the desktop runs were 2–2.5× slower than in S6 because the S7 agent shared the CPU. A′, A+B and the grid moved to the Alliance cluster Fir (`scripts/slurm/rekindle_{hindcast,grid}.sh`, account def-hngharti, venv in `~/scratch/rk-venv`); solver tests pass there (15/15). A′ was started on the desktop and stopped after a few minutes, then rerun on Fir.

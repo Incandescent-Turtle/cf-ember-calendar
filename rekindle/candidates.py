@@ -57,7 +57,7 @@ def main() -> None:
     ORDER BY n_passes DESC, n_days DESC LIMIT {a.top}
     """
     print(f"{len(files)} files")
-    print(con.sql(q).df().to_string(index=False))
+    con.sql(q).show(max_rows=a.top, max_width=200)
 
 
 if __name__ == "__main__":

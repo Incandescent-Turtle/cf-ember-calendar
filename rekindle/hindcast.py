@@ -105,14 +105,25 @@ def ignition_elevation(fire: str, meta: dict, dom) -> float:
                             for g in meta["ignitions"]]))
 
 
-def model_settings(nonveg_max_pct: float | None = None, diurnal: bool = False) -> dict:
+def model_settings(nonveg_max_pct: float | None = None, diurnal: bool = False,
+                   wind: str = "bilinear") -> dict:
     """The S6b model options (pre-registered in docs/DECISIONS.md); defaults = the S6 model."""
-    return {"nonveg_max_pct": nonveg_max_pct, "diurnal_moisture": diurnal}
+    return {"nonveg_max_pct": nonveg_max_pct, "diurnal_moisture": diurnal, "wind": wind}
+
+
+def apply_wind(fire: str, meta: dict, settings: dict) -> dict:
+    """wind = "nearest": MERRA-2 nearest grid point (raw/merra2_point_nearest.json, from
+    `rekindle.prep.fetch_wind(..., nearest=True)`) replaces the bilinear series (change C)."""
+    if settings.get("wind", "bilinear") == "bilinear":
+        return meta
+    path = dm.DATA / fire / "raw" / "merra2_point_nearest.json"
+    return dict(meta, wind=json.loads(path.read_text()))
 
 
 def load_model(fire: str, settings: dict, hours: float):
     """Domain, meta and moisture series for these settings."""
     dom, meta = dm.load(fire, nonveg_max_pct=settings.get("nonveg_max_pct"))
+    meta = apply_wind(fire, meta, settings)
     series: tuple[MoistureSample, ...] = ()
     if settings.get("diurnal_moisture"):
         series = diurnal_moisture(meta, ignition_elevation(fire, meta, dom), hours)
@@ -148,16 +159,19 @@ def main() -> None:
     ap.add_argument("--nonveg-max", type=float, default=None,
                     help="S6b A: non-burnable where MOD44B non-vegetated %% > this")
     ap.add_argument("--diurnal", action="store_true", help="S6b B: hourly time-lag moisture")
+    ap.add_argument("--wind", choices=["bilinear", "nearest"], default="bilinear",
+                    help="S6b C: MERRA-2 nearest grid point")
     ap.add_argument("--tag", default="", help="variant name: writes to variants/<tag>/ and "
                     "<fire>_<tag>_* report files instead of the fire's baseline")
     a = ap.parse_args()
-    settings = model_settings(a.nonveg_max, a.diurnal)
+    settings = model_settings(a.nonveg_max, a.diurnal, a.wind)
     out_dir = dm.DATA / a.fire / ("variants/" + a.tag if a.tag else "")
     name = f"{a.fire}_{a.tag}" if a.tag else a.fire
     if a.figures_only:
         map_figure(a.fire, a.report / "figures", out_dir, name)
         return
     dom, meta = dm.load(a.fire)
+    meta = apply_wind(a.fire, meta, settings)
     t0 = dm.parse_t(meta["t0"])
     last = max(dm.parse_t(o["t"]) for o in meta["observed"])
     hours = a.hours or math.ceil((last - t0).total_seconds() / 3600)

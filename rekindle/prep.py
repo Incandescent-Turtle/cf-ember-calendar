@@ -233,8 +233,9 @@ def _parse_dap_csv(text: str) -> dict[str, np.ndarray]:
 
 
 def fetch_wind(lon: float, lat: float, t0: dt.datetime, t1: dt.datetime, raw: Path,
-               notes: list[str]) -> list[dict]:
-    cache = raw / "merra2_point.json"
+               notes: list[str], nearest: bool = False) -> list[dict]:
+    """nearest=True: the nearest grid point instead of bilinear (S6b change C, sensitivity)."""
+    cache = raw / ("merra2_point_nearest.json" if nearest else "merra2_point.json")
     if cache.exists():
         return json.loads(cache.read_text())
     cid = _merra_collection_id()
@@ -242,6 +243,9 @@ def fetch_wind(lon: float, lat: float, t0: dt.datetime, t1: dt.datetime, raw: Pa
     i0 = math.floor((lon + 180.0) / 0.625)  # lon = -180 + 0.625 i
     fy, fx = (lat + 90.0) / 0.5 - j0, (lon + 180.0) / 0.625 - i0
     wts = np.array([[(1 - fy) * (1 - fx), (1 - fy) * fx], [fy * (1 - fx), fy * fx]])
+    if nearest:
+        wts = np.zeros((2, 2))
+        wts[round(fy), round(fx)] = 1.0
     series = []
     day = t0.date()
     while day <= t1.date():
@@ -270,7 +274,8 @@ def fetch_wind(lon: float, lat: float, t0: dt.datetime, t1: dt.datetime, raw: Pa
                            "t2m_c": round(float(val["T2M"][hr]) - 273.15, 2),
                            "qv2m_gkg": round(float(val["QV2M"][hr]) * 1000, 3)})
         day += dt.timedelta(days=1)
-    log(notes, f"Wind: MERRA-2 M2T1NXSLV hourly at ({lon:.3f}, {lat:.3f}), bilinear from grid "
+    log(notes, f"Wind: MERRA-2 M2T1NXSLV hourly at ({lon:.3f}, {lat:.3f}), "
+               f"{'nearest of' if nearest else 'bilinear from'} grid "
                f"points lat {-90 + 0.5 * j0}/{-90 + 0.5 * (j0 + 1)}, lon "
                f"{-180 + 0.625 * i0}/{-180 + 0.625 * (i0 + 1)}; {len(series)} hours")
     raw.mkdir(parents=True, exist_ok=True)
