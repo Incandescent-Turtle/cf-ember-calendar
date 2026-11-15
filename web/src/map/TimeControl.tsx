@@ -2,6 +2,7 @@ import { useStore, ALL_TIME } from '../store';
 import { useManifest } from '../data/hooks';
 import { MONTHS_SHORT } from '../lib/time';
 import { RAMP } from '../calendar/option';
+import { UNIT_TIP } from '../calendar/Calendar';
 import { SENSOR_GROUPS, windowLabel, type DensityLayerData } from './layers';
 import type { PointsResult } from '../data/points';
 import { MAX_MAP_POINTS } from '../data/points';
@@ -82,7 +83,10 @@ export function TimeControl({ density, densityLoading, level, points, pointsLoad
             <span>{fmtTick(density.vmax)}</span>
           </div>
           <div className="tc-note">
-            Hotspot activity per {level === 1 ? '0.1°' : '1°'} cell, {windowLabel(w)} (VIIRS-equivalent FCD, log).{' '}
+            <span className="unit" title={UNIT_TIP}>
+              Hotspot activity (VIIRS-equivalent fire-cell-days) per {level === 1 ? '0.1°' : '1°'} cell, {windowLabel(w)}, log scale <span aria-hidden>ⓘ</span>
+            </span>
+            . Click a cell for raw MODIS / VIIRS and the k used.{' '}
             <strong>Scale: current view</strong> — colours aren’t comparable across views.
             {densityLoading ? ' · updating…' : ''}
           </div>

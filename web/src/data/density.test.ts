@@ -26,6 +26,10 @@ describe('density', () => {
     const byCell = Object.fromEntries([...all.cells].map((c, i) => [c, all.values[i]]));
     expect(byCell[5]).toBe(2 * 10 + 30);
     expect(byCell[7]).toBe(6);
+    // raw sums for the tooltip: all MODIS; VIIRS = S-NPP before the NOAA-20 switch, NOAA-20 after
+    const raw = Object.fromEntries([...all.cells].map((c, i) => [c, [all.modis[i], all.viirs[i]]]));
+    expect(raw[5]).toEqual([60, 129]);
+    expect(raw[7]).toEqual([0, 4]);
     const julys = densityFromCube(cube, null, { year: null, month: 6 }, k, eras);
     expect([...julys.cells]).toEqual([5]);
     const y2020 = densityFromCube(cube, null, { year: 2020, month: null }, k, eras);
@@ -48,7 +52,7 @@ describe('density', () => {
 
 const fixture = resolve(import.meta.dirname, '../../../data/processed/points/S30W070/2025.parquet');
 describe.skipIf(!existsSync(fixture))('points (fixture parquet, zstd)', () => {
-  const buf = readFileSync(fixture);
+  const buf = existsSync(fixture) ? readFileSync(fixture) : Buffer.alloc(0); // the describe body runs even when skipped
   const ab = buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
   const asBuffer = { byteLength: ab.byteLength, slice: (s: number, e?: number) => ab.slice(s, e) };
 

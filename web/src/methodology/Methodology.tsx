@@ -131,8 +131,8 @@ function Body({ v, m, cal }: { v: Validation; m: NonNullable<ReturnType<typeof u
       <section>
         <h2>Leave-one-year-out test, {years[0]}–{years[1]}</h2>
         <p className="caption">
-          For each overlap year: fit k on the other years, predict that year’s monthly VIIRS from MODIS, compare with what VIIRS actually saw. Pooled over months
-          and years. r = Pearson correlation of log(1 + value); median error = median |predicted − observed| / observed over months with ≥ 10; bias = mean log
+          For each overlap year: fit k on the other years, estimate that year’s monthly VIIRS from MODIS, compare with what VIIRS actually saw. Pooled over months
+          and years. r = Pearson correlation of log(1 + value); median error = median |estimated − observed| / observed over months with ≥ 10; bias = mean log
           ratio (0 = unbiased, −0.69 = half).
         </p>
         <div className="table-wrap">
@@ -169,7 +169,7 @@ function Body({ v, m, cal }: { v: Validation; m: NonNullable<ReturnType<typeof u
         </div>
         <p className="caption">
           Read across the rows: raw counts → fire-cell-days → fire-cell-days with k. The tile level is harder (sparse tile-months, where MODIS often sees nothing
-          while VIIRS sees something), and its calibrated bias is negative: a ratio can’t recover fires MODIS missed entirely.
+          while VIIRS sees something), and its calibrated bias is negative: a ratio can’t recover activity MODIS missed entirely.
         </p>
       </section>
 

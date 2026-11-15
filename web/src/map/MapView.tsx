@@ -14,7 +14,7 @@ import { AoiTools } from './AoiTools';
 import { TimeControl } from './TimeControl';
 import { pointsEligible, useDensity, useManifest, usePoints, type MapViewport } from '../data/hooks';
 import {
-  CONF_NAME, densityGeoJson, fmtMinutes, pointsGeoJson, rampExpression, SENSOR_NAME, sensorColorExpression, windowLabel,
+  CONF_NAME, densityGeoJson, densityTooltipHtml, type DensityProps, fmtMinutes, pointsGeoJson, rampExpression, SENSOR_NAME, sensorColorExpression,
 } from './layers';
 
 const STYLE_URL =
@@ -39,6 +39,10 @@ export function MapView() {
   const manifest = useManifest();
   const density = useDensity(aoi, win, view);
   const densityLayer = useMemo(() => (density.data ? densityGeoJson(density.data) : null), [density.data]);
+  const densityRef = useRef(densityLayer);
+  useEffect(() => {
+    densityRef.current = densityLayer;
+  }, [densityLayer]);
   const pointsWhy = pointsEligible(aoi, win, manifest.data, view);
   const points = usePoints(aoi, win, showPoints, view);
   const pointsFc = useMemo(() => (points.data ? pointsGeoJson(points.data) : null), [points.data]);
@@ -134,12 +138,10 @@ export function MapView() {
         if (map.queryRenderedFeatures(e.point, { layers: ['points', 'points-cluster'] }).length) return;
         const f = e.features?.[0];
         if (!f) return;
-        const v = Number((f.properties as { v: number }).v);
-        popup
-          .setLngLat(e.lngLat)
-          .setHTML(
-            `<b>${v >= 10 ? Math.round(v).toLocaleString('en-US') : v.toFixed(1)}</b> VIIRS-equivalent fire-cell-days<br/><span class="tt-dim">this cell, ${windowLabel(useStore.getState().window)}</span>`,
-          )
+        const layer = densityRef.current;
+        if (!layer) return;
+        const p = f.properties as DensityProps;
+        popup.setLngLat(e.lngLat).setHTML(densityTooltipHtml({ v: Number(p.v), lv: Number(p.lv), m: Number(p.m), vi: Number(p.vi) }, layer, useStore.getState().window))
           .addTo(map);
       });
       for (const id of ['points', 'points-cluster', 'density-fill']) {

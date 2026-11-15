@@ -140,6 +140,7 @@ export function useDensity(aoi: Aoi | null, window: TimeWindow, view: MapViewpor
         l10Path: m.l10,
         eras: { tSwitch: dekadIndex(SWITCH_DATE), tN20: dekadIndex(m.snpp_end) },
         k,
+        kSource: aoi ? 'aoi' : 'calibration',
         fit: {
           overlap: [dekadIndex(m.overlap.start), dekadIndex(m.overlap.end)],
           n20: [dekadIndex(N20_FIT.start), Math.min(dekadIndex(N20_FIT.end), dekadIndex(m.snpp_end) - 1)],
