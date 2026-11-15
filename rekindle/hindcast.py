@@ -9,6 +9,7 @@ the sweep table/figure to docs/report/rekindle/.
 from __future__ import annotations
 
 import argparse
+import datetime as dt
 import itertools
 import json
 import math
@@ -147,6 +148,70 @@ def load_model(fire: str, settings: dict, hours: float):
     return dom, meta, series
 
 
+def window_starts(meta: dict, hours: float, win_h: float) -> list[float]:
+    """Window start times t_k = k·win_h (h after t0) while t_k < the last detection and < hours."""
+    t0 = dm.parse_t(meta["t0"])
+    last_h = max((dm.parse_t(o["t"]) - t0).total_seconds() / 3600 for o in meta["observed"])
+    out, k = [], 0
+    while k * win_h < min(last_h, hours):
+        out.append(k * win_h)
+        k += 1
+    return out
+
+
+def window_case(meta: dict, t_k_h: float, win_h: float, hours: float,
+                mode: str = "restart") -> tuple[dict, float, float]:
+    """EXPLORATORY re-initialised window (REKINDLE.md §5b; pre-registered in DECISIONS.md).
+
+    Every detection with t <= t_k is an ignition; the window runs to min(t_k + win_h, hours) and
+    only pixels first detected in (t_k, t_end] are scored. mode "restart": ignitions at t_k (the
+    observed extent at restart) and the clock is shifted so t0 = t_k; mode "own": ignitions at
+    their own detection times, clock unchanged. Returns (meta for the run, duration_s, seed_s);
+    score with metrics.prepare(meta, ..., duration_s, seed_s).
+    """
+    t0 = dm.parse_t(meta["t0"])
+    t_k = t_k_h * 3600
+    t_end = min(t_k_h + win_h, hours) * 3600
+    ign = []
+    for o in meta["observed"]:
+        t_s = (dm.parse_t(o["t"]) - t0).total_seconds()
+        if t_s <= t_k:
+            ign.append(dict(o, t_s=0.0 if mode == "restart" else t_s))
+    if mode == "restart":
+        new_t0 = (t0 + dt.timedelta(seconds=t_k)).isoformat()
+        return dict(meta, t0=new_t0, ignitions=ign), t_end - t_k, 0.0
+    return dict(meta, ignitions=ign), t_end, t_k
+
+
+def run_windows(dom, meta: dict, settings: dict, elev_m: float, hours: float, win_h: float,
+                mult: float, d1: float, mode: str = "restart") -> dict:
+    """All windows at one ROS multiplier: pooled Δ (the gated median |Δ|) and per-window metrics."""
+    pooled: list[float] = []
+    per = []
+    hits = n_obs = 0
+    for t_k in window_starts(meta, hours, win_h):
+        m, dur_s, seed_s = window_case(meta, t_k, win_h, hours, mode)
+        series: tuple[MoistureSample, ...] = ()
+        if settings.get("diurnal_moisture"):
+            series = diurnal_moisture(m, elev_m, dur_s / 3600)
+        sc = baseline_scenario(m, dur_s / 3600, d1, mult, series)
+        res = run_levelset(dom, sc, CFG)
+        prep = metrics.prepare(m, dom.shape, dom.dx, dur_s, seed_s)
+        sm = metrics.score(res.arrival_time_s, prep, return_deltas=True)
+        dl = sm.pop("deltas_h")
+        pooled += dl
+        hits += sm.pop("n_hits")
+        n_obs += sm.pop("n_obs")
+        per.append(metrics.json_safe(dict(sm, t_k_h=t_k, n_ignitions=len(m["ignitions"]),
+                                          wall_s=res.metrics["wall_s"])))
+    d = np.array(pooled)
+    return {"ros_multiplier": mult, "n_pixels": int(d.size),
+            "n_reached": int(np.isfinite(d).sum()),
+            "median_abs_timing_error_h": float(np.median(np.abs(d))) if d.size else None,
+            "median_timing_error_h": float(np.median(d)) if d.size else None,
+            "hit_rate": hits / n_obs if n_obs else None, "windows": per}
+
+
 _G: dict = {}
 
 
@@ -166,6 +231,51 @@ def _run(mult: float):
     return mult, m, res.arrival_time_s.astype(np.float32), res.params_hash
 
 
+def _init_win(fire: str, settings: dict, hours: float, win_h: float, d1: float,
+              mode: str) -> None:
+    dom, meta = dm.load(fire, nonveg_max_pct=settings.get("nonveg_max_pct"))
+    meta = apply_wind(fire, meta, settings)
+    _G.update(dom=dom, meta=meta, settings=settings, hours=hours, win_h=win_h, d1=d1, mode=mode,
+              elev=ignition_elevation(fire, meta, dom))
+
+
+def _run_win(mult: float) -> dict:
+    return run_windows(_G["dom"], _G["meta"], _G["settings"], _G["elev"], _G["hours"],
+                       _G["win_h"], mult, _G["d1"], _G["mode"])
+
+
+def windows_main(a, settings: dict, hours: float, d1: float, gate_h: float, out_dir: Path,
+                 name: str) -> None:
+    t_wall = time.time()
+    with Pool(a.workers, initializer=_init_win,
+              initargs=(a.fire, settings, hours, a.windows, d1, a.window_ignite)) as pool:
+        sweep = pool.map(_run_win, MULTIPLIERS)
+    best = min(sweep, key=lambda m: (m["median_abs_timing_error_h"], -(m["hit_rate"] or 0)))
+    passed = bool(best["median_abs_timing_error_h"] <= gate_h)
+    for m in sweep:
+        per = ", ".join(f"{w['median_abs_timing_error_h']:.1f}" if w["median_abs_timing_error_h"]
+                        is not None else "—" for w in m["windows"])
+        print(f"  ×{m['ros_multiplier']:<5} pooled med|Δ| {m['median_abs_timing_error_h']:7.2f} h"
+              f"  medΔ {m['median_timing_error_h']:7.2f}  hit {m['hit_rate']:.2f}  "
+              f"n {m['n_pixels']}  per-window med|Δ| [{per}]")
+    res = {"fire": a.fire, "variant": a.tag, "EXPLORATORY": True,
+           "exploratory": "24 h re-initialised windows, proposed after the S6b failures "
+                          "(DECISIONS.md pre-registration 15:30); not a validation",
+           "model_settings": settings, "window_h": a.windows, "window_ignite": a.window_ignite,
+           "hours": hours, "dead_moisture_pct": d1,
+           "gate": {"rule": "pooled median |Δ| ≤ mean interval between overpasses",
+                    "threshold_h": gate_h, "passed": passed},
+           "ros_multiplier": best["ros_multiplier"], "best": metrics.json_safe(best),
+           "sweep": [metrics.json_safe(m) for m in sweep], "wall_s": time.time() - t_wall}
+    out_dir.mkdir(parents=True, exist_ok=True)
+    (out_dir / "windows.json").write_text(json.dumps(res, indent=1))
+    a.report.mkdir(parents=True, exist_ok=True)
+    (a.report / f"{name}_windows.json").write_text(json.dumps(res, indent=1))
+    print(f"EXPLORATORY windows: best ×{best['ros_multiplier']} pooled med|Δ| "
+          f"{best['median_abs_timing_error_h']:.2f} h, gate {gate_h:.2f} h → "
+          f"{'PASS' if passed else 'fail'}")
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--fire", default="chilecito-2026")
@@ -181,6 +291,10 @@ def main() -> None:
                     help="S6b C: MERRA-2 nearest grid point")
     ap.add_argument("--seed-h", type=float, default=0.0,
                     help="EXPLORATORY: ignite every detection within this many hours")
+    ap.add_argument("--windows", type=float, default=0.0,
+                    help="EXPLORATORY: re-initialised windows of this many hours (REKINDLE §5b)")
+    ap.add_argument("--window-ignite", choices=["restart", "own"], default="restart",
+                    help="windows: ignite earlier detections at t_k (restart) or at their times")
     ap.add_argument("--tag", default="", help="variant name: writes to variants/<tag>/ and "
                     "<fire>_<tag>_* report files instead of the fire's baseline")
     a = ap.parse_args()
@@ -200,6 +314,11 @@ def main() -> None:
     d1 = a.d1 if a.d1 is not None else min(MOISTURE_AXIS, key=lambda m: abs(m - emc["emc_pct_median"]))
     print(f"run {hours} h; EMC median {emc['emc_pct_median']:.1f} % (RH {emc['rh_pct_median']:.0f} %)"
           f" → baseline dead 1-h {d1} %")
+    if a.windows:
+        gate_h = metrics.prepare(meta, dom.shape, dom.dx, hours * 3600)["overpass_mean_h"]
+        print(f"settings {settings}, windows {a.windows:g} h ({a.window_ignite}) -> {out_dir}")
+        windows_main(a, settings, hours, d1, gate_h, out_dir, name)
+        return
     t_wall = time.time()
     print(f"settings {settings} -> {out_dir}")
     with Pool(a.workers, initializer=_init, initargs=(a.fire, hours, d1, settings)) as pool:

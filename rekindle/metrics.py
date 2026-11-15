@@ -61,7 +61,9 @@ def prepare(meta: dict, shape: tuple[int, int], dx: float, t_end_s: float,
             "t_end_s": t_end_s, "dx": dx, "seed_s": seed_s}
 
 
-def score(arrival_s: np.ndarray, prep: dict) -> dict:
+def score(arrival_s: np.ndarray, prep: dict, return_deltas: bool = False) -> dict:
+    """return_deltas: also return the per-pixel Δ (h, inf = never reached) for pooling across
+    runs (re-initialised windows); the metric definitions are unchanged."""
     passes, dx = prep["passes"], prep["dx"]
     t_end = prep["t_end_s"]
     seed_s = prep.get("seed_s", 0.0)
@@ -93,7 +95,7 @@ def score(arrival_s: np.ndarray, prep: dict) -> dict:
     inter = int((burned & union).sum())
     cell_km2 = dx * dx / 1e6
     fin = d[np.isfinite(d)]
-    return {
+    out = {
         "n_pixels": int(d.size),
         "n_reached": int(fin.size),
         "median_timing_error_h": float(np.median(d)) if d.size else None,
@@ -107,6 +109,11 @@ def score(arrival_s: np.ndarray, prep: dict) -> dict:
         "area_km2": float(burned.sum() * cell_km2),
         "observed_footprint_km2": float(union.sum() * cell_km2),
     }
+    if return_deltas:
+        out["deltas_h"] = d.tolist()
+        out["n_hits"] = int(np.sum(hits))
+        out["n_obs"] = len(hits)
+    return out
 
 
 def json_safe(m: dict) -> dict:
