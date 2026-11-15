@@ -6,7 +6,7 @@ import { pickLevel, tilesForGeometry } from './aggregate';
 import { harmonize, N20_FIT, SWITCH_DATE, type Harmonized } from '../lib/harmonize';
 import { dekadIndex } from '../lib/time';
 import type { Aoi } from '../store';
-import type { Bbox } from '../lib/grid';
+import { tilesForBbox, type Bbox } from '../lib/grid';
 import type { AoiSeries, Calibration, Manifest } from './types';
 import type { AoiRef } from './cube.worker';
 import type { KPair, TimeWindow } from './density';
@@ -64,12 +64,46 @@ export function useCalendarData(aoi: Aoi | null) {
 
 const kKey = (k: KPair | null) => (k ? [...k.modis, ...k.n20].map((x) => x.toFixed(4)).join(',') : 'fit');
 
+/** Current map viewport (updated on moveend). */
+export interface MapViewport {
+  zoom: number;
+  bbox: Bbox;
+}
+
+/** World view switches from the 1° cube to 0.1° tiles at this zoom, if ≤ MAX_VIEW_TILES tiles with data are in view. */
+export const L01_MIN_ZOOM = 4;
+export const MAX_VIEW_TILES = 16;
+/** Without an AOI, hotspot points load for the viewport from this zoom. */
+export const POINTS_MIN_ZOOM = 6;
+
+/** Tiles in the viewport that exist in `have` (bbox clamped to the world). */
+export function tilesInView(b: Bbox, have: string[]): string[] {
+  const set = new Set(have);
+  const clamped: Bbox = [Math.max(b[0], -180), Math.max(b[1], -90), Math.min(b[2], 180), Math.min(b[3], 90)];
+  if (clamped[0] >= clamped[2] || clamped[1] >= clamped[3]) return [];
+  return tilesForBbox(clamped).filter((t) => set.has(t));
+}
+
+/** Pad a bbox by 20 % and snap outward to 0.5°, so small pans reuse the same query. */
+export function paddedViewBbox([w, s, e, n]: Bbox): Bbox {
+  const px = (e - w) * 0.2;
+  const py = (n - s) * 0.2;
+  const snap = (x: number, f: (v: number) => number) => f(x * 2) / 2;
+  return [
+    Math.max(-180, snap(w - px, Math.floor)),
+    Math.max(-90, snap(s - py, Math.floor)),
+    Math.min(180, snap(e + px, Math.ceil)),
+    Math.min(90, snap(n + py, Math.ceil)),
+  ];
+}
+
 /**
- * Map density: per-cell harmonized FCD in the window. Inside an AOI it uses the calendar's k (so the
- * map and calendar agree); for the world view, calibration.json's global k or, if absent, a global k
- * fitted from the 1° cube.
+ * Map density: per-cell harmonized FCD in the window. Inside an AOI it uses the calendar's k and the
+ * AOI's cells (so map and calendar agree). Without an AOI: the 1° world cube when zoomed out, the 0.1°
+ * tiles in view from zoom 4 (≤ 16 tiles), with calibration.json's global k or a global k fitted from
+ * the 1° cube.
  */
-export function useDensity(aoi: Aoi | null, window: TimeWindow) {
+export function useDensity(aoi: Aoi | null, window: TimeWindow, view: MapViewport) {
   const manifest = useManifest();
   const calibration = useCalibration();
   const cal = useCalendarData(aoi);
@@ -82,9 +116,14 @@ export function useDensity(aoi: Aoi | null, window: TimeWindow) {
     const c = calibration.data;
     return c ? { modis: c.global.k, n20: c.n20.global.k } : null;
   }, [aoi, cal.data, calibration.data]);
+  const viewTiles = useMemo(() => {
+    if (aoi || !manifest.data || view.zoom < L01_MIN_ZOOM) return null;
+    const t = tilesInView(view.bbox, manifest.data.tiles);
+    return t.length > 0 && t.length <= MAX_VIEW_TILES ? t : null;
+  }, [aoi, manifest.data, view]);
   const ready = !!manifest.data && !calibration.isLoading && (!aoi || (!!k && !cal.isStale));
   return useQuery({
-    queryKey: ['density', ref?.id ?? 'world', window.year, window.month, kKey(k)],
+    queryKey: ['density', ref?.id ?? 'world', viewTiles?.join(',') ?? 'L10', window.year, window.month, kKey(k)],
     enabled: ready,
     staleTime: Infinity,
     placeholderData: keepPreviousData,
@@ -93,6 +132,7 @@ export function useDensity(aoi: Aoi | null, window: TimeWindow) {
       return densityInWorker({
         kind: 'density',
         aoi: ref,
+        viewTiles,
         window,
         manifestTiles: m.tiles,
         l10Path: m.l10,
@@ -107,28 +147,30 @@ export function useDensity(aoi: Aoi | null, window: TimeWindow) {
   });
 }
 
-/** Points need an AOI and a window of at most one year (PRODUCT.md F4). */
-export function pointsEligible(aoi: Aoi | null, w: TimeWindow, manifest: Manifest | undefined): string | null {
-  if (!aoi) return 'Select an area to see individual hotspots.';
+/** Points need a window of at most one year (PRODUCT.md F4) and either an AOI or a zoomed-in map. */
+export function pointsEligible(aoi: Aoi | null, w: TimeWindow, manifest: Manifest | undefined, view: MapViewport): string | null {
   if (w.year === null) return 'Pick a year (or click a calendar month) to see individual hotspots.';
   const p = manifest?.points;
   if (!p || !p.tiles.length) return 'No hotspot point files on this data host.';
   if (w.year < p.years[0] || w.year > p.years[1]) return `Hotspot points cover ${p.years[0]}–${p.years[1]}.`;
+  if (!aoi && view.zoom < POINTS_MIN_ZOOM) return 'Zoom in (or select an area) to see individual hotspots.';
   return null;
 }
 
-export function usePoints(aoi: Aoi | null, window: TimeWindow, enabled: boolean) {
+export function usePoints(aoi: Aoi | null, window: TimeWindow, enabled: boolean, view: MapViewport) {
   const manifest = useManifest();
   const ref = useAoiRef(aoi);
-  const why = pointsEligible(aoi, window, manifest.data);
+  const why = pointsEligible(aoi, window, manifest.data, view);
+  const viewBbox = useMemo(() => (aoi ? null : paddedViewBbox(view.bbox)), [aoi, view]);
   return useQuery({
-    queryKey: ['points', ref?.id, window.year, window.month],
-    enabled: enabled && !why && !!ref,
+    queryKey: ['points', ref?.id ?? viewBbox?.join(','), window.year, window.month],
+    enabled: enabled && !why,
     staleTime: Infinity,
+    placeholderData: aoi ? undefined : keepPreviousData, // smooth panning in viewport mode
     queryFn: () => {
       const m = manifest.data!;
-      const have = new Set(m.points!.tiles);
-      const tiles = tilesForGeometry(ref!.geometry).filter((t) => have.has(t));
+      const have = m.points!.tiles;
+      const tiles = ref ? tilesForGeometry(ref.geometry).filter((t) => have.includes(t)) : tilesInView(viewBbox!, have);
       const y = window.year!;
       const [tA, tB] =
         window.month === null
@@ -136,7 +178,8 @@ export function usePoints(aoi: Aoi | null, window: TimeWindow, enabled: boolean)
           : [minutesSince2000(y, window.month), minutesSince2000(y, window.month + 1)];
       return pointsInWorker({
         kind: 'points',
-        aoi: ref!,
+        aoi: ref,
+        bbox: ref ? ref.bbox : viewBbox!,
         paths: tiles.map((t) => `points/${t}/${y}.parquet`),
         tA,
         tB,

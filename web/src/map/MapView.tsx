@@ -12,7 +12,7 @@ import type { Feature, FeatureCollection, Polygon } from 'geojson';
 import { newAoiId, useStore } from '../store';
 import { AoiTools } from './AoiTools';
 import { TimeControl } from './TimeControl';
-import { pointsEligible, useDensity, useManifest, usePoints } from '../data/hooks';
+import { pointsEligible, useDensity, useManifest, usePoints, type MapViewport } from '../data/hooks';
 import {
   CONF_NAME, densityGeoJson, fmtMinutes, pointsGeoJson, rampExpression, SENSOR_NAME, sensorColorExpression, windowLabel,
 } from './layers';
@@ -34,16 +34,17 @@ export function MapView() {
   const drawRef = useRef<TerraDraw | null>(null);
   const loadedRef = useRef(false);
   const [loaded, setLoaded] = useState(false);
-  const [zoom, setZoom] = useState(1.4);
+  const [view, setView] = useState<MapViewport>({ zoom: 1.4, bbox: [-180, -85, 180, 85] });
+  const zoom = view.zoom;
   const aoi = useStore((s) => s.aoi);
   const drawMode = useStore((s) => s.drawMode);
   const win = useStore((s) => s.window);
   const showPoints = useStore((s) => s.showPoints);
   const manifest = useManifest();
-  const density = useDensity(aoi, win);
+  const density = useDensity(aoi, win, view);
   const densityLayer = useMemo(() => (density.data ? densityGeoJson(density.data) : null), [density.data]);
-  const pointsWhy = pointsEligible(aoi, win, manifest.data);
-  const points = usePoints(aoi, win, showPoints);
+  const pointsWhy = pointsEligible(aoi, win, manifest.data, view);
+  const points = usePoints(aoi, win, showPoints, view);
   const pointsFc = useMemo(() => (points.data ? pointsGeoJson(points.data) : null), [points.data]);
 
   useEffect(() => {
@@ -55,7 +56,12 @@ export function MapView() {
       attributionControl: { compact: true },
     });
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'bottom-right');
-    map.on('zoomend', () => setZoom(map.getZoom()));
+    const syncView = () => {
+      const b = map.getBounds();
+      setView({ zoom: map.getZoom(), bbox: [b.getWest(), b.getSouth(), b.getEast(), b.getNorth()] });
+    };
+    map.on('moveend', syncView);
+    map.once('load', syncView);
     map.on('load', () => {
       map.addSource('density', { type: 'geojson', data: EMPTY });
       map.addLayer({
@@ -167,7 +173,7 @@ export function MapView() {
 
   const pointsOn = showPoints && !pointsWhy && !!pointsFc;
   // Large point sets (country-size areas) only draw once zoomed in; below that the density layer shows.
-  const pointsMinZoom = pointsOn && pointsFc!.features.length > POINTS_ZOOM_GATE ? 5.5 : 0;
+  const pointsMinZoom = pointsOn && aoi && pointsFc!.features.length > POINTS_ZOOM_GATE ? 5.5 : 0;
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !loaded) return;

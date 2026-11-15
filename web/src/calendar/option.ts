@@ -5,8 +5,9 @@ import type { Harmonized, MonthRow } from '../lib/harmonize';
 import { MONTHS_SHORT } from '../lib/time';
 import { METRIC_LABEL, tooltipHtml, valueOf, type Metric } from './metric';
 
-/** Reversed inferno (perceptually uniform, monotonic lightness → CVD-safe): light = low, dark = high. */
-export const RAMP = ['#fcffa4', '#f7d13d', '#fb9b06', '#ed6925', '#cf4446', '#a52c60', '#781c6d', '#4a0c6b', '#1b0c41'];
+/** ColorBrewer YlOrRd (sequential, monotonic lightness → CVD-safe): pale yellow = low, dark red = high.
+ * Its palest class is dropped so the lowest values stay visible on white / next to the grey zero colour. */
+export const RAMP = ['#ffeda0', '#fed976', '#feb24c', '#fd8d3c', '#fc4e2a', '#e31a1c', '#bd0026', '#800026'];
 export const ZERO_COLOR = '#e7e4df';
 export const NODATA_COLOR = '#ffffff';
 

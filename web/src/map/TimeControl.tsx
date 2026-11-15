@@ -23,7 +23,7 @@ interface Props {
 }
 
 export function TimeControl({ density, densityLoading, level, points, pointsLoading, pointsWhy, pointsError, zoomInHint }: Props) {
-  const { window: w, setWindow, showPoints, setShowPoints } = useStore();
+  const { window: w, setWindow, showPoints, setShowPoints, aoi } = useStore();
   const manifest = useManifest();
   const [t0, t1] = manifest.data?.dekad_range ?? [0, 0];
   const years: number[] = [];
@@ -37,7 +37,7 @@ export function TimeControl({ density, densityLoading, level, points, pointsLoad
     pointsLine =
       points.total > MAX_MAP_POINTS
         ? `Showing ${MAX_MAP_POINTS.toLocaleString('en-US')} of ${points.total.toLocaleString('en-US')} hotspots (even sample).`
-        : `${points.total.toLocaleString('en-US')} hotspots in this area and window.`;
+        : `${points.total.toLocaleString('en-US')} hotspots ${aoi ? 'in this area' : 'in view'} for ${windowLabel(w)}.`;
   else pointsLine = '';
   if (points && !pointsWhy && !pointsLoading && zoomInHint) pointsLine += ' Zoom in to see them.';
 
@@ -105,7 +105,17 @@ export function TimeControl({ density, densityLoading, level, points, pointsLoad
               ))}
             </div>
           )}
-          <div className="tc-note">{pointsLine}</div>
+          <div className="tc-note">
+            {pointsLine}
+            {w.year === null && years.length > 0 && (
+              <>
+                {' '}
+                <button className="link" onClick={() => setWindow({ ...w, year: years[years.length - 1] })}>
+                  Show {years[years.length - 1]}
+                </button>
+              </>
+            )}
+          </div>
         </>
       )}
     </div>

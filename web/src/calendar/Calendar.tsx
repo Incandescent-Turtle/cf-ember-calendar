@@ -60,7 +60,7 @@ export function Calendar({ h, currentYear }: { h: Harmonized; currentYear: numbe
 
   const caption =
     viewMode === 'harmonized'
-      ? 'Darker = more hotspot activity. MODIS-era months are scaled to VIIRS-equivalent, so the record is continuous through 2012.'
+      ? 'Redder = more hotspot activity. MODIS-era months are scaled to VIIRS-equivalent, so the record is continuous through 2012.'
       : viewMode === 'split'
         ? 'Left: raw values spliced at Feb 2012 (note the jump when VIIRS takes over). Right: harmonized. Same colour scale.'
         : viewMode === 'modis'

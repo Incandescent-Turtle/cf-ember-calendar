@@ -60,7 +60,7 @@ export function rampExpression(vmin: number, vmax: number): ExpressionSpecificat
 /** Sensor groups and Okabe–Ito colours (CVD-safe categorical). */
 export const SENSOR_GROUPS = [
   { id: 0, label: 'MODIS (Terra/Aqua)', color: '#0072B2' },
-  { id: 1, label: 'VIIRS S-NPP', color: '#D55E00' },
+  { id: 1, label: 'VIIRS S-NPP', color: '#1a1a1a' },
   { id: 2, label: 'VIIRS NOAA-20/21', color: '#009E73' },
 ] as const;
 /** CONTRACTS.md points.sensor: 1 Terra, 2 Aqua, 3 S-NPP, 4 NOAA-20, 5 NOAA-21. */

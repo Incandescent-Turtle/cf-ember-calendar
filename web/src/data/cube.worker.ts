@@ -6,7 +6,8 @@
 import { decodeCubeFile, type Cube } from './cube';
 import { countMask, maskL01, maskL10, sumMasked, sumMaskedByTileL10, tilesForGeometry, type AoiGeometry } from './aggregate';
 import { densityFromCube, fitK, type Eras, type KPair, type TimeWindow } from './density';
-import { collectPoints, type PointsResult } from './points';
+import { collectPoints, openUrl, type PointsResult } from './points';
+import type { AsyncBuffer } from 'hyparquet';
 import { l01Cell, l10Cell, tile10, type Bbox } from '../lib/grid';
 import { N_SERIES, S_MODIS, S_N20, S_SNPP, type AoiSeries } from './types';
 
@@ -29,14 +30,23 @@ export type WorkerRequest = Common &
     | { kind: 'aggregate'; aoi: AoiRef; t0: number; nT: number }
     | {
         kind: 'density';
-        aoi: AoiRef | null; // null = whole world at L10
+        aoi: AoiRef | null; // null = no AOI: world at L10, or the 0.1° tiles in view
+        /** no AOI: L01 tiles in the viewport (null → L10 world) */
+        viewTiles: string[] | null;
         window: TimeWindow;
         eras: Eras;
         /** k to apply; null → fit global k from the L10 cube over the given dekad ranges */
         k: KPair | null;
         fit: { overlap: [number, number]; n20: [number, number] };
       }
-    | { kind: 'points'; aoi: AoiRef; paths: string[]; tA: number; tB: number }
+    | {
+        kind: 'points';
+        aoi: AoiRef | null; // null = viewport mode: keep points inside bbox
+        bbox: Bbox;
+        paths: string[];
+        tA: number;
+        tB: number;
+      }
   );
 
 export interface DensityResult {
@@ -51,7 +61,7 @@ export type WorkerResult = AoiSeries | DensityResult | PointsResult;
 export type WorkerResponse = { id: number; ok: true; result: WorkerResult } | { id: number; ok: false; error: string };
 
 // ---------------------------------------------------------------- caches
-const LRU_MAX = 24;
+const LRU_MAX = 40;
 const cache = new Map<string, Promise<Cube>>();
 
 function getCube(url: string): Promise<Cube> {
@@ -139,6 +149,14 @@ async function density(req: Extract<WorkerRequest, { kind: 'density' }>): Promis
   }
   const groups: DensityResult['groups'] = [];
   const masks = req.aoi ? getMasks(req.aoi) : null;
+  if (!masks && req.viewTiles?.length) {
+    const cubes = await Promise.all(req.viewTiles.map((t) => getCube(l01Url(req, t))));
+    req.viewTiles.forEach((tile, i) => {
+      const d = densityFromCube(cubes[i], null, req.window, k, req.eras);
+      if (d.cells.length) groups.push({ tile, ...d });
+    });
+    return { level: 1, groups, k, ms: performance.now() - start };
+  }
   if (!masks || masks.level === 10) {
     const g = await getCube(join(req.baseUrl, req.l10Path));
     groups.push({ tile: 'L10', ...densityFromCube(g, masks?.l10 ?? null, req.window, k, req.eras) });
@@ -154,20 +172,32 @@ async function density(req: Extract<WorkerRequest, { kind: 'density' }>): Promis
   return { level: 1, groups, k, ms: performance.now() - start };
 }
 
+const bufferCache = new Map<string, Promise<AsyncBuffer>>();
+function openCached(url: string): Promise<AsyncBuffer> {
+  let p = bufferCache.get(url);
+  if (!p) {
+    p = openUrl(url);
+    p.catch(() => bufferCache.delete(url));
+    bufferCache.set(url, p);
+    while (bufferCache.size > 32) bufferCache.delete(bufferCache.keys().next().value as string);
+  }
+  return p;
+}
+
 async function points(req: Extract<WorkerRequest, { kind: 'points' }>): Promise<PointsResult> {
-  const masks = getMasks(req.aoi);
-  // same cell-centre membership as the calendar: a point counts if its cell is in the AOI mask
-  const inside =
-    masks.level === 10
-      ? (lon: number, lat: number) => masks.l10![l10Cell(lat, lon)] === 1
-      : (lon: number, lat: number) => masks.byTile.get(tile10(lat, lon))?.[l01Cell(lat, lon)] === 1;
-  return collectPoints(
-    req.paths.map((p) => join(req.baseUrl, p)),
-    req.aoi.bbox,
-    req.tA,
-    req.tB,
-    inside,
-  );
+  let inside: (lon: number, lat: number) => boolean;
+  if (req.aoi) {
+    const masks = getMasks(req.aoi);
+    // same cell-centre membership as the calendar: a point counts if its cell is in the AOI mask
+    inside =
+      masks.level === 10
+        ? (lon, lat) => masks.l10![l10Cell(lat, lon)] === 1
+        : (lon, lat) => masks.byTile.get(tile10(lat, lon))?.[l01Cell(lat, lon)] === 1;
+  } else {
+    const [w, s, e, n] = req.bbox;
+    inside = (lon, lat) => lon >= w && lon <= e && lat >= s && lat <= n;
+  }
+  return collectPoints(req.paths.map((p) => join(req.baseUrl, p)), req.bbox, req.tA, req.tB, inside, openCached);
 }
 
 function transferables(r: WorkerResult): Transferable[] {
