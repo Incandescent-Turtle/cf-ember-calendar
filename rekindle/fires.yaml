@@ -10,3 +10,15 @@ fires:
     source: docs/DECISIONS.md S1 (cluster found in the FIRMS Argentina fixture)
     notes: >-
       Peak Jul 28. VIIRS S-NPP SP ends Jul 31, so Aug 1 is NRT only.
+  - id: cordoba-2024
+    name: Western Córdoba sierras, Argentina (September 2024)
+    bbox: [-65.48, -31.45, -65.29, -31.20]
+    start: 2024-09-19
+    end: 2024-09-24
+    crs: EPSG:32720
+    points_tiles: [S40W070]
+    source: docs/DECISIONS.md S6b (rekindle.candidates, Argentina 2023-2026)
+    notes: >-
+      S6b fallback candidate. Burned 2024-09-19 to 10-04 (VIIRS 7-10 passes/day); the window
+      is the first 6 days (growth phase), the same length as Chilecito's run, so the grid cost
+      stays the same. First detection: one MODIS pixel on Sep 19.
