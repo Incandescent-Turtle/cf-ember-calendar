@@ -210,3 +210,83 @@ The S2 header (Track B item 4) included map layers, but the first S2 pass left t
 
   50 km keeps the fire dominant (Jul 2026 is the busiest month on record) and gives every calendar month a non-zero median. **Not changed:** the validation seam scope (`pipeline/validate.py` HERO, still 25 km, flagged `sparse`) and the golden `fixture-chilecito` case. They are pipeline-side and independent of the button, and at 50 km the seam test would still be sparse (≈ 3 MODIS FCD a month).
 - 2026-11-15 — **Sparse areas get honest wording**, since users can draw small areas too. At-a-glance shows a warning when ≥ 50 % of baseline months have no activity ("Hotspot activity is rare in this area: 69 % of months (209 of 302) have none…; draw a larger area"). Month-to-date with 0 now and a median of 0 reads "No activity so far, like 24 of 25 past years at this time" instead of a mid-rank "48th percentile" of zeros. When the month-to-date median is < 5 FCD (and the area isn't already flagged sparse), a caveat says a few fire-cell-days either way would change the label. Example: the 50 km hero's Nov 1–10 2026 = 4 vs a median of 1, "Extreme". The rules themselves (analytics.py / golden) are unchanged; only the wording around them.
+
+## Implementation decisions (S5, 2026-11-15)
+
+Constants and values checked against the primary sources (sub-agent lookups: Andrews 2018 RMRS-GTR-371, Rothermel 1972 INT-115, Anderson 1982 INT-122, Anderson 1983 INT-305, Albini 1976 INT-30 Table 7, Finney 1998 RMRS-RP-4). **The source wins; REKINDLE.md is updated to match.**
+
+| Item | REKINDLE.md said | Source | Used |
+|---|---|---|---|
+| Γ' exponent A | Albini = 1/(4.774σ^0.1 − 7.27), R72 = 133σ^-0.7913 | **Swapped.** R72 eq 39 = 1/(4.774σ^0.1 − 7.27); Albini 1976 / BehavePlus = 133σ^-0.7913 (A18 Table 6c, p.14, p.24) | 133σ^-0.7913 |
+| η_s | 0.174 S_e^-0.19 | Same, **max 1.0** (Albini) | capped (inactive at S_e = 0.01: 0.417) |
+| LB units | U_E in mi/h | Coefficients 0.2566/−0.1548/−0.397 are **Finney 1998 eq 13 (p.7), U = effective midflame wind in m/s**, LB > 8 truncated. Anderson 1983 eq 17 is 0.936e^(0.1147U) + 0.461e^(−0.0692U), U in mi/h, no −0.397. In mi/h the doc's form gives about twice the LB | m/s, clamp [1, 8] |
+| Normal speed | S = R(θ_n) (polar) | Not a sourcing error, but it fails test 2 (LB 19–117 % too large). Richards 1990 / Huygens: S = support function of the ellipse wavelet | **Huygens** default; `normal_speed="polar"` kept for the course report |
+| FM 7 live woody SAV | (not given) | Albini 1976 Table 7 p.92: **1550**; Andrews 2018 Table 8a: 1500 | 1550 (the older primary value; it changes FM 7 only slightly) |
+| Fuel loads like 3.01, 5.01, 14.03 t/ac | — | INT-122 Table 1. These are the exact t/ac equivalents of the original lb/ft² values (0.138 lb/ft² = 3.006 t/ac), not typos | kept as printed |
+| SAV, heat content, live herb/woody split | "Anderson 1982" | INT-122 has **no SAV or heat columns** (loads, depth and Mx only). SAV and the herb/woody split come from Albini 1976 via Andrews 2018 Table 8a (FM 2 live = herbaceous; FM 4, 5, 7, 10 live = woody); 10-h 109, 100-h 30, h = 8000 for all | as sourced; CSV comment row says so |
+| Size-class bins for g_ij | — | A18: 1200 / 192 / 96 / 48 / 16 (one A18 passage says 49) | 48; weight 0 below 16 |
+| Live M_x | — | 2.9 W (1 − M_f,dead/M_x,dead) − 0.226, floored at M_x,dead (A18 §3.2.2) | as source |
+| Wind limit | U ≤ 0.9 I_R | Same (R72 p.33). Andrews et al. 2013 revised it to 96.8 I_R^(1/3); BehavePlus 5+ makes it optional | flag `wind_limit`, default off, 0.9 I_R |
+| All other §1 constants (β_op, Γ'_max, η_M, ξ, ε, Q_ig, C, B, E, φ_s, ρ_p, S_T, S_e, h) | — | match R72 / A18 | unchanged |
+
+- 2026-11-15 — **Rothermel reference values: Andrews 2018 Table 17, rows 1–3** (BehavePlus 6, printed p.59). Inputs: 2 t/ac dead fuel split 2/0, 1/1 and 0.1/1.9 between 1-h (SAV 2500) and 10-h (SAV 109); depth 1 ft; M = 5 %; Mx = 20 %; midflame wind 5 mi/h; no slope. Published ROS 81.6 / 40.2 / 32.0 ft/min. **Ours: 81.616 / 40.248 / 32.000 (≤ 0.12 %)**. ρ_b, β, σ, β_op, β/β_op and φ_w match to the printed digits. **No tabulated Anderson FM 1 / FM 4 run with all inputs stated was found** (A18 shows those only as plots), so `test_regression_fm1_fm4` is labelled as a **regression against our own output**, not a published value.
+- 2026-11-15 — **Wind and slope combine as vectors** (φ_w along the wind's "toward" direction, φ_s upslope). U_E is the inverse of φ_w (not printed in A18; it is just algebra), and LB uses U_E, as in FARSITE.
+- 2026-11-15 — **Solver choices beyond REKINDLE.md §3:**
+  - Reinitialize every 20 steps **or** once the fastest cell has moved 3 dx, whichever comes first. With CFL 0.5 the front can move 10 dx in 20 steps, which would leave the 6 dx band.
+  - skfmm `narrow=8 dx`; cells outside the band stay frozen at ±8 dx.
+  - The run stops early when no unburned spreadable cell touches a burned one (barriers, extinction).
+  - Non-burnable cells are never ignited.
+  - Edge: flagged in `metrics.edge_reached`; it stops the run only when `stop_at_edge=True` (the default).
+  - `SimResult.ros_head` = the head ROS in the cell when it burned. Isochrones are not done yet (S6/export).
+- 2026-11-15 — **scikit-fmm 2025.6.23 installed fine on Windows.** It does not appear on the Python 3.12 list, but the project venv runs Python 3.13.12 (`platform.python_version()`). Also added: `pyyaml` (fires.yaml) and dev-only `matplotlib` (report figures).
+
+## Handoff — S5 (2026-11-15)
+
+**Done** (branch s5, fast-forwarded to main)
+- `rekindle/`:
+  - `rothermel.py`: imperial internally, SI wrappers, full Albini dead/live weighting with g_ij, live M_x, wind+slope vectors → U_E and head direction, wind-limit flag.
+  - `fuels.py` + `data/anderson13.csv` (13 models, with a citation row) and the IGBP crosswalk.
+  - `ellipse.py`, `scenario.py` (Domain, Moisture, WindSample with linear u/v interpolation, Ignition with a start time, Scenario, params_hash).
+  - `levelset.py`, `simulators.py` (Simulator protocol + LevelSetRothermel), `verify.py` (measurement helpers).
+  - `verification_report.py`, `hotspots.py`, `fires.yaml`.
+- Tests: 50 in `tests/rekindle` (Rothermel incl. the published Table 17 check, ellipse, the 5 solver tests + edge flag). `uv run pytest` **89 passed** (pipeline 39 untouched); ruff clean.
+- **Report material for the LaTeX write-up:** `docs/report/rekindle/` holds results.json, 9 figures (PDF+PNG), references.bib and a README mapping each figure to its citation. Regenerate with `uv run python -m rekindle.verification_report`.
+
+**Solver numbers** (`docs/report/rekindle/results.json`)
+- Test 1, circle (FM 1, no wind, dx 10 m, r = 700 m at 72 azimuths): max radius error **11.8 m = 1.18 dx** (the 1.5 dx ignition radius is part of it); axis vs diagonal rate bias **1.1 %**; rate within 1.3 % of R0.
+- Test 2, ellipse (FM 1, U10 3–15 m/s, dx 20 m):
+
+  | Normal speed | LB error | Head-rate error |
+  |---|---|---|
+  | Huygens (used) | **≤ 2.0 %** | ≤ 1.8 % |
+  | polar | +19 % to +117 % | −3 % to −36 % |
+
+  Visible artifact: the head tip is slightly pointed and lags the exact ellipse by ~1–2 dx (first-order upwind with a direction-dependent speed; see `figures/test2_ellipse`).
+- Test 3: two ignitions merge into 1 component; still 2 components before they meet; meeting time within 8 %.
+- Test 4: 1- and 3-cell strips hold, with 0 cells burned in or behind the strip. The run ends by itself.
+- Test 5, convergence (L1 arrival-time error against the exact solution, dx 40/20/10/5 m):
+  - Circle: 5.7 / 2.3 / 1.0 / 0.53 %, observed order 1.34 / 1.14 / 0.96.
+  - Wind case (U10 = 9 m/s, exact Minkowski solution): 4.3 / 1.9 / 0.99 / 0.56 %, order 1.17 / 0.93 / 0.81.
+  - So the scheme is **first order**, as expected for first-order Godunov.
+- **Timing, 24 h simulated on 400 × 400 at 90 m** (synthetic hill, mixed FM 1/2/4/9, a river, wind veering 250°→322°), NumPy only:
+  - moderate fire (9,400 ha burned): **6–8 s**;
+  - worst case (53,000 ha, front across most of the grid): **18–27 s**.
+  - The spread is because the global pipeline build was running on the same machine. Both are under the 30 s target, so **no numba**.
+
+**Chilecito (S6 prep, fixture data, read-only)**
+- 649 detections in the bbox, Jul 27 – Aug 1: NOAA-20 364, S-NPP 247, Terra 31, Aqua 7.
+- The first overpass is **NOAA-20 at 2026-07-27 17:40 UTC: 9 pixels already spread ~5 km N–S** (lat −29.086…−29.133, lon −67.660…−67.678). The fire was established before it was first detected, so the hindcast should start from a **line/multi-point ignition at 17:40**, not a single point.
+- Next pass: S-NPP at 19:02. Tables are in `docs/report/rekindle/chilecito-2026_*.csv`.
+
+**What S6 needs, in order** (sizes are estimates; nothing downloaded)
+1. **DEM:** Copernicus GLO-30. Public on AWS Open Data (`copernicus-dem-30m`), no login. 1° COG tile `S30 W068`, tens of MB. Alternatives NASADEM / SRTM need an Earthdata login or an OpenTopography key.
+2. **Land cover:** MCD12Q1 v061 IGBP (LC_Type1), 500 m, latest year (LP DAAC). **Needs an Earthdata login**: one h12v11 tile, a few MB. The crosswalk in `fuels.py` is ready. Plus MOD44W water (also Earthdata), or take water from IGBP class 17 only.
+3. **Wind:** MERRA-2 M2T1NXSLV hourly U10M/V10M, Jul 26 – Aug 2 2026 (GES DISC). **Needs an Earthdata login with the GES DISC app authorized.** Subset to the point with OPeNDAP or the GES DISC subsetter (KB); full daily files are ~400 MB each. Check that MERRA-2 has reached Jul 2026 (it lags a few weeks).
+4. `rekindle/prep.py`: reproject to UTM 19S (EPSG:32719), 90 m grid ≈ 40 × 40 km around the bbox; slope/aspect from the DEM; fuel from the crosswalk → `Domain`. Ignition = the 17:40 pixel centres as multiple `Ignition`s, starting at t = 0.
+5. Then `metrics.py`, the multiplier fit and the quality gate (REKINDLE.md §5).
+
+**Surprises**
+- **skfmm silently misreads a non-contiguous view** (`phi[1:-1, 1:-1]`). It returned scrambled distances and fronts jumped around. Fixed with `np.ascontiguousarray`. Watch for this in any other skfmm call.
+- The polar normal speed that REKINDLE.md planned for v1 fails the doc's own ±10 % LB test badly. The Huygens form fixes it and costs nothing extra.
+- REKINDLE.md's LB units were wrong by a factor of 2.237 in U, and its A attribution was swapped. Both are fixed in the doc.
+- The first version of the stop condition never fired, because burned interior cells keep S > 0. An "active front" check replaced it.

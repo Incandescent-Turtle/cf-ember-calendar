@@ -48,10 +48,10 @@ Core chain (single characteristic class shown; implement the full dead/live size
 β   = ρ_b / ρ_p                       packing ratio (ρ_p = 32 lb/ft³)
 β_op = 3.348 σ^-0.8189                optimum packing ratio
 Γ'_max = σ^1.5 / (495 + 0.0594 σ^1.5)
-A   = 1 / (4.774 σ^0.1 − 7.27)        (Albini 1976 revision, as in BehavePlus; Rothermel 1972 original: A = 133 σ^-0.7913)
+A   = 133 σ^-0.7913                   (Albini 1976 revision, as in BehavePlus / Andrews 2018 Table 6c; Rothermel 1972 eq 39 original: A = 1 / (4.774 σ^0.1 − 7.27))
 Γ'  = Γ'_max (β/β_op)^A exp[A(1 − β/β_op)]
 η_M = 1 − 2.59 r_M + 5.11 r_M² − 3.52 r_M³,   r_M = min(M_f / M_x, 1)
-η_s = 0.174 S_e^-0.19                 (S_e = 0.010 effective mineral content)
+η_s = 0.174 S_e^-0.19, max 1          (S_e = 0.010 effective mineral content; the cap is Albini's)
 I_R = Γ' w_n h η_M η_s                reaction intensity   (w_n = w_0(1 − S_T), S_T = 0.0555, h = 8000 Btu/lb)
 ξ   = exp[(0.792 + 0.681 σ^0.5)(β + 0.1)] / (192 + 0.2595 σ)
 ε   = exp(−138 / σ)
@@ -88,7 +88,7 @@ Plus MOD44W water → non-burnable.
 
 ## 2. Elliptical spread
 
-Length-to-breadth ratio (Anderson 1983), U_E in mi/h:
+Length-to-breadth ratio (Anderson 1983 eq 17 converted to m/s, offset to LB(0) = 1: Finney 1998 eq 13), U_E = effective midflame wind in **m/s** (verified S5; mi/h was wrong):
 ```
 LB = 0.936 e^(0.2566 U) + 0.461 e^(−0.1548 U) − 0.397      (clamp 1 ≤ LB ≤ 8)
 e  = sqrt(LB² − 1) / LB
@@ -105,7 +105,7 @@ Grid: domain reprojected to local UTM, square cells **dx = 60–120 m** (default
 ```
 
 - **Normal direction**: n from central differences of φ (guard |∇φ| → 0).
-- **Speed in normal direction**: v1 uses S = R(θ_n) (the ellipse rate evaluated at the normal's angle). This is the common practical approximation; the exact normal speed of an elliptical front (Richards 1990) differs somewhat — note it as a limitation and a course-report comparison.
+- **Speed in normal direction** (changed in S5): S = support function of the elliptical wavelet, S = c cos θ + sqrt(a² cos² θ + b² sin² θ) with a = (R_h + R_b)/2, c = (R_h − R_b)/2, b = a/LB (Huygens; Richards 1990), so a point ignition grows exactly the ellipse. The approximation S = R(θ_n) over-elongates fronts (LB 19–117 % too large in test 2) and is kept only as `normal_speed="polar"` for the course-report comparison.
 - **|∇φ| (Godunov upwind, S ≥ 0):**
   `|∇φ|² ≈ max(D⁻ₓφ,0)² + min(D⁺ₓφ,0)² + max(D⁻ᵧφ,0)² + min(D⁺ᵧφ,0)²`
   (one-sided differences D⁻, D⁺ — the forward/backward differences from GEOE 443 FD lectures).

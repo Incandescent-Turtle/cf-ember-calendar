@@ -86,6 +86,8 @@ uv run python -m pipeline.make_golden             # regenerate golden test files
 HF_DATASET_REPO=<user>/<name> scripts/sync_data.sh D:/ember [--no-points]   # upload to the data host
 scripts/check_host.sh <VITE_DATA_BASE_URL>        # CORS + Range check on the data host
 uv run python -m rekindle.scenario_grid --fire chilecito-2026 --workers 8
+uv run python -m rekindle.verification_report --out docs/report/rekindle   # solver/Rothermel numbers + figures (~2 min)
+uv run python -m rekindle.hotspots --fire chilecito-2026    # a curated fire's detections → docs/report/rekindle
 uv run pytest
 cd web && npm i && npm run dev                    # serves /dev-data from data/processed, falling back to web/mock-data
 cd web && npm run mock                            # regenerate web/mock-data (contract-format mock cubes + JSON)
