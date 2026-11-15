@@ -57,6 +57,9 @@ button.link { border: 0; background: none; padding: 0; color: var(--accent); tex
 .seg button:last-child { border-right: 0; }
 .caption { margin: 6px 0 2px; color: var(--ink-2); font-size: 12.5px; }
 .chart { width: 100%; height: 520px; }
+.dekad-view { margin-top: 10px; font-size: 13px; }
+.dekad-view summary { cursor: pointer; color: var(--accent); }
+.chart.dekad-chart { height: 480px; }
 .legend { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--ink-2); margin: 2px 0 0 44px; flex-wrap: wrap; }
 .swatch { width: 12px; height: 12px; display: inline-block; border: 1px solid #ccc; }
 .ramp-wrap { width: 180px; margin-left: 8px; }

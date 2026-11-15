@@ -1,5 +1,6 @@
 import { useCalendarData } from '../data/hooks';
 import { Calendar } from '../calendar/Calendar';
+import { DekadCalendar } from '../calendar/DekadCalendar';
 import { useStore } from '../store';
 import { HERO, setCircleAoi } from '../map/aoiActions';
 import { dekadRange } from '../lib/time';
@@ -74,6 +75,7 @@ export function CalendarPanel() {
         <div className={isStale ? 'stale' : ''} aria-busy={isStale}>
           {glance && <AtAGlance g={glance} h={harmonized} />}
           <Calendar h={harmonized} currentYear={currentYear} />
+          <DekadCalendar h={harmonized} series={series} />
           {glance && <ExportRow aoi={aoi} data={data} g={glance} currentYear={currentYear} />}
         </div>
       )}
