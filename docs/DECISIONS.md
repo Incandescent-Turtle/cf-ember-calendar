@@ -470,8 +470,14 @@ Run with `rekindle.hindcast --tag <variant>`. Per-variant sweep JSON and figures
 |---|---|---|---|---|---|---|---|---|
 | S6 | none | 1.41 | 13.3 | −10.4 | 0.66 | 0.14 | 1,479 | fail |
 | s6b_A | MOD44B non-veg > 50 % → non-burnable (20 % of domain) | 1.41 | 12.87 | −9.13 | 0.65 | 0.17 | 1,155 | fail |
+| s6b_Aprime | non-veg > 80 % (sensitivity only; 1 % of domain) | 1.41 | 13.35 | −10.40 | 0.66 | 0.14 | 1,463 | fail |
+| s6b_B | diurnal time-lag dead moisture | 1.41 | 12.38 | −12.03 | 0.81 | 0.14 | 1,481 | fail |
+| s6b_AB | A + B | 1.41 | 12.04 | −11.81 | 0.80 | 0.17 | 1,155 | fail |
+| s6b_C | MERRA-2 nearest grid point (−67.5, −29.0) | 2.0 | 13.30 | −12.63 | 0.89 | 0.14 | 1,489 | fail |
+| s6b_ABC | A + B + C | 1.41 | 12.26 | −9.98 | 0.66 | 0.17 | 1,154 | fail |
 
 - A: median Δ crosses 0 between ×0.71 (+13.1 h) and ×1.0 (−2.5 h), but |Δ| stays > 12 h at every multiplier. The *spatial pattern* is wrong (some pixels far too early, others far too late), not the overall speed. Detections themselves sit on 13–26 % non-vegetated cells, and the domain median is 32 %, so the mask removes little of the fire's path.
+- **All pre-registered changes fail.** The best is A+B at 12.0 h, 3.7× the gate. Every change moves median |Δ| by < 1.3 h. Chilecito stays `poor_agreement`.
 - Infrastructure: the desktop runs were 2–2.5× slower than in S6 because the S7 agent shared the CPU. A′, A+B and the grid moved to the Alliance cluster Fir (`scripts/slurm/rekindle_{hindcast,grid}.sh`, account def-hngharti, venv in `~/scratch/rk-venv`); solver tests pass there (15/15). A′ was started on the desktop and stopped after a few minutes, then rerun on Fir.
 
 ## S6b decisions before the next runs (2026-11-15, 13:20; no results from these runs seen yet)
@@ -488,3 +494,89 @@ Run with `rekindle.hindcast --tag <variant>`. Per-variant sweep JSON and figures
   - Why: at 1.4–1.7 h after the first overpass, FIRMS already sees fire 5–6 km W/SW of the ignition pixels, upwind of a ~10 m/s westerly. One point ignition can't produce that: either several fires were burning or the fire was already larger than its detected pixels.
   - This is a general protocol rule ("start from the observed early extent", on the roadmap). But it was proposed *after* seeing Chilecito fail, so any Chilecito result from it is labelled **exploratory**, not a validation.
   - Whether an exploratory pass may ship counterfactuals is decided after the numbers, and stated explicitly.
+
+## S6b results: Córdoba blind test and the exploratory seeded start (2026-11-15, 13:33)
+
+All runs on Fir. Sweep JSON and figures are in `docs/report/rekindle/<fire>_<variant>_*`.
+
+| fire / variant | settings | best ×ROS | median \|Δ\| (h) | median Δ (h) | hit | Sørensen | area km² | gate |
+|---|---|---|---|---|---|---|---|---|
+| cordoba-2024 / s6b_AB (**blind**, frozen S6b) | A+B | 0.25 (sweep edge) | 15.16 | −13.10 | 0.84 | 0.39 | 471 | fail (gate 2.93 h) |
+| cordoba-2024 / s6 (comparison) | S6 model | 0.25 (sweep edge) | 18.75 | −2.11 | 0.59 | 0.39 | 413 | fail |
+| chilecito-2026 / x_seed3_AB (**exploratory**) | A+B, seed 3 h (28 ignitions) | 0.5 | 9.61 | −8.69 | 0.78 | 0.21 | 958 | fail |
+| chilecito-2026 / x_seed3 (**exploratory**) | seed 3 h only | 0.5 | 10.24 | −7.93 | 0.76 | 0.17 | 1,179 | fail |
+
+- Córdoba: even at ×0.25 the simulation arrives ~13 h early. Faster multipliers burn the whole domain (~1,600 km²) within a day. The best value sits at the edge of the fixed sweep range; the range was **not** extended.
+- The seeded start is the largest single improvement on Chilecito (12.0 → 9.6 h), which supports the ignition diagnosis, but it still fails by 3×.
+
+## S6b input check and diagnosis (`uv run python -m rekindle.input_check`)
+
+| | Chilecito | Córdoba |
+|---|---|---|
+| MERRA-2 10 m wind p50 / p90 / max | 2.5 / 7.3 / 10.5 m/s | 4.2 / 6.9 / 9.1 m/s |
+| RH median (range) | 24 % (9–78) | 25 % (3–82) |
+| T2M range | 3.0–25.4 °C | 11.7–32.1 °C |
+| fuel models under detections | FM1 265, FM6 384 | FM1 618, FM2 274, FM6 2, FM10 5 |
+| Rothermel head ROS at 6 % dead, wind p50–p90 | FM1 0.35–2.4 km/h, FM6 0.22–0.80 | FM1 0.82–2.2, FM2 0.40–0.93, FM6 0.40–0.75 |
+| observed: max distance from ignition | **5.8 km by 1.4–1.7 h**; 9.0 km at 24 h; 14.3 km at 120 h | 6.2 km at 12 h; p90 4.9 → 5.5 km from 12 h to 72 h; p90 11.9 km at 120 h |
+
+- **The inputs check out:** no unit, direction or projection error. Rothermel speeds at these inputs are ordinary grass/shrub head-fire rates.
+- **Diagnosis: both real fires burst, then stall.**
+  - Chilecito covers 5.8 km in under 2 h, then only ~8 km more over 4.5 days (≈ 0.07 km/h).
+  - Córdoba covers 6 km in 12 h, then stalls for ~2 days.
+  - A free-spread model at ~0.5 km/h travels tens of km in 5 days. A single ROS multiplier can only trade "too slow early" against "too fast later". That is the signature of all 12 sweeps.
+- **What stalls a real fire is not in our inputs:** suppression (both fires are near towns), fuel breaks below the 250–500 m land-cover scale, and local weather/sheltering. The model's only stop mechanism is moisture above extinction, and MERRA-2 grid-cell RH never gets there.
+- One questionable input remains: T2M is a grid-cell mean with no lapse-rate correction to the fire's elevation. Correcting it would make Chilecito's nights more humid. It cannot produce a multi-day daytime stall.
+- **Chilecito's first-overpass "ignition" is not a point ignition.** 1.4–1.7 h after it, FIRMS sees fire 5–6 km W/SW, upwind of the westerly. Several fires were already burning, or the fire was already larger than its detected pixels.
+
+## S6b literature (a sonnet lookup; abstracts and catalogue pages only; see references.bib)
+
+- **Cruz & Alexander 2013** (Environ. Model. Softw. 47:16–28, doi:10.1016/j.envsoft.2013.04.004):
+  - 49 datasets, 1,278 observations; mean absolute % error 20–310 %;
+  - under-prediction in 75 % of datasets; ±35 % proposed as a benchmark.
+  - These are rates during active spread. Our 10× over-burn comes from the missing stall, not from implausible burst speeds.
+- **Price & Germino 2022** (Fire Ecology 18:23, doi:10.1186/s42408-022-00147-2), FARSITE in sparse sagebrush steppe:
+  - Sørensen 0.38 with LANDFIRE fuels;
+  - 0.70 (and 0.80 on a second fire) with fuels built from fractional vegetation cover.
+  - Fuel inputs from cover are a large lever; our change A (a threshold) was a blunt version.
+- **Coen & Schroeder 2013** (GRL, doi:10.1002/2013GL057868), the coupled CAWFE model on the Little Bear Fire:
+  - re-initialised from VIIRS 375 m detections every 12 h;
+  - good for 12–24 h after each restart, then drifted.
+  - **Nobody runs a 5-day fire from a single ignition**; our protocol asked more than the state of the art delivers.
+- **Benali et al. 2016** (Sci. Total Environ. 569–570:73–85, doi:10.1016/j.scitotenv.2016.06.112): on 8 Portuguese fires, the dominant error sources were wind, fuel-model assignment and ignition location/timing.
+- **Finney 2000** (FARSITE validation report): Rothermel spread rates tended to be over-predicted. Seen only as a secondary quote, so partly unverified.
+- **Inputs available:**
+  - Pettinari & Chuvieco 2016 global FCCS fuelbed map (doi:10.5194/bg-13-2061-2016; PANGAEA, CC BY-NC-SA, needs a crosswalk);
+  - the global MODIS live fuel moisture set (ends 2018, so not usable here);
+  - ERA5-Land and WindNinja not checked.
+
+## Why we didn't foresee this (lessons)
+
+- The Rekindle plan assumed that one global ROS multiplier could carry a 5-day, single-ignition hindcast. That holds only if the error is "uniformly X× too fast". It fails for stop-and-go fires, and the literature restarts models every 12–24 h.
+- Chilecito was chosen for the calendar story, not for simulability. Nobody looked at its distance-from-ignition-over-time curve, which `rekindle.input_check` now prints in seconds, before building on it.
+- REKINDLE.md listed coarse fuels, single-point wind and moisture as limitations, but not *fire behaviour outside the model's domain* (suppression, stalls, multiple ignitions).
+
+## Plan from 13:50 (user decision: implement all of it; a sub-agent continues on `s6b`)
+
+1. **Ship Chilecito and Córdoba as `poor_agreement` hindcasts.**
+   - Chilecito re-exported with the frozen A+B settings; Córdoba as a second baseline-only fire.
+   - The Rekindle page and methodology get the burst-and-stall figure, the variant table and the citations.
+2. **EXPLORATORY: 24 h re-initialised windows** (Coen & Schroeder 2013 style).
+   - Each day starts from the observed VIIRS extent so far, and only that window's new detections are scored.
+   - Same gate and metric definitions; A+B frozen; ROS multiplier swept once per fire across all windows.
+   - Labelled exploratory everywhere. Whether a pass may ship counterfactuals is the user's call, stated explicitly.
+3. **Free-spread pre-screen, then a blind test on a new fire with the original protocol.** A candidate's distance-from-ignition must grow without multi-day plateaus. Argentina first, then Canada south of 60°N.
+4. **Optional, exploratory input improvements:** cover-scaled fuel load from MOD44B (after Price & Germino), and a lapse-rate T2M correction. Pre-register each before running.
+
+## Infrastructure: Alliance cluster Fir
+
+- **Account and paths:** account `def-hngharti` (Slurm `def-hngharti_cpu`). There is no project directory for it, so work happens in `~/scratch/cf-ember-calendar` (git clone of `s6b`) with the venv at `~/scratch/rk-venv`. Python 3.12 module; numpy, scipy, scikit-fmm from PyPI, pyyaml, matplotlib, pytest.
+- **Jobs:**
+  - `scripts/slurm/rekindle_hindcast.sh <fire> <tag> [hindcast opts]`: 9 cores, one sweep in ~4–10 min;
+  - `scripts/slurm/rekindle_grid.sh <fire>` as `--array=0-N`.
+  - Both need `REKINDLE_VENV=~/scratch/rk-venv`. Jobs started with no queue wait at ~11:00 PT.
+- **Access from the desktop:**
+  - SSH needs Duo MFA every time, and OpenSSH ControlMaster doesn't work under Git for Windows.
+  - Instead a local paramiko bridge holds one authenticated connection; commands and SFTP go to 127.0.0.1 only, with a token. It lives in the session scratchpad: `rk_bridge.py` and its `rb` wrapper.
+  - If it dies, the user approves a new Duo push.
+- Data moves with SFTP put/get of the small inputs and a tar of the outputs. Results also live in the repo (`docs/report/rekindle/`); `data/` is gitignored.

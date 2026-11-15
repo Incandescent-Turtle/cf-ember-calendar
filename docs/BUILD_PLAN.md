@@ -51,6 +51,15 @@ Done: all solver tests pass. **✓ Done 2026-11-15** (handoff in DECISIONS.md; r
 Read: REKINDLE.md §4–7, CONTRACTS.md (Rekindle files), DECISIONS.md S5 handoff + addendum. **First (≈ 15 min): three solver tests S6 relies on** — slope (head runs upslope at Rothermel R_head), wind shift (head follows a 90° turn), ROS multiplier (×2 ⇒ arrival times exactly ÷2); optional fuel-interface and determinism tests. **Needs `EARTHDATA_USERNAME`/`EARTHDATA_PASSWORD` in `.env`** (MCD12Q1, MERRA-2 with the GES DISC app authorized). Prep Chilecito first: inspect the real hotspots, baseline, multiplier, quality gate; then scenario grid (desktop, background); build the web panel against the exported runs. Add the other two curated fires only if time remains.
 Done: Chilecito baseline metrics reported; grid exported; panel loads a run in < 1 s with the correct status caption.
 
+## S6b — Fix the Chilecito hindcast, then other fires (Sun 12:10 →; branch `s6b`)
+- [x] Pre-registered changes A (MOD44B cover), B (diurnal moisture) and C (nearest wind), each alone and combined: all fail the gate (best 12.0 h vs 3.2 h). Logged in DECISIONS.md.
+- [x] Córdoba 2024 blind test with A+B frozen: fails (15.2 h vs 2.9 h). Exploratory seeded start on Chilecito: 9.6 h, fails.
+- [x] Diagnosis (`rekindle.input_check`): the inputs are sane; both fires burst and then stall, which a free-spread model cannot represent. Literature added (REKINDLE.md §5b).
+- [ ] Ship Chilecito (A+B) and Córdoba as `poor_agreement` hindcasts, with the burst-and-stall figure and the citations in the Rekindle tab and methodology.
+- [ ] EXPLORATORY 24 h re-initialised windows (REKINDLE.md §5b) on both fires (Fir).
+- [ ] Free-spread pre-screen → blind test on a new fire (Argentina, then Canada < 60°N); grid on Fir if it passes.
+- [ ] Optional exploratory inputs: cover-scaled fuel load, lapse-rate T2M.
+
 ## S7 — Polish and freeze (Sun 18:00–20:00)
 - [x] Hotspot CSV export with caps and the FIRMS fallback link (done in S4).
 - [ ] 1280 px layout; CVD check (calendar ramp, map density ramp, sensor colours); captions on every chart; Rekindle wording check (CLAUDE.md).

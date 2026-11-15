@@ -133,7 +133,14 @@ Grid: domain reprojected to local UTM, square cells **dx = 60–120 m** (default
 3. MERRA-2 hourly U10M/V10M (+T2M, QV2M) for the window.
 4. Save `data/rekindle/<fire_id>/domain.npz` (elevation, slope, aspect, fuel_model, nonburnable, transform) + `meta.json` (bbox, crs, dx, window, ignitions, wind series, observed detections with times and pixel footprints).
 
-**Choosing curated fires** by inspecting the data: (1) the July 2026 cluster near Chilecito, La Rioja; (2) one more Argentine fire; (3) one Canadian fire. Prefer fires with several days of burning and many overpasses (VIIRS + MODIS), since sparse detections cannot constrain the spread. Check DEM coverage: NASADEM/SRTM covers 60°N–56°S, so **northern Canada needs another DEM** (Copernicus GLO-30 or CDEM); pick a Canadian fire south of 60°N unless you have time. Fuels everywhere come from the same global land-cover crosswalk (one code path). Canada and Argentina have no US-style fuel maps; that is a known limitation, listed below.
+**Choosing curated fires** by inspecting the data: (1) the July 2026 cluster near Chilecito, La Rioja; (2) one more Argentine fire; (3) one Canadian fire. Prefer fires with several days of burning and many overpasses (VIIRS + MODIS), since sparse detections cannot constrain the spread. Check DEM coverage: NASADEM/SRTM covers 60°N–56°S, so **northern Canada needs another DEM** (Copernicus GLO-30 or CDEM); pick a Canadian fire south of 60°N unless you have time. Fuels everywhere come from the same global land-cover crosswalk (one code path).
+
+**Free-spread pre-screen (added S6b, after two fires failed; see §5b).** The model spreads freely until fuel or moisture stops it, so a single-ignition multi-day hindcast only makes sense for a fire that also spread freely. Before prepping a candidate, plot its distance from the first detections against first-detection time (`rekindle.input_check` prints this). Reject candidates with:
+- a multi-day plateau (stall: suppression, fuel breaks, weather);
+- detections far upwind of the ignition within the first overpasses (several ignitions, or a fire already large at first detection);
+- recurring detections at the same spot in other years (gas flares, industry).
+
+This is a stated domain-of-applicability rule, applied before any simulation. It is not a fit to results. Canada and Argentina have no US-style fuel maps; that is a known limitation, listed below.
 
 ## 5. Validation against the fire's own hotspots
 
@@ -147,6 +154,31 @@ Hotspot timestamps give **observed arrival times** (upper bounds: the fire reach
 Show these numbers in the Rekindle panel next to the run.
 
 **Honesty rules.** The multiplier is fitted on the baseline, so a match on the fitted fire is *calibrated*, not a blind test. If ≥ 2 fires exist, fit on one and score the others with the multiplier **unchanged**, and report that. **Quality gate:** ship counterfactuals for a fire only if its baseline hit rate and timing error are reported and the median |Δ| is no worse than ~one overpass interval after calibration; otherwise ship the baseline only, marked "poor agreement". Absolute arrival times are less reliable than baseline-vs-counterfactual *differences* (shared fuel error largely cancels), so UI emphasis goes on differences.
+
+## 5b. What validation showed (S6b) and the re-initialised-window protocol
+
+**Results** (full tables: `docs/DECISIONS.md` S6b; per-run JSON and figures: `docs/report/rekindle/`):
+- **Chilecito 2026:** none of the 6 pre-registered variants passes. Changes: MOD44B fuel cover, diurnal time-lag moisture, nearest-point wind, and combinations. Best A+B: median |Δ| 12.0 h vs a 3.2 h gate. The exploratory seeded start reaches 9.6 h.
+- **Córdoba 2024** (blind, settings frozen): 15.2 h vs a 2.9 h gate, at the slowest multiplier (×0.25).
+
+**Why** (`rekindle.input_check`): the inputs are sane and Rothermel's rates at them are ordinary (0.4–2.4 km/h head fire), but both fires **burst and then stalled**.
+- Chilecito: 5.8 km in < 2 h, then ~8 km in 4.5 days.
+- Córdoba: 6 km in 12 h, then ~2 days with almost no growth.
+
+Suppression, sub-pixel fuel breaks and local weather stall real fires. None of them is a model input, and a single ROS multiplier cannot fit both a burst and a stall.
+
+This is consistent with the literature:
+- Coen & Schroeder (2013) re-initialise a coupled model from VIIRS every 12 h and find it useful for 12–24 h after each restart.
+- Benali et al. (2016) rank ignition, wind and fuel assignment as the dominant errors.
+- Price & Germino (2022) raise FARSITE's Sørensen from 0.38 to 0.70 with cover-based fuels.
+- Cruz & Alexander (2013) put typical spread-rate errors at 20–310 % (benchmark ±35 %), mostly under-prediction.
+
+**Re-initialised windows (EXPLORATORY, added S6b; not pre-registered).**
+- Split the fire into consecutive 24 h windows. Window k starts at t_k from the observed extent: every detection up to t_k is an ignition at its own detection time, as in `--seed-h`.
+- The window runs for 24 h and is scored only on pixels first detected in (t_k, t_k + 24 h], with the §5 metrics unchanged. The gate is applied to the median |Δ| pooled over all windows.
+- One ROS multiplier is swept for the whole fire; model settings are frozen.
+- This answers a different question from the single-ignition hindcast: "given today's observed fire, how well does the model place tomorrow's spread?".
+- Counterfactuals then read "what if tomorrow's wind or moisture were different, from a real observed state". Whether exploratory results may unlock counterfactuals is a user decision recorded in DECISIONS.md.
 
 ## 6. Scenario grid (offline) and the UI
 
@@ -172,4 +204,4 @@ See `CONTRACTS.md`. Everything lands in `web/public/rekindle/` and ships with th
 ## Intended use and limits (show in UI and methodology)
 **Intended use:** explore how wind and fuel dryness change the spread of a real past fire; a step toward planning tools. **Not** a forecast. Roadmap (say it as roadmap only): better fuel maps (LANDFIRE-class, Canadian fuel-type layer), forecast weather, starting from a current perimeter.
 
-Limitations: surface fire only; no spotting/crowning; fuel map from 500 m land cover with a coarse crosswalk is the largest error source; single-point wind; moisture is a user scenario, not measured; normal-speed approximation for the ellipse; hotspot arrival times are upper bounds limited by overpass frequency.
+Limitations: **free spread only: nothing in the model stops a fire except fuel, water and moisture above extinction, so fires that stall (suppression, sub-pixel fuel breaks, local weather) are over-predicted, as on both 2024–2026 Argentine test fires (§5b)**; one ignition at the first overpass may not represent a fire that was already large or had several starts; surface fire only; no spotting/crowning; fuel map from 500 m land cover with a coarse crosswalk is the largest error source; single-point wind; moisture is a user scenario, not measured; normal-speed approximation for the ellipse; hotspot arrival times are upper bounds limited by overpass frequency.

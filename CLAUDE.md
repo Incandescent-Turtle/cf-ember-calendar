@@ -88,6 +88,12 @@ scripts/check_host.sh <VITE_DATA_BASE_URL>        # CORS + Range check on the da
 uv run python -m rekindle.scenario_grid --fire chilecito-2026 --workers 8
 uv run python -m rekindle.verification_report --out docs/report/rekindle   # solver/Rothermel numbers + figures (~2 min)
 uv run python -m rekindle.hotspots --fire chilecito-2026    # a curated fire's detections → docs/report/rekindle
+uv run python -m rekindle.hindcast --fire <id> --tag <variant> [--nonveg-max 50] [--diurnal] [--wind nearest] [--seed-h 3]   # S6b variants (seed = exploratory)
+uv run python -m rekindle.fuel_cover --fire <id>             # add MOD44B non-vegetated % to domain.npz (prep does this for new fires)
+uv run python -m rekindle.input_check                        # observed spread vs Rothermel at our inputs (free-spread pre-screen)
+uv run python -m rekindle.candidates --region argentina|canada   # candidate fires from D:/ember points (read-only)
+# Fir (Alliance): cd ~/scratch/cf-ember-calendar; REKINDLE_VENV=~/scratch/rk-venv sbatch --account=def-hngharti scripts/slurm/rekindle_hindcast.sh <fire> <tag> [opts]
+#                 ... sbatch --account=def-hngharti --array=0-N scripts/slurm/rekindle_grid.sh <fire>
 uv run pytest
 cd web && npm i && npm run dev                    # serves /dev-data from data/processed, falling back to web/mock-data
 cd web && npm run mock                            # regenerate web/mock-data (contract-format mock cubes + JSON)
