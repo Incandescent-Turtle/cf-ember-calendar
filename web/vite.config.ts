@@ -61,8 +61,25 @@ function devData(): Plugin {
 export default defineConfig({
   plugins: [react(), devData()],
   worker: { format: 'es' },
+  // Bundle split (S7): big libraries in their own cacheable chunks, loaded in parallel.
+  build: {
+    chunkSizeWarningLimit: 1300, // maplibre-gl alone is ~1.2 MB minified
+    rolldownOptions: {
+      output: {
+        codeSplitting: {
+          groups: [
+            { name: 'maplibre', test: /node_modules[\\/](maplibre-gl|terra-draw)/ },
+            { name: 'echarts', test: /node_modules[\\/](echarts|zrender)/ },
+            { name: 'turf', test: /node_modules[\\/]@turf/ },
+            { name: 'vendor', test: /node_modules[\\/]/ },
+          ],
+        },
+      },
+    },
+  },
   test: {
     environment: 'node',
     include: ['src/**/*.test.ts', 'scripts/**/*.test.ts'],
+    setupFiles: ['src/test-setup.ts'],
   },
 })

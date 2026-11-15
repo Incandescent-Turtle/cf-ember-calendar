@@ -24,7 +24,9 @@ export const inWindow = (t: number, w: TimeWindow) =>
 
 /**
  * Sum harmonized FCD per cell for entries in the window. `mask` (optional) keeps only cells inside the AOI.
- * Returns parallel arrays of cell ids and values (non-zero only).
+ * Returns parallel arrays of cell ids, harmonized values (non-zero only) and, for the tooltip, the raw
+ * MODIS and raw VIIRS FCD of the same cells and window (VIIRS = S-NPP before the NOAA-20 switch,
+ * NOAA-20 after, as MonthRow.viirs).
  */
 export function densityFromCube(
   cube: Cube,
@@ -32,8 +34,8 @@ export function densityFromCube(
   w: TimeWindow,
   k: KPair,
   eras: Eras,
-): { cells: Uint32Array; values: Float64Array } {
-  const acc = new Map<number, number>();
+): { cells: Uint32Array; values: Float64Array; modis: Float64Array; viirs: Float64Array } {
+  const acc = new Map<number, [number, number, number]>();
   const { s, t, c, v, n } = cube;
   for (let i = 0; i < n; i++) {
     const ci = c[i];
@@ -42,28 +44,42 @@ export function densityFromCube(
     if (!inWindow(ti, w)) continue;
     const si = s[i];
     const m = Math.floor(ti / 3) % 12;
-    let h: number;
+    let h = 0;
+    let rawM = 0;
+    let rawV = 0;
+    if (si === S_MODIS) rawM = v[i];
     if (ti < eras.tSwitch) {
-      if (si !== S_MODIS) continue;
-      h = k.modis[m] * v[i];
+      if (si === S_MODIS) h = k.modis[m] * v[i];
+      else if (si === S_SNPP) rawV = v[i];
     } else if (ti < eras.tN20) {
-      if (si !== S_SNPP) continue;
-      h = v[i];
-    } else {
-      if (si !== S_N20) continue;
+      if (si === S_SNPP) h = rawV = v[i];
+    } else if (si === S_N20) {
       h = k.n20[m] * v[i];
+      rawV = v[i];
     }
-    if (!(h > 0)) continue;
-    acc.set(ci, (acc.get(ci) ?? 0) + h);
+    if (!(h > 0) && !rawM && !rawV) continue;
+    const a = acc.get(ci);
+    if (a) {
+      if (h > 0) a[0] += h;
+      a[1] += rawM;
+      a[2] += rawV;
+    } else acc.set(ci, [h > 0 ? h : 0, rawM, rawV]);
   }
-  const cells = new Uint32Array(acc.size);
-  const values = new Float64Array(acc.size);
+  let size = 0;
+  for (const a of acc.values()) if (a[0] > 0) size++;
+  const cells = new Uint32Array(size);
+  const values = new Float64Array(size);
+  const modis = new Float64Array(size);
+  const viirs = new Float64Array(size);
   let j = 0;
-  for (const [ci, val] of acc) {
+  for (const [ci, a] of acc) {
+    if (!(a[0] > 0)) continue;
     cells[j] = ci;
-    values[j++] = val;
+    values[j] = a[0];
+    modis[j] = a[1];
+    viirs[j++] = a[2];
   }
-  return { cells, values };
+  return { cells, values, modis, viirs };
 }
 
 /**

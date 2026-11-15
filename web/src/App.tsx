@@ -1,9 +1,12 @@
 import { MapView } from './map/MapView';
 import { CalendarPanel } from './panels/CalendarPanel';
-import { Methodology } from './methodology/Methodology';
-import { RekindleView } from './rekindle/RekindleView';
 import { Tabs } from './Tabs';
 import { linkTo, useRoute } from './route';
+import { lazy, Suspense } from 'react';
+
+// Methodology and Rekindle load on demand (bundle split, S7).
+const Methodology = lazy(() => import('./methodology/Methodology').then((m) => ({ default: m.Methodology })));
+const RekindleView = lazy(() => import('./rekindle/RekindleView').then((m) => ({ default: m.RekindleView })));
 
 export default function App() {
   const route = useRoute();
@@ -23,9 +26,13 @@ export default function App() {
         </nav>
       </header>
       {route === 'methodology' ? (
-        <Methodology />
+        <Suspense fallback={<p className="loading">Loading…</p>}>
+          <Methodology />
+        </Suspense>
       ) : route === 'rekindle' ? (
-        <RekindleView />
+        <Suspense fallback={<p className="loading">Loading…</p>}>
+          <RekindleView />
+        </Suspense>
       ) : (
         <main className="main">
           <MapView />

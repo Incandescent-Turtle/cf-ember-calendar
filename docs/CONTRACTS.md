@@ -12,6 +12,7 @@ The pipeline writes these files, the web app reads them, Rekindle exports its ow
   cube/l01/<tile>.bin.gz                 # 0.1° cells, one file per 10° tile that has any fire
   cube/l10/global.bin.gz                 # 1° cells, whole world
   points/<tile>/<year>.parquet           # cleaned detections
+  exports/global_harmonized_monthly_1deg.{parquet,csv.gz} + README.md   # optional, see "Global harmonized table"
 web/public/                              # ships with the SPA (same origin)
   rekindle/index.json
   rekindle/<fire_id>/…                   # see "Rekindle files"
@@ -150,6 +151,16 @@ Tile = the same 10° tile ids. Sorted by `lat` ascending; row group size 100,000
 - **Summary JSON** (`…_summary.json`): area (label, kind, bbox, km², resolution, cells, tiles, geometry), data build (host, built_at, dekad_range, scope), k per month with stratum and source, baseline years, climatology, current-year months, month-to-date **with its inputs** (current and baseline dekad values), critical period, trend, annual totals, top years/months, busiest month. NaN → `null`. Informational; not read by any code.
 - **Calendar PNG**: the ECharts canvas at 2× with title, legend and source line.
 - **Hotspot CSV**: the columns above (Points file → CSV export columns), time-ordered; `daynight` written `D`/`N`, `confidence_class` `low`/`nominal`/`high`, `type` empty when 255; lat/lon to 5 decimals. Capped at 200 MiB of row groups to read (estimated from Parquet footers before any data is fetched) or 3 M rows; above either, no file and a link to FIRMS Archive Download.
+
+## Global harmonized table (`exports/`, optional)
+
+Written by `pipeline.export_global` from the L10 cube + `calibration.json` + `manifest.json` (read-only on the build); uploaded by `scripts/sync_data.sh --exports DIR`.
+
+- `global_harmonized_monthly_1deg.parquet` (zstd) and `.csv.gz` (ASCII, header row, `\n`, floats rounded to 4 decimals, empty = undefined), same rows and columns; `README.md` = data dictionary, units, FIRMS acknowledgement, licence; `.stats.json` = row counts and totals.
+- **One row per 1° cell and month with any raw activity** (MODIS, S-NPP or NOAA-20 FCD > 0), sorted by `cell, year, month`. A missing cell-month = 0 in every column.
+- Columns: `cell` (L10 id = row × 360 + col), `lon_center`, `lat_center`, `tile` (10° tile id), then the **calendar CSV columns** (Browser exports) without `percentile`: `year,month,harmonized,harmonized_lo,harmonized_hi,modis_fcd,viirs_fcd,k,k_stratum,k_lo,k_hi,snpp_fcd,n20_fcd,era,partial,n_dekads,k_source`. Same meanings; `k_source` says "this cell" where the app says "this area".
+- **Each row equals the app's calendar row for an area covering exactly that cell**: same eras, k choice (cell's own overlap fit if its denominator ≥ `min_modis_fcd`, else the tile's k, else global, else aoi-sparse/none), year bootstrap. Checked against the golden harmonize cases and against `web/src/lib/harmonize.ts` on real cells (`tests/pipeline/test_export_global.py`; DECISIONS.md S7). Summing harmonized values over several cells is *not* the app's value for their union when their k differ.
+- `manifest.exports.global_table` (added by `sync_data.sh --exports`): `{"parquet": "exports/….parquet", "csv_gz": "exports/….csv.gz", "readme": "exports/README.md", "rows": n, "cells": n, "bytes": {"parquet": n, "csv_gz": n}}`. The methodology page shows the download links only when this exists (or when `VITE_GLOBAL_TABLE=1`).
 
 ## Rekindle files (`web/public/rekindle/`)
 

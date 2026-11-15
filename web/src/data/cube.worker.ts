@@ -37,6 +37,8 @@ export type WorkerRequest = Common &
         eras: Eras;
         /** k to apply; null → fit global k from the L10 cube over the given dekad ranges */
         k: KPair | null;
+        /** where `k` comes from, for the map tooltip */
+        kSource: 'aoi' | 'calibration' | null;
         fit: { overlap: [number, number]; n20: [number, number] };
       }
     | {
@@ -59,8 +61,10 @@ export type WorkerRequest = Common &
 export interface DensityResult {
   level: 1 | 10;
   /** one group per L01 tile, or a single group 'L10' */
-  groups: { tile: string; cells: Uint32Array; values: Float64Array }[];
+  groups: { tile: string; cells: Uint32Array; values: Float64Array; modis: Float64Array; viirs: Float64Array }[];
   k: KPair;
+  /** 'aoi' = the calendar's k for the drawn area; 'calibration' = calibration.json global k; 'fitted' = global k fitted from the 1° cube */
+  kSource: 'aoi' | 'calibration' | 'fitted';
   ms: number;
 }
 
@@ -147,6 +151,7 @@ async function aggregate(req: Common & { aoi: AoiRef; t0: number; nT: number }):
 async function density(req: Extract<WorkerRequest, { kind: 'density' }>): Promise<DensityResult> {
   const start = performance.now();
   let k = req.k;
+  const kSource: DensityResult['kSource'] = k && req.kSource ? req.kSource : 'fitted';
   if (!k) {
     const g = await getCube(join(req.baseUrl, req.l10Path));
     k = {
@@ -162,12 +167,12 @@ async function density(req: Extract<WorkerRequest, { kind: 'density' }>): Promis
       const d = densityFromCube(cubes[i], null, req.window, k, req.eras);
       if (d.cells.length) groups.push({ tile, ...d });
     });
-    return { level: 1, groups, k, ms: performance.now() - start };
+    return { level: 1, groups, k, kSource, ms: performance.now() - start };
   }
   if (!masks || masks.level === 10) {
     const g = await getCube(join(req.baseUrl, req.l10Path));
     groups.push({ tile: 'L10', ...densityFromCube(g, masks?.l10 ?? null, req.window, k, req.eras) });
-    return { level: 10, groups, k, ms: performance.now() - start };
+    return { level: 10, groups, k, kSource, ms: performance.now() - start };
   }
   const have = new Set(req.manifestTiles);
   const tiles = masks.touched.filter((t) => have.has(t));
@@ -176,7 +181,7 @@ async function density(req: Extract<WorkerRequest, { kind: 'density' }>): Promis
     const d = densityFromCube(cubes[i], masks.byTile.get(tile)!, req.window, k, req.eras);
     if (d.cells.length) groups.push({ tile, ...d });
   });
-  return { level: 1, groups, k, ms: performance.now() - start };
+  return { level: 1, groups, k, kSource, ms: performance.now() - start };
 }
 
 const bufferCache = new Map<string, Promise<AsyncBuffer>>();

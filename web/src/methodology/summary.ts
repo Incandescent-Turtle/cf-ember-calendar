@@ -53,7 +53,7 @@ export function findings(v: Validation): string[] {
     const unc = md(g.fcd_uncalibrated);
     if (cal !== null && unc !== null)
       out.push(
-        `Calibration is what matters: predicting VIIRS from MODIS for a held-out year, the median error drops from ${unc.toFixed(1)} % (k = 1) to ${cal.toFixed(1)} % with the fitted k.`,
+        `Calibration is what matters: estimating VIIRS from MODIS for a held-out year, the median error drops from ${unc.toFixed(1)} % (k = 1) to ${cal.toFixed(1)} % with the fitted k.`,
       );
     if (cal !== null && cnt !== null) {
       const d = cnt - cal;

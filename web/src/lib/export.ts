@@ -2,7 +2,7 @@
 import type { Glance } from './glance';
 import { monthPercentile, type Harmonized, type KUsed } from './harmonize';
 import { dekadRange, MONTHS_SHORT } from './time';
-import type { AoiSeries, Manifest } from '../data/types';
+import type { AoiSeries, GlobalTableRef, Manifest } from '../data/types';
 import { valueOf } from '../calendar/metric';
 
 /** PRODUCT.md F5 columns first (in that order), then extra traceability columns. */
@@ -159,4 +159,23 @@ export function download(content: BlobPart, filename: string, type: string): voi
   a.click();
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 10_000);
+}
+
+/** Default location of the global table on the data host (pipeline.export_global + sync_data.sh --exports). */
+export const GLOBAL_TABLE_DEFAULT: GlobalTableRef = {
+  parquet: 'exports/global_harmonized_monthly_1deg.parquet',
+  csv_gz: 'exports/global_harmonized_monthly_1deg.csv.gz',
+  readme: 'exports/README.md',
+};
+
+/**
+ * Links for the "Download global table" block: shown when the manifest lists the table, or when the
+ * VITE_GLOBAL_TABLE flag is "1"/"true" (then the default paths are assumed). Otherwise null, so nothing
+ * points at files that aren't uploaded yet.
+ */
+export function globalTableLinks(m: Manifest, baseUrl: string, flag: string | undefined): (GlobalTableRef & { href: (p: string) => string }) | null {
+  const ref = m.exports?.global_table ?? (flag === '1' || flag === 'true' ? GLOBAL_TABLE_DEFAULT : null);
+  if (!ref) return null;
+  const base = baseUrl.replace(/\/+$/, '');
+  return { ...ref, href: (p: string) => `${base}/${p.replace(/^\/+/, '')}` };
 }

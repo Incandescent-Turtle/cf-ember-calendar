@@ -1,9 +1,9 @@
 // Methodology & validation page (PRODUCT.md F8). Renders validation.json, calibration.json and the
 // manifest: every number comes from the current build.
 import { useQuery } from '@tanstack/react-query';
-import { fetchJson } from '../data/client';
+import { DATA_BASE_URL, fetchJson } from '../data/client';
 import { useCalibration, useManifest } from '../data/hooks';
-import { dataScope } from '../lib/export';
+import { dataScope, globalTableLinks } from '../lib/export';
 import { dekadRange, MONTHS_SHORT } from '../lib/time';
 import { linkTo } from '../route';
 import { SeamChart } from './SeamChart';
@@ -66,6 +66,7 @@ function Body({ v, m, cal }: { v: Validation; m: NonNullable<ReturnType<typeof u
         {!scope.global && ' “Global” below means the whole build, not the whole world.'}
         {v.mock && <strong> Mock validation file (development only).</strong>}
       </section>
+      <GlobalTable m={m} />
 
       <section>
         <h2>Findings</h2>
@@ -131,8 +132,8 @@ function Body({ v, m, cal }: { v: Validation; m: NonNullable<ReturnType<typeof u
       <section>
         <h2>Leave-one-year-out test, {years[0]}–{years[1]}</h2>
         <p className="caption">
-          For each overlap year: fit k on the other years, predict that year’s monthly VIIRS from MODIS, compare with what VIIRS actually saw. Pooled over months
-          and years. r = Pearson correlation of log(1 + value); median error = median |predicted − observed| / observed over months with ≥ 10; bias = mean log
+          For each overlap year: fit k on the other years, estimate that year’s monthly VIIRS from MODIS, compare with what VIIRS actually saw. Pooled over months
+          and years. r = Pearson correlation of log(1 + value); median error = median |estimated − observed| / observed over months with ≥ 10; bias = mean log
           ratio (0 = unbiased, −0.69 = half).
         </p>
         <div className="table-wrap">
@@ -169,7 +170,7 @@ function Body({ v, m, cal }: { v: Validation; m: NonNullable<ReturnType<typeof u
         </div>
         <p className="caption">
           Read across the rows: raw counts → fire-cell-days → fire-cell-days with k. The tile level is harder (sparse tile-months, where MODIS often sees nothing
-          while VIIRS sees something), and its calibrated bias is negative: a ratio can’t recover fires MODIS missed entirely.
+          while VIIRS sees something), and its calibrated bias is negative: a ratio can’t recover activity MODIS missed entirely.
         </p>
       </section>
 
@@ -239,6 +240,35 @@ function Body({ v, m, cal }: { v: Validation; m: NonNullable<ReturnType<typeof u
         <code>pipeline/analytics.py</code> and checked against the browser code with shared test files.
       </p>
     </>
+  );
+}
+
+const mb = (b: number | undefined) => (b ? ` (${(b / 2 ** 20).toFixed(0)} MB)` : '');
+
+/** "Download global table": only when the manifest lists it or VITE_GLOBAL_TABLE is set (see globalTableLinks). */
+function GlobalTable({ m }: { m: NonNullable<ReturnType<typeof useManifest>['data']> }) {
+  const g = globalTableLinks(m, DATA_BASE_URL, import.meta.env.VITE_GLOBAL_TABLE as string | undefined);
+  if (!g) return null;
+  return (
+    <section className="global-table">
+      <h2>Download global table</h2>
+      <p>
+        Monthly harmonized hotspot activity (VIIRS-equivalent fire-cell-days) for every 1° cell with activity, whole record
+        {g.rows ? `: ${n0(g.rows)} cell-months, ${n0(g.cells)} cells` : ''}. Each row is what the calendar shows for an area covering that cell, with raw MODIS,
+        raw VIIRS, the k used and its stratum.{' '}
+        <a href={g.href(g.parquet)} download>
+          Parquet{mb(g.bytes?.parquet)}
+        </a>{' '}
+        ·{' '}
+        <a href={g.href(g.csv_gz)} download>
+          CSV, gzipped{mb(g.bytes?.csv_gz)}
+        </a>{' '}
+        ·{' '}
+        <a href={g.href(g.readme)} target="_blank" rel="noreferrer">
+          data dictionary (README)
+        </a>
+      </p>
+    </section>
   );
 }
 

@@ -393,6 +393,10 @@ Constants and values checked against the primary sources (sub-agent lookups: And
   - an IGBP 7 override for sparse desert shrub;
   - a downscaled or terrain-adjusted wind.
 
+## Global build report (2026-11-15, ~11:45)
+
+- 2026-11-15 — **The global build is done, uploaded and live: full report in `docs/GLOBAL_BUILD.md`** (timeline, row counts per cleaning stage, sizes, global k / LOYO / seam numbers vs the fixture, local and deployed smoke tests). In short: `D:\ember` holds 2000-11-01 → 2026-11-20 for 433 10° tiles (the two missing years and 2026 were added with `--add`); cubes 132 MB, points 6.6 GB; the L10 cube is 12.6 MiB. Global k 2.45 (Jul) … 3.30 (Feb); LOYO MdAPE 2.5 % calibrated vs 65 % with k = 1; seam 1.01 → −0.03. The HF dataset at the same URL now serves the global files, so the S3 "Next" steps (`--add`, 2026, global upload) are done. No pipeline code changed.
+
 ## Addendum — S6 → S6b scope: fix the Chilecito hindcast (2026-11-15, ~12:30)
 
 User decisions: **Chilecito is the priority.** Try to make its baseline pass the gate with physically motivated fixes. If that fails, fall back to other fires. `D:\ember` is now a **read-only** source: the global build is done (`docs/GLOBAL_BUILD.md`), points are at `D:\ember\processed\points\<tile>\<year>.parquet`, and data is live on Hugging Face. Still never write, move or delete anything there.
@@ -479,6 +483,39 @@ Run with `rekindle.hindcast --tag <variant>`. Per-variant sweep JSON and figures
 - A: median Δ crosses 0 between ×0.71 (+13.1 h) and ×1.0 (−2.5 h), but |Δ| stays > 12 h at every multiplier. The *spatial pattern* is wrong (some pixels far too early, others far too late), not the overall speed. Detections themselves sit on 13–26 % non-vegetated cells, and the domain median is 32 %, so the mask removes little of the fire's path.
 - **All pre-registered changes fail.** The best is A+B at 12.0 h, 3.7× the gate. Every change moves median |Δ| by < 1.3 h. Chilecito stays `poor_agreement`.
 - Infrastructure: the desktop runs were 2–2.5× slower than in S6 because the S7 agent shared the CPU. A′, A+B and the grid moved to the Alliance cluster Fir (`scripts/slurm/rekindle_{hindcast,grid}.sh`, account def-hngharti, venv in `~/scratch/rk-venv`); solver tests pass there (15/15). A′ was started on the desktop and stopped after a few minutes, then rerun on Fir.
+
+## Handoff — S7 (polish) (2026-11-15, ~13:00)
+
+**Done** (branch `worktree-agent-a0b9a83797c20fd75`, 5 commits on top of `main` f8867ab; nothing pushed, uploaded or deployed)
+- **Layout:** headless Chrome (fresh profile, CDP) at 1280×900 and 390×844 on world view, "Try: Chilecito", `/methodology`, `/rekindle`: no horizontal overflow anywhere (the LOYO/k tables scroll inside `.table-wrap`), **0 console errors, 0 failed requests** — on the dev server against the live HF host, on a production build (`vite preview`) and read-only on the deployed URL. **The deployed site is still pre-Rekindle `main`** (no Rekindle tab); re-check after the next deploy.
+- **CVD:** new `web/src/lib/cvd.ts` + `cvd.test.ts` (Machado 2009, severity 1, CIELAB ΔE): the calendar = map density ramp (YlOrRd) gets darker monotonically under normal/protan/deutan/tritan (L* range > 55), neighbouring classes ΔE > 5, zero vs lowest class and zero vs no-data ΔE > 8, seam lines ΔE > 20. **Sensor colours failed:** MODIS #0072B2 vs NOAA-20 #009E73 was ΔE 17 under tritan. NOAA-20 points are now **#33B88A** (min ΔE 25.1).
+- **Captions:** every chart has one (calendar, seam chart figcaption, Rekindle burned-area chart, new dekad view); tables have `<caption>`.
+- **Wording:** no "fires" for the unit anywhere. The map legend now says "Hotspot activity (VIIRS-equivalent fire-cell-days)" with the same unit tooltip as the calendar. Methodology: "predict/predicted/predicting" (LOYO) → "estimate/estimated/estimating"; "can't recover fires MODIS missed" → "activity". Rekindle: the status caption shows in hindcast and what-if modes; "forecast" appears only as "not a forecast". **No edits to `web/src/rekindle/**`.**
+- **Traceability:** the map cell popup showed only the harmonized value. It now shows raw MODIS, raw VIIRS (S-NPP before the NOAA-20 switch, NOAA-20 after), the k applied (value for a single month, range for "all months") and its stratum (drawn area = calendar k; world = calibration.json global k; or fitted from the 1° cube). `densityFromCube` returns the raw sums; the worker returns `kSource`.
+- **Test infra:** vitest had 2 failing suites in a fresh checkout: `rekindle/data.ts` reads `location` at import (Node has none) and `density.test.ts` read the fixture Parquet even when skipped. Added `web/src/test-setup.ts` (a `location` stub, via `setupFiles`) and a guard. `npm test` 58 passed / 2 skipped; `npm run lint` clean; `npm run build` OK; `uv run pytest` **101 passed, 1 skipped**; ruff clean.
+- **Bundle split:** Methodology and Rekindle routes are `React.lazy`; rolldown `codeSplitting` groups maplibre / echarts / turf / vendor. Main chunk 2,160 kB → 66 kB (maplibre 1.18 MB, echarts 0.60 MB, vendor 0.28 MB, cacheable separately). Production build checked as above.
+- **Dekad-of-year sub-view:** collapsed "Dekad view (10-day periods)" under the monthly calendar (`calendar/DekadCalendar.tsx`, `dekad.ts`): years × 36, `Harmonized.dekadal`, same ramp; tooltip has raw MODIS/VIIRS + k + stratum. A test checks dekads sum to the monthly rows.
+- **Global harmonized table** (user-approved): `uv run python -m pipeline.export_global --data-dir D:/ember --out data/exports` (45 s, numpy only, no DuckDB; reads the L10 cube + calibration + manifest, writes nothing in `D:\ember`, refuses `--out` inside `--data-dir`). One row per 1° cell-month with any raw activity: **2,193,522 rows, 17,000 cells**, Parquet 24.8 MiB, CSV.gz 24.3 MiB, plus `README.md` (data dictionary, FCD definition, FIRMS acknowledgement, licence) and `.stats.json`. Raw totals equal the cube exactly (MODIS 97,705,475 / S-NPP 152,969,509 / NOAA-20 89,922,052). Strata: aoi 219,587, tile 483,386, global 17,891, reference 1,472,658 rows. Bigger than the "few MB" guess: 2.2 M rows × 21 columns with full float precision.
+  - **Equals the browser:** each row = the calendar CSV row for an area covering exactly that cell (1° cells sum exactly from L01, so the L10 cube is the same input). Checked three ways: (1) pytest feeds every single-tile golden harmonize case through the vectorized code (k/lo/hi/stratum + all row fields at 1e-9); (2) pytest on a synthetic build compares every row with `pipeline.harmonize` per cell; (3) a scratch script ran `web/src/lib/harmonize.ts` + `calendarCsv` on 13 real cells from `D:\ember` (all four strata, Chilecito, Central Africa, Canada, Mato Grosso + random): **2,218 rows, 0 mismatches**. A mutation (k threshold ×2) makes the golden test fail.
+  - Columns: `cell, lon_center, lat_center, tile` + the calendar CSV columns minus `percentile`; `k_source` says "this cell" for "this area". Contract in CONTRACTS.md → Global harmonized table; commands in CLAUDE.md.
+  - **Licence for the table: CC BY 4.0** (in the README; code stays MIT). That's my choice, not a user decision — change it in `pipeline/export_global.py` → `write_readme` if you want something else.
+  - **UI:** "Download global table" block on `/methodology` (Parquet / CSV.gz / README links), shown **only** when `manifest.exports.global_table` exists or `VITE_GLOBAL_TABLE=1`. Today neither is true, so nothing changes until the upload.
+
+**Upload (not done):**
+```bash
+HF_DATASET_REPO=Incandescent-Turtle/cf-ember-calendar-data scripts/sync_data.sh D:/ember --exports data/exports --exports-only
+```
+This uploads `exports/` (~50 MB, one commit), then re-uploads the manifest from `D:\ember` with `points` unchanged plus `exports.global_table`, then runs `check_host.sh`. No Pages rebuild is needed; the link appears on the next page load. (`--exports` without `--exports-only` does a full sync plus the table.)
+
+**Cut:** satellite basemap toggle. EOX's current licence page (cloudless.eox.at/documentation/license) puts EOxCloudless under CC BY-NC-SA 4.0, or a commercial licence. It does not confirm the CC-BY 2016 layer BUILD_PLAN assumed. Not worth the risk before the freeze.
+
+**Next**
+- Merge this branch, deploy, then re-run the deployed check (the Rekindle tab and the lazy chunks are new on the deployed site).
+- Upload the table (above) if you want the download link in the submission.
+
+**Surprises**
+- The worktree started from `875b5ca` (pre-S6). I fast-forwarded it to `main` f8867ab before working.
+- `python` text-mode writes on Windows produce CRLF; `*.sh` files are LF-only by `.gitattributes`, so `sync_data.sh` was normalized before the commit.
 
 ## S6b decisions before the next runs (2026-11-15, 13:20; no results from these runs seen yet)
 
