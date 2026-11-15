@@ -644,6 +644,21 @@ Screen (`rekindle.candidates --screen`), applied to each `rekindle.candidates` w
 - **Pick:** among windows passing all rules, the most distinct VIIRS overpasses (then most days). The top 3 with reasons are logged before any simulation; the pick goes through `prep` and the frozen A+B sweep (blind, same gate and metrics).
 - Chilecito and Córdoba would fail P2/P3 (sanity check, reported with the screen output).
 
+## S6b results: EXPLORATORY 24 h re-initialised windows (15:35; all on Fir, A+B frozen)
+
+`rekindle.hindcast --fire <f> --nonveg-max 50 --diurnal --windows 24 [--window-ignite own] --tag x_win24[own]_AB`; JSON in `docs/report/rekindle/<fire>_x_win24*_AB_windows.json`. Pooled median |Δ| over all windows' new pixels; per-window medians in brackets ("—" = median pixel never reached).
+
+| fire / variant | best ×ROS | pooled median \|Δ\| | pooled median Δ | hit | n px | per-window median \|Δ\| at best × | gate |
+|---|---|---|---|---|---|---|---|
+| chilecito-2026 / x_win24_AB (restart) | 2.0 | 8.13 h | −7.94 | 0.91 | 640 | [6.5, 8.0, 10.5, 11.0, 0.4] | fail (3.21 h) |
+| cordoba-2024 / x_win24_AB (restart) | 0.5 | 9.13 h | −9.13 | 0.95 | 897 | [5.4, 9.7, 22.2, 9.1, 10.4, 0.1] | fail (2.93 h) |
+| cordoba-2024 / x_win24own_AB (own-time sensitivity) | 0.25 | 37.85 h | −36.28 | 0.88 | 897 | [4.4, 24.9, 60.3, 66.2, 47.0, 91.5] | fail |
+| chilecito-2026 / x_win24own_AB | (job 4240230 running) | | | | | | |
+
+- **Both fail.** Restarting every 24 h from the observed extent cuts the error (Chilecito 12.0 → 8.1 h, Córdoba 15.2 → 9.1 h) but not to the gate. Igniting earlier detections at their own times (no real restart) is far worse, as expected.
+- **Why the floor:** many windows' medians barely move with the multiplier (Córdoba window 2: 9.7 h at every ×). New pixels next to the restart extent are reached within minutes, but the first overpass that sees them comes hours later (night gaps), so Δ ≈ −(time to the next overpass). Hotspot times are upper bounds; with a 24 h clock-based restart the metric is dominated by overpass timing rather than spread. Restarting at overpass times would reduce that, but it is a different (not pre-registered) protocol and is not run.
+- Nothing ships from this; no counterfactuals.
+
 ## S6b free-spread pre-screen results (15:22; before any simulation of a candidate)
 
 `uv run python -m rekindle.candidates --region {argentina,canada} --screen --top 300 --out docs/report/rekindle/candidates_<region>_screen.json` (thresholds exactly as pre-registered; seconds per region).
@@ -667,8 +682,8 @@ Screen (`rekindle.candidates --screen`), applied to each `rekindle.candidates` w
 - Rekindle tab: fire selector (labelled), "Distance from ignition vs time" chart, "Limits / what validation showed" (gate, all variants incl. exploratory and blind rows, diagnosis, 4 citations); the same summary is a section on /methodology. Checked at 1920/1280-class and 390 px: no horizontal overflow.
 
 **In progress (15:25)**
-- Task 2 windows on Fir (tags `x_win24_AB` = restart, `x_win24own_AB` = own-time sensitivity): Córdoba done (restart 9.13 h at ×0.5; own 37.85 h; both fail 2.93 h). Chilecito jobs 4240228 (restart) and 4240230 (own) running → `data/rekindle/chilecito-2026/variants/x_win24*_AB/windows.json` and `docs/report/rekindle/chilecito-2026_x_win24*_AB_windows.json` on Fir. Copy back: `rb run 'cd ~/scratch/cf-ember-calendar && tar czf ~/scratch/win.tgz docs/report/rekindle/*_x_win24*'`, `rb get`, extract in the repo root, commit.
-- Task 3: `sask-2023` picked by the screen; `rekindle.prep --fire sask-2023 --size-km 50 --points D:/ember/processed/points` running on the desktop (log `data/rekindle/prep_sask.log`). Next: upload `domain.npz`, `meta.json`, `raw/merra2_point.json` to Fir `data/rekindle/sask-2023/` and run `sbatch ... rekindle_hindcast.sh sask-2023 "" --nonveg-max 50 --diurnal` (blind; no tag, so a pass becomes the fire's baseline).
+- (done, see results above) Task 2 windows on Fir (tags `x_win24_AB` = restart, `x_win24own_AB` = own-time sensitivity): Córdoba done (restart 9.13 h at ×0.5; own 37.85 h; both fail 2.93 h). Chilecito jobs 4240228 (restart) and 4240230 (own) running → `data/rekindle/chilecito-2026/variants/x_win24*_AB/windows.json` and `docs/report/rekindle/chilecito-2026_x_win24*_AB_windows.json` on Fir. Copy back: `rb run 'cd ~/scratch/cf-ember-calendar && tar czf ~/scratch/win.tgz docs/report/rekindle/*_x_win24*'`, `rb get`, extract in the repo root, commit.
+- Task 3: `sask-2023` picked by the screen; `rekindle.prep --fire sask-2023 --size-km 50 --points D:/ember/processed/points` done on the desktop (556×556 at 90 m, 4,451 detections, 3 ignition pixels; IGBP mostly woody savanna). Uploaded; **blind sweep = Fir job 4240797** (outputs `data/rekindle/sask-2023/{baseline.npy,calibration.json}`, `docs/report/rekindle/sask-2023_*`). Was: upload `domain.npz`, `meta.json`, `raw/merra2_point.json` to Fir `data/rekindle/sask-2023/` and run `sbatch ... rekindle_hindcast.sh sask-2023 "" --nonveg-max 50 --diurnal` (blind; no tag, so a pass becomes the fire's baseline).
 
 **Next:** finish task 2 logging; sask-2023 blind sweep; if it passes, grid array + export (what-if turns on automatically); if not, export it baseline-only. Then optional task 4.
 
