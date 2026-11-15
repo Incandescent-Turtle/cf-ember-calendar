@@ -32,7 +32,7 @@ L10_DIV = 100  # 1 deg / 0.01 deg
 
 # ---------------------------------------------------------------- 0.01 deg
 def _clamp(v: int, hi: int) -> int:
-    return 0 if v < 0 else hi if v > hi else v
+    return 0 if v < 0 else min(v, hi)
 
 
 def rc01(lat: float, lon: float) -> tuple[int, int]:

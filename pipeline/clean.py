@@ -19,6 +19,7 @@ Output: hotspots/instrument=*/year=*/tile10=*/<sensor>_<i>.parquet
 from __future__ import annotations
 
 import csv
+import itertools
 import logging
 import re
 import shutil
@@ -176,7 +177,7 @@ def clean_all(con: duckdb.DuckDBPyConnection, cfg: Config, fresh: bool = True,
         report.append({"sensor": sensor, "year": year, **c})
         log.info("clean %-12s %d  %s", sensor, year,
                  " > ".join(f"{k}={c[k]:,}" for k in RULES))
-        assert all(c[a] >= c[b] for a, b in zip(RULES, RULES[1:])), "counts must not grow"
+        assert all(c[a] >= c[b] for a, b in itertools.pairwise(RULES)), "counts must not grow"
     write_counts(cfg, report)
     return report
 

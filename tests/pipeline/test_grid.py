@@ -46,7 +46,7 @@ def test_l01_l10():
     tile, c = g.l01_of_cell01(g.cell01(-29.25, -67.55))
     assert tile == "S30W070"
     assert c == 7 * 100 + 24  # row = floor(0.75/0.1)=7, col = floor(2.45/0.1)=24
-    w, s, e, n = g.l01_bounds(tile, c)
+    w, s, _e, _n = g.l01_bounds(tile, c)
     assert (round(w, 6), round(s, 6)) == (-67.6, -29.3)
     assert g.l10_cell(-29.25, -67.55) == 60 * 360 + 112
     assert g.l10_bounds(60 * 360 + 112) == (-68, -30, -67, -29)
