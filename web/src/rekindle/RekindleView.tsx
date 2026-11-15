@@ -8,9 +8,10 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
 import type { FeatureCollection } from 'geojson';
 import {
-  fetchFires, fetchMeta, fetchObserved, fetchRaster, fetchRuns, fmtUtc, hoursSince, isochrones, rampCss,
-  renderRgba, runKey, windAt, type FireMeta, type Run,
+  burstKey, fetchBurst, fetchFires, fetchMeta, fetchObserved, fetchRaster, fetchRuns, fmtUtc, hoursSince, isochrones, rampCss,
+  renderRgba, runKey, windAt, type BurstIndex, type FireMeta, type Run,
 } from './data';
+import { BurstPanel, WindowScreen } from './Burst';
 import { AreaChart } from './AreaChart';
 import { RekindleFindings } from './Findings';
 import { SpreadChart } from './SpreadChart';
@@ -38,8 +39,9 @@ export function RekindleView() {
   const meta = useQuery({ queryKey: ['rk-meta', id], queryFn: () => fetchMeta(id!), enabled: !!id, staleTime: Infinity });
   const runs = useQuery({ queryKey: ['rk-runs', id], queryFn: () => fetchRuns(id!), enabled: !!id, staleTime: Infinity });
   const observed = useQuery({ queryKey: ['rk-obs', id], queryFn: () => fetchObserved(id!), enabled: !!id, staleTime: Infinity });
+  const burst = useQuery({ queryKey: ['rk-burst', id], queryFn: () => fetchBurst(id!).catch(() => null), enabled: !!id, staleTime: Infinity });
   const err = fires.error ?? meta.error ?? runs.error ?? observed.error;
-  if (meta.data && runs.data && observed.data) {
+  if (meta.data && runs.data && observed.data && burst.isFetched) {
     const picker =
       fires.data && fires.data.fires.length > 1 ? (
         <label className="rk-fire-pick">
@@ -53,7 +55,7 @@ export function RekindleView() {
           </select>
         </label>
       ) : null;
-    return <RkLoaded key={meta.data.id} meta={meta.data} runs={runs.data.runs} observed={observed.data} picker={picker} />;
+    return <RkLoaded key={meta.data.id} meta={meta.data} runs={runs.data.runs} observed={observed.data} burst={burst.data ?? null} picker={picker} />;
   }
   return (
     <main className="main">
@@ -66,7 +68,7 @@ export function RekindleView() {
   );
 }
 
-function RkLoaded({ meta, runs, observed, picker }: { meta: FireMeta; runs: Run[]; observed: FeatureCollection; picker: ReactNode }) {
+function RkLoaded({ meta, runs, observed, burst, picker }: { meta: FireMeta; runs: Run[]; observed: FeatureCollection; burst: BurstIndex | null; picker: ReactNode }) {
   const axes = meta.axes;
   const byKey = useMemo(() => new Map(runs.map((r) => [r.key, r])), [runs]);
   const baseline = byKey.get('baseline')!;
@@ -82,38 +84,103 @@ function RkLoaded({ meta, runs, observed, picker }: { meta: FireMeta; runs: Run[
   const [compare, setCompare] = useState(true);
   const key = mode === 'baseline' || !canWhatIf ? 'baseline' : runKey(ws, wd, mo);
   const run = byKey.get(key) ?? baseline;
+  // S6c burst-window what-ifs (exploratory): only when a 24 h window qualified.
+  const canBurst = !!burst && burst.windows.length > 0;
+  const [burstOn, setBurstOn] = useState(false);
+  const [bwi, setBwi] = useState(0);
+  const [bScale, setBScale] = useState(1);
+  const [bDpp, setBDpp] = useState(0);
+  const bWin = canBurst ? burst.windows[Math.min(bwi, burst.windows.length - 1)] : null;
+  const bBase = bWin?.runs.find((r) => r.wind_scale === 1 && r.dead_delta_pct === 0) ?? null;
+  const bRun = bWin ? (bWin.runs.find((r) => r.key === burstKey(bWin.index, bScale, bDpp)) ?? bBase) : null;
+  const inBurst = burstOn && !!bWin && !!bRun && !!bBase;
+  const hoursNow = inBurst ? Math.round(bWin.hours) : hours;
   const size = meta.raster.width * meta.raster.height;
-  const raster = useQuery({ queryKey: ['rk-raster', meta.id, run.file], queryFn: () => fetchRaster(meta.id, run.file, size), staleTime: Infinity });
-  const baseRaster = useQuery({ queryKey: ['rk-raster', meta.id, baseline.file], queryFn: () => fetchRaster(meta.id, baseline.file, size), staleTime: Infinity });
+  const file = inBurst ? bRun.file : run.file;
+  const baseFile = inBurst ? bBase.file : baseline.file;
+  const raster = useQuery({ queryKey: ['rk-raster', meta.id, file], queryFn: () => fetchRaster(meta.id, file, size), staleTime: Infinity });
+  const baseRaster = useQuery({ queryKey: ['rk-raster', meta.id, baseFile], queryFn: () => fetchRaster(meta.id, baseFile, size), staleTime: Infinity });
+  const showBase = inBurst ? compare && bRun.key !== bBase.key : compare && run.key !== 'baseline';
+
+  const switchView = (b: boolean) => {
+    setPlaying(false);
+    setBurstOn(b);
+    setT(b && bWin ? Math.round(bWin.hours) : hours);
+  };
 
   useEffect(() => {
     if (!playing) return;
-    const step = Math.max(1, Math.round(hours / 60));
-    const id = setInterval(() => setT((x) => (x >= hours ? (setPlaying(false), hours) : Math.min(hours, x + step))), 120);
+    const step = Math.max(1, Math.round(hoursNow / 60));
+    const id = setInterval(() => setT((x) => (x >= hoursNow ? (setPlaying(false), hoursNow) : Math.min(hoursNow, x + step))), 120);
     return () => clearInterval(id);
-  }, [playing, hours]);
+  }, [playing, hoursNow]);
 
   return (
     <main className="main">
       <div className="map-wrap">
-        <RkMap meta={meta} minutes={raster.data ?? null} baseMinutes={compare && run.key !== 'baseline' ? (baseRaster.data ?? null) : null} t={t} hours={hours} observed={observed} />
+        <RkMap
+          meta={meta}
+          minutes={raster.data ?? null}
+          baseMinutes={showBase ? (baseRaster.data ?? null) : null}
+          t={t}
+          hours={hoursNow}
+          observed={observed}
+          offsetH={inBurst ? bWin.start_h_after_t0 : 0}
+          showIgnitions={!inBurst}
+        />
       </div>
       <aside className="panel">
         <Tabs />
         <div className="panel-body">
           {picker}
-          <RkPanel
-            {...{ meta, run, baseline, hours, t, setT, playing, setPlaying, mode, setMode, canWhatIf, ws, setWs, wd, setWd, mo, setMo, compare, setCompare }}
-            loading={raster.isFetching}
-            missing={key !== run.key}
-          />
+          {canBurst && (
+            <div className="seg rk-mode" role="radiogroup" aria-label="View">
+              <button className={!burstOn ? 'on' : ''} onClick={() => switchView(false)} role="radio" aria-checked={!burstOn}>
+                Whole fire (hindcast)
+              </button>
+              <button className={burstOn ? 'on' : ''} onClick={() => switchView(true)} role="radio" aria-checked={burstOn}>
+                Burst-window what-if <span className="rk-tag exploratory">EXPLORATORY</span>
+              </button>
+            </div>
+          )}
+          {inBurst ? (
+            <BurstPanel
+              burst={burst!}
+              win={bWin}
+              setWin={(i) => {
+                setBwi(i);
+                setT(Math.round(burst!.windows[i].hours));
+              }}
+              run={bRun}
+              base={bBase}
+              scale={bScale}
+              setScale={setBScale}
+              dpp={bDpp}
+              setDpp={setBDpp}
+              compare={compare}
+              setCompare={setCompare}
+              t={t}
+              setT={setT}
+              playing={playing}
+              setPlaying={setPlaying}
+              loading={raster.isFetching}
+            />
+          ) : (
+            <RkPanel
+              {...{ meta, run, baseline, hours, t, setT, playing, setPlaying, mode, setMode, canWhatIf, ws, setWs, wd, setWd, mo, setMo, compare, setCompare, burst }}
+              loading={raster.isFetching}
+              missing={key !== run.key}
+            />
+          )}
         </div>
       </aside>
     </main>
   );
 }
 
-function RkMap({ meta, minutes, baseMinutes, t, hours, observed }: { meta: FireMeta; minutes: Uint16Array | null; baseMinutes: Uint16Array | null; t: number; hours: number; observed: FeatureCollection }) {
+function RkMap({
+  meta, minutes, baseMinutes, t, hours, observed, offsetH = 0, showIgnitions = true,
+}: { meta: FireMeta; minutes: Uint16Array | null; baseMinutes: Uint16Array | null; t: number; hours: number; observed: FeatureCollection; offsetH?: number; showIgnitions?: boolean }) {
   const container = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const [loaded, setLoaded] = useState(false);
@@ -194,9 +261,15 @@ function RkMap({ meta, minutes, baseMinutes, t, hours, observed }: { meta: FireM
   useEffect(() => {
     const map = mapRef.current;
     if (!loaded || !map) return;
-    const fc = { ...observed, features: observed.features.filter((f) => hoursSince(meta.start, (f.properties as { t: string }).t) <= t + 1e-6) };
+    const fc = { ...observed, features: observed.features.filter((f) => hoursSince(meta.start, (f.properties as { t: string }).t) <= offsetH + t + 1e-6) };
     (map.getSource('rk-obs') as GeoJSONSource).setData(fc);
-  }, [loaded, observed, t, meta.start]);
+  }, [loaded, observed, t, meta.start, offsetH]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!loaded || !map) return;
+    map.setLayoutProperty('rk-ign', 'visibility', showIgnitions ? 'visible' : 'none');
+  }, [loaded, showIgnitions]);
 
   return <div ref={container} className="map" aria-label="Rekindle map" />;
 }
@@ -223,6 +296,7 @@ interface PanelProps {
   setCompare: (b: boolean) => void;
   loading: boolean;
   missing: boolean;
+  burst: BurstIndex | null;
 }
 
 function AxisSlider({ label, axis, value, onChange, fmt }: { label: string; axis: number[]; value: number; onChange: (v: number) => void; fmt: (v: number) => string }) {
@@ -249,7 +323,9 @@ function RkPanel(p: PanelProps) {
     meta.status === 'validated'
       ? 'Baseline passed the quality gate'
       : meta.status === 'poor_agreement'
-        ? 'Poor agreement: the baseline did not pass the quality gate, so no what-if runs are shown'
+        ? p.burst?.windows.length
+          ? 'Poor agreement: the whole-fire baseline did not pass the quality gate, so there are no whole-fire what-ifs. One 24 h window did match (see “Burst-window what-if”, exploratory)'
+          : 'Poor agreement: the baseline did not pass the quality gate, so no what-if runs are shown'
         : 'Uncalibrated: no detections to check against';
 
   return (
@@ -392,6 +468,8 @@ function RkPanel(p: PanelProps) {
           <SpreadChart profile={meta.spread_profile} mult={meta.baseline.ros_multiplier} />
         </>
       )}
+
+      {p.burst && <WindowScreen burst={p.burst} />}
 
       <details className="rk-details" open={meta.status !== 'validated'}>
         <summary>Limits / what validation showed</summary>

@@ -208,6 +208,24 @@ Grid-run keys: `ws{wind_ms:02d}_wd{deg:03d}_m{moist:02d}`, e.g. `ws09_wd270_m06`
 
 `<fire_id>/runs/<key>.u16.gz`: gzip of little-endian `uint16`, row-major, **north-up (row 0 = north edge)**, `width × height` from `meta.raster`. Value = arrival time in **minutes after the first ignition**; `65535` = not reached within the run duration. Raster is on the **EPSG:3857-aligned** grid in `bounds_3857`, so MapLibre's image source (which stretches linearly in Web Mercator) lines up exactly.
 
+`<fire_id>/burst/index.json` (S6c, **EXPLORATORY / post-hoc**; `rekindle.burst`; optional, the SPA treats a 404 as "none"):
+```json
+{"fire": "chilecito-2026", "EXPLORATORY": true, "post_hoc": true, "what": "…", "rule": "…", "gate_h": 3.21,
+ "axes": {"wind_scale": [0, 0.5, 1, 1.5, 2], "dead_delta_pct": [-2, 0, 2, 4], "dead_floor_pct": 2},
+ "all_windows": [{"index": 0, "t_k_h": 0, "ros_multiplier": 2.0, "median_abs_timing_error_h": 6.5, "median_timing_error_h": -6.1,
+                  "sorensen": 0.14, "n_pixels": 215, "hit_rate": 0.74, "area_km2": 737, "observed_footprint_km2": 57,
+                  "qualifies": false, "reasons": ["…"]}],
+ "windows": [{"…every all_windows field…": "", "start": "ISO", "start_h_after_t0": 24.0, "hours": 24, "n_ignitions": 224,
+              "rothermel": {"fuel_model": 1, "wind_10m_ms_median": 1.6, "dead_1h_pct_median": 5.6,
+                            "rows": [{"wind_scale": 1, "dead_delta_pct": 0, "head_kmh": 1.2, "ratio": 1.0}]},
+              "baseline_rerun_check": {"median_abs_timing_error_h": 2.27, "sorensen": 0.456},
+              "observed": [{"lon": 0, "lat": 0, "t_h": 1.5, "sensor": "VIIRS_NOAA20"}],
+              "runs": [{"key": "w1_u100_dp0", "file": "burst/w1_u100_dp0.u16.gz", "wind_scale": 1, "dead_delta_pct": 0,
+                        "burned_km2_by_hour": [0, "…"], "start_km2": 0, "end_km2": 0, "new_km2": 0,
+                        "new_km2_vs_baseline": 0, "new_ratio_vs_baseline": 1.0}]}]}
+```
+`windows` holds only qualifying 24 h windows (rule in `rule`; DECISIONS.md "Pre-registration — S6c"). The window baseline is `wind_scale` 1, `dead_delta_pct` 0. Burst-run keys: `w{index}_u{round(scale·100):03d}_d{m|p}{|delta|}`, e.g. `w1_u150_dm2`. Rasters use the same grid and encoding as `runs/<key>.u16.gz`, but minutes count from the **window start**; cells at 0 are the detected extent that the run restarts from.
+
 Size budget: ≈ 80 KB per run gzipped × (192 grid + baseline) ≈ 15–20 MB per fire → fits Pages (≤ 25 MiB/file, ≤ 20k files). If a second fire doubles it, still fine.
 
 ## Golden files (`tests/golden/`)

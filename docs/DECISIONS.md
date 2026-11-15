@@ -702,3 +702,34 @@ Screen (`rekindle.candidates --screen`), applied to each `rekindle.candidates` w
 - Nothing needs a counterfactual decision: no fire, exploratory or blind, passed the gate.
 
 **Fir access for a new session:** `scripts/fir.sh serve` in the background → approve the Duo push → `scripts/fir.sh run '<cmd>' | put <local-abs-win> <remote> | get <remote> <local>`. Checkout `~/scratch/cf-ember-calendar`, venv `~/scratch/rk-venv`, module `StdEnv/2023 python/3.12`, account `def-hngharti`. Run `git clean -fdq docs/report` there before `git pull`.
+
+## Pre-registration — S6c burst-window what-ifs (2026-11-15, written before `sask-2023` windows are run)
+
+User decision (after the S6b failures): save the what-if feature by running counterfactuals only for 24 h windows where the hindcast, re-initialised from the observed extent, matches the detections. **POST-HOC / EXPLORATORY.** The whole-fire pre-registered gate still fails for all three fires and stays shown.
+
+- **Window qualifies** if, at its own best multiplier (chosen by window median |Δ|, ties by hit rate, as before): median |Δ| ≤ the fire's gate (mean overpass interval), **and** Sørensen ≥ 0.4, **and** ≥ 50 scored pixels. Multiplier fitted in-sample on that window (same as the whole-fire protocol: calibrated, not blind).
+- Written after seeing the Chilecito and Córdoba window files (docs/report/rekindle/*_win24_AB_windows.json), so for those two it is post-hoc. By this rule Chilecito day 2 (t=24 h: 2.3 h, Sør 0.46, n 157) qualifies; Córdoba day 1 (3.2 h vs 2.93 h) does not (near miss). `sask-2023` windows have not been run; the rule is applied to it as is.
+- **What-if axes, relative to the observed window conditions:** MERRA-2 wind speed ×{0, 0.5, 1, 1.5, 2} (direction unchanged), dead fuel moisture {−2, 0, +2, +4} percentage points on the diurnal series (floor 2 %). Live moisture, fuels, multiplier unchanged. Result shown: burned area at window end and the area difference vs the window baseline, plus the Rothermel head-rate ratio for the same perturbations.
+- Wording: the model's response in a window where it matched the detections; not a reconstruction of the whole fire, and not a forecast.
+
+## S6c results: burst-window what-ifs (2026-11-15; desktop, `rekindle.burst`; EXPLORATORY / post-hoc)
+
+`uv run python -m rekindle.hindcast --fire sask-2023 --nonveg-max 50 --diurnal --windows 24 --tag x_win24_AB` (desktop, run after the pre-registration above): pooled 12.14 h at ×4.0 (sweep edge) vs 1.67 h → fail. Per-window Sørensen 0.55–0.91: the model gets the shape of each day's growth and runs behind (dead 1-h 14 %, near FM2's extinction moisture).
+
+Window verdicts (own best multiplier; `docs/report/rekindle/<fire>_burst.json`):
+
+| Fire | Qualifying | Near misses / notes |
+|---|---|---|
+| Chilecito | **day 2** (t=24 h, ×0.5): 2.27 h ≤ 3.21 h, Sør 0.456, n 157. Rerun reproduces the windows file exactly | day 5: 0.4 h but Sør 0.18 (over-burn ×4); the window baseline burns 242 km² vs 72 km² detection footprint (3.4×) |
+| Córdoba | none | day 1: 3.23 h vs 2.93 h, Sør 0.53 |
+| Saskatchewan | none | day 3: 1.75 h vs 1.67 h, Sør 0.82. Day 6 (t=120 h) passed the rule as written but is a **2 h tail** (detections end at 122 h) |
+
+**Deviation (logged as it happened):** the rule excludes windows shorter than 24 h (clipped by the end of the detections). Found when sask's 2 h tail passed. The pre-registration says 24 h windows, and excluding the tail removes a what-if rather than adding a claim. Its 20 runs were made and then deleted; no what-ifs for sask.
+
+Chilecito day-2 what-ifs (new area in 24 h vs the window baseline 231 km²): wind ×0 → ×0.74, ×0.5 → ×0.77, ×1.5 → ×1.28, ×2 → ×1.60; dead moisture +2 → ×0.84, +4 → ×0.73, −2 → ×1.09. Rothermel head-rate ratios (FM1, 1.6 m/s, 5.6 %): wind ×2 → ×2.7, +4 points → ×0.64. Areas respond less than head rate, because flank and back spread and the restart extent dominate a 24 h window.
+
+UI: Rekindle tab gets a "Whole fire (hindcast) | Burst-window what-if (EXPLORATORY)" switch (only for fires with a qualifying window), a status caption stating the hindsight choice and the failed whole-fire gate, a ratio grid, and a "24 h window check" table on every fire. Findings (tab + /methodology) add "Equations or data?", the window table, the over-burn caveat on the 8–9 h windowed numbers, and FARSITE/Prometheus practice (Finney 1998; Tymstra et al. 2010). Wording: "the equations are verified; the failures point to inputs and missing processes, not the equations, but the model has not been shown to work over a whole fire". Claiming "the physics is right" would go further than the evidence.
+
+## Handoff — S6c (2026-11-15)
+
+Done: burst-window what-ifs (Chilecito day 2 only), window check on every fire, Findings rewrite, CONTRACTS `burst/`. pytest 108, vitest 60, ruff/oxlint clean, build OK, checked at 1280 px locally (390 px not checked: browser would not resize). Pushed to `main` (fast-forward from `s6b`). Next: check the deployed `/rekindle` (both views, all three fires) and `/methodology`, including phone width.

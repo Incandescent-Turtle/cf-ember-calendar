@@ -104,6 +104,66 @@ export interface ObservedProps {
   track: number;
 }
 
+/** One 24 h window at its own best multiplier, with the S6c qualification verdict. */
+export interface BurstWindowEval {
+  index: number;
+  t_k_h: number;
+  ros_multiplier: number;
+  median_abs_timing_error_h: number | null;
+  median_timing_error_h: number | null;
+  sorensen: number;
+  n_pixels: number;
+  hit_rate: number | null;
+  area_km2: number;
+  observed_footprint_km2: number;
+  qualifies: boolean;
+  reasons: string[];
+}
+
+export interface BurstRun {
+  key: string;
+  file: string;
+  wind_scale: number;
+  dead_delta_pct: number;
+  burned_km2_by_hour: number[];
+  start_km2: number;
+  end_km2: number;
+  new_km2: number;
+  new_km2_vs_baseline: number;
+  new_ratio_vs_baseline: number | null;
+}
+
+export interface BurstWindow extends BurstWindowEval {
+  start: string;
+  start_h_after_t0: number;
+  hours: number;
+  n_ignitions: number;
+  rothermel: {
+    fuel_model: number;
+    wind_10m_ms_median: number;
+    dead_1h_pct_median: number;
+    rows: { wind_scale: number; dead_delta_pct: number; head_kmh: number; ratio: number | null }[];
+  };
+  baseline_rerun_check: { median_abs_timing_error_h: number; sorensen: number };
+  runs: BurstRun[];
+}
+
+/** S6c burst-window what-ifs (EXPLORATORY, post-hoc): <fire>/burst/index.json from rekindle.burst. */
+export interface BurstIndex {
+  fire: string;
+  EXPLORATORY: true;
+  post_hoc: true;
+  what: string;
+  rule: string;
+  gate_h: number;
+  axes: { wind_scale: number[]; dead_delta_pct: number[]; dead_floor_pct: number };
+  all_windows: BurstWindowEval[];
+  windows: BurstWindow[];
+}
+
+export const burstKey = (i: number, scale: number, dpp: number) =>
+  `w${i}_u${String(Math.round(scale * 100)).padStart(3, '0')}_d${dpp < 0 ? 'm' : 'p'}${Math.abs(dpp)}`;
+
 async function getJson<T>(path: string): Promise<T> {
   const r = await fetch(`${BASE}/${path}`);
   if (!r.ok) throw new Error(`${path}: HTTP ${r.status}`);
@@ -113,7 +173,15 @@ async function getJson<T>(path: string): Promise<T> {
 export const fetchFires = () => getJson<{ fires: FireRef[] }>('index.json');
 export const fetchMeta = (id: string) => getJson<FireMeta>(`${id}/meta.json`);
 export const fetchRuns = (id: string) => getJson<{ runs: Run[] }>(`${id}/runs/index.json`);
-export const fetchObserved = (id: string) => getJson<FeatureCollection<Point, ObservedProps>>(`${id}/observed.geojson`);
+/** Burst-window what-ifs; null when the fire has none exported (older exports). */
+export async function fetchBurst(id: string): Promise<BurstIndex | null> {
+  const r = await fetch(`${BASE}/${id}/burst/index.json`);
+  if (!r.ok) return null;
+  const ct = r.headers.get('content-type') ?? '';
+  if (ct.includes('text/html')) return null; // SPA fallback page, not the file
+  return (await r.json()) as BurstIndex;
+}
+export const fetchObserved =(id: string) => getJson<FeatureCollection<Point, ObservedProps>>(`${id}/observed.geojson`);
 
 /** Fetch a run raster → minutes after first ignition (65535 = not reached). */
 export async function fetchRaster(id: string, file: string, size: number): Promise<Uint16Array> {

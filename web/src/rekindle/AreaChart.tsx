@@ -7,7 +7,9 @@ import { CanvasRenderer } from 'echarts/renderers';
 
 echarts.use([LineChart, GridComponent, LegendComponent, MarkLineComponent, TooltipComponent, CanvasRenderer]);
 
-export function AreaChart({ start, baseline, selected, t }: { start: string; baseline: number[]; selected: number[] | null; t: number }) {
+export function AreaChart({
+  start, baseline, selected, t, baseLabel = 'Baseline (hindcast)', xName = 'hours after first detection',
+}: { start: string; baseline: number[]; selected: number[] | null; t: number; baseLabel?: string; xName?: string }) {
   const el = useRef<HTMLDivElement>(null);
   const chart = useRef<echarts.ECharts | null>(null);
   useEffect(() => {
@@ -33,11 +35,11 @@ export function AreaChart({ start, baseline, selected, t }: { start: string; bas
           axisPointer: { type: 'line' },
           formatter: undefined,
         },
-        xAxis: { type: 'category', data: xs, name: 'hours after first detection', nameLocation: 'middle', nameGap: 20, axisLabel: { interval: 23, fontSize: 10 } },
+        xAxis: { type: 'category', data: xs, name: xName, nameLocation: 'middle', nameGap: 20, axisLabel: { interval: 23, fontSize: 10 } },
         yAxis: { type: 'value', name: 'km²', nameTextStyle: { fontSize: 10 }, axisLabel: { fontSize: 10 } },
         series: [
           {
-            name: 'Baseline (hindcast)', type: 'line', data: baseline, showSymbol: false, lineStyle: { color: '#1f6fb2', width: 2 }, itemStyle: { color: '#1f6fb2' },
+            name: baseLabel, type: 'line', data: baseline, showSymbol: false, lineStyle: { color: '#1f6fb2', width: 2 }, itemStyle: { color: '#1f6fb2' },
             markLine: { symbol: 'none', silent: true, label: { show: false }, lineStyle: { color: '#6b6b6b', type: 'dashed' }, data: [{ xAxis: t }] },
           },
           ...(selected
@@ -47,6 +49,6 @@ export function AreaChart({ start, baseline, selected, t }: { start: string; bas
       },
       { notMerge: true },
     );
-  }, [baseline, selected, t, start]);
+  }, [baseline, selected, t, start, baseLabel, xName]);
   return <div ref={el} className="rk-chart" role="img" aria-label="Burned area over time, baseline and selected run" />;
 }
