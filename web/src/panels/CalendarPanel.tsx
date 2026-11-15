@@ -3,10 +3,20 @@ import { Calendar } from '../calendar/Calendar';
 import { useStore } from '../store';
 import { HERO, setCircleAoi } from '../map/aoiActions';
 import { dekadRange } from '../lib/time';
+import { useMemo } from 'react';
+import { computeGlance } from '../lib/glance';
+import { dataScope } from '../lib/export';
+import { AtAGlance } from './AtAGlance';
+import { ExportRow } from './ExportRow';
 
 export function CalendarPanel() {
   const aoi = useStore((s) => s.aoi);
   const { data, isLoading, isStale, error } = useCalendarData(aoi);
+  const glance = useMemo(() => {
+    if (!data) return null;
+    const t1 = data.manifest.dekad_range[1];
+    return computeGlance(data.harmonized, data.series, data.manifest, Math.floor(t1 / 36) + 2000);
+  }, [data]);
 
   if (!aoi)
     return (
@@ -30,6 +40,7 @@ export function CalendarPanel() {
   const currentYear = Math.floor(t1 / 36) + 2000;
   const total = harmonized.rows.reduce((a, r) => a + (r?.harmonized ?? 0), 0);
   const strata = new Set(harmonized.kModis.map((k) => k.stratum));
+  const scope = dataScope(manifest);
 
   return (
     <div className="panel-body">
@@ -47,6 +58,11 @@ export function CalendarPanel() {
             {!calibration ? ' (no calibration file yet: area-specific k only)' : ''}.
           </p>
         )}
+        {!scope.global && !manifest.mock && (
+          <p className="warn">
+            This build holds {scope.text}. Areas outside it show no activity. <a href="/methodology">Methodology</a>
+          </p>
+        )}
         {strata.has('aoi-sparse') || strata.has('none') ? (
           <p className="warn">Some months have little MODIS–VIIRS overlap in this area; their scaling factor is uncertain (see tooltips).</p>
         ) : null}
@@ -55,7 +71,9 @@ export function CalendarPanel() {
         <p className="empty-note">No hotspot activity recorded in this area.</p>
       ) : (
         <div className={isStale ? 'stale' : ''} aria-busy={isStale}>
+          {glance && <AtAGlance g={glance} h={harmonized} />}
           <Calendar h={harmonized} currentYear={currentYear} />
+          {glance && <ExportRow aoi={aoi} data={data} g={glance} currentYear={currentYear} />}
         </div>
       )}
     </div>

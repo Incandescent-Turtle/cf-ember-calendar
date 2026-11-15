@@ -1,6 +1,6 @@
 // Main-thread side of the data layer: config, JSON fetches, Worker RPC.
 import type { DensityResult, WorkerRequest, WorkerResponse, WorkerResult } from './cube.worker';
-import type { PointsResult } from './points';
+import type { HotspotCsvResult, PointsResult } from './points';
 import type { AoiSeries, Calibration, Manifest } from './types';
 
 /** Base URL of the data host (VITE_DATA_BASE_URL). Defaults to the dev middleware. */
@@ -56,3 +56,4 @@ function call(req: Omit<WorkerRequest, 'baseUrl'>): Promise<WorkerResult> {
 export const aggregateInWorker = (req: Req<'aggregate'>) => call(req) as Promise<AoiSeries>;
 export const densityInWorker = (req: Req<'density'>) => call(req) as Promise<DensityResult>;
 export const pointsInWorker = (req: Req<'points'>) => call(req) as Promise<PointsResult>;
+export const hotspotCsvInWorker = (req: Req<'hotspotCsv'>) => call(req) as Promise<HotspotCsvResult>;

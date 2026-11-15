@@ -6,7 +6,7 @@
 import { decodeCubeFile, type Cube } from './cube';
 import { countMask, maskL01, maskL10, sumMasked, sumMaskedByTileL10, tilesForGeometry, type AoiGeometry } from './aggregate';
 import { densityFromCube, fitK, type Eras, type KPair, type TimeWindow } from './density';
-import { collectPoints, openUrl, type PointsResult } from './points';
+import { collectPoints, hotspotCsv, openUrl, type HotspotCsvResult, type PointsResult } from './points';
 import type { AsyncBuffer } from 'hyparquet';
 import { l01Cell, l10Cell, tile10, type Bbox } from '../lib/grid';
 import { N_SERIES, S_MODIS, S_N20, S_SNPP, type AoiSeries } from './types';
@@ -47,6 +47,13 @@ export type WorkerRequest = Common &
         tA: number;
         tB: number;
       }
+    | {
+        kind: 'hotspotCsv';
+        aoi: AoiRef;
+        paths: string[];
+        tA: number;
+        tB: number;
+      }
   );
 
 export interface DensityResult {
@@ -57,7 +64,7 @@ export interface DensityResult {
   ms: number;
 }
 
-export type WorkerResult = AoiSeries | DensityResult | PointsResult;
+export type WorkerResult = AoiSeries | DensityResult | PointsResult | HotspotCsvResult;
 export type WorkerResponse = { id: number; ok: true; result: WorkerResult } | { id: number; ok: false; error: string };
 
 // ---------------------------------------------------------------- caches
@@ -184,15 +191,18 @@ function openCached(url: string): Promise<AsyncBuffer> {
   return p;
 }
 
+/** Same cell-centre membership as the calendar: a point counts if its cell is in the AOI mask. */
+function insideAoi(aoi: AoiRef): (lon: number, lat: number) => boolean {
+  const masks = getMasks(aoi);
+  return masks.level === 10
+    ? (lon, lat) => masks.l10![l10Cell(lat, lon)] === 1
+    : (lon, lat) => masks.byTile.get(tile10(lat, lon))?.[l01Cell(lat, lon)] === 1;
+}
+
 async function points(req: Extract<WorkerRequest, { kind: 'points' }>): Promise<PointsResult> {
   let inside: (lon: number, lat: number) => boolean;
   if (req.aoi) {
-    const masks = getMasks(req.aoi);
-    // same cell-centre membership as the calendar: a point counts if its cell is in the AOI mask
-    inside =
-      masks.level === 10
-        ? (lon, lat) => masks.l10![l10Cell(lat, lon)] === 1
-        : (lon, lat) => masks.byTile.get(tile10(lat, lon))?.[l01Cell(lat, lon)] === 1;
+    inside = insideAoi(req.aoi);
   } else {
     const [w, s, e, n] = req.bbox;
     inside = (lon, lat) => lon >= w && lon <= e && lat >= s && lat <= n;
@@ -201,6 +211,7 @@ async function points(req: Extract<WorkerRequest, { kind: 'points' }>): Promise<
 }
 
 function transferables(r: WorkerResult): Transferable[] {
+  if ('capped' in r) return [];
   if ('perTile' in r) return r.perTile.map((a) => a.buffer);
   if ('groups' in r) return r.groups.flatMap((g) => [g.cells.buffer, g.values.buffer]);
   return [r.lon.buffer, r.lat.buffer, r.t.buffer, r.sensor.buffer, r.frp.buffer, r.conf.buffer];
@@ -209,7 +220,14 @@ function transferables(r: WorkerResult): Transferable[] {
 self.onmessage = async (e: MessageEvent<WorkerRequest & { id: number }>) => {
   const req = e.data;
   try {
-    const result = req.kind === 'aggregate' ? await aggregate(req) : req.kind === 'density' ? await density(req) : await points(req);
+    const result =
+      req.kind === 'aggregate'
+        ? await aggregate(req)
+        : req.kind === 'density'
+          ? await density(req)
+          : req.kind === 'hotspotCsv'
+            ? await hotspotCsv(req.paths.map((p) => join(req.baseUrl, p)), req.aoi.bbox, req.tA, req.tB, insideAoi(req.aoi), openUrl)
+            : await points(req);
     const msg: WorkerResponse = { id: req.id, ok: true, result };
     (self as unknown as Worker).postMessage(msg, transferables(result));
   } catch (err) {

@@ -100,3 +100,23 @@ caption { text-align: left; font-size: 12px; color: var(--ink-2); padding-bottom
   .aoi-tools { padding: 6px; gap: 4px; }
   .aoi-tools button { padding: 3px 7px; font-size: 13px; }
 }
+
+.glance { margin-top: 10px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; background: #fcfbf9; }
+.glance h3, .export h3 { font-size: 13px; margin: 0 0 6px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-3); font-weight: 650; }
+.glance-now { padding-bottom: 8px; margin-bottom: 8px; border-bottom: 1px solid var(--line); cursor: help; }
+.glance-k { font-size: 12px; color: var(--ink-2); }
+.glance-v { font-size: 15px; margin-top: 2px; }
+.glance-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px 16px; margin: 0; }
+.glance-grid > div { cursor: help; min-width: 0; }
+.glance-grid dt { font-size: 11.5px; color: var(--ink-3); }
+.glance-grid dd { margin: 1px 0 0; font-size: 13px; }
+.dim { color: var(--ink-3); font-size: 12px; }
+.chip { display: inline-block; padding: 1px 8px; border-radius: 10px; font-size: 12px; font-weight: 600; border: 1px solid transparent; vertical-align: 1px; }
+.chip-below { background: #e3edf7; color: #1d4f7a; border-color: #b8cfe5; }
+.chip-normal { background: #efede9; color: #3d3d3d; border-color: #d8d3cb; }
+.chip-above { background: #fed976; color: #5c3a00; border-color: #f0b84a; }
+.chip-extreme { background: #bd0026; color: #fff; border-color: #8f001d; }
+.export { margin-top: 14px; padding-top: 10px; border-top: 1px solid var(--line); }
+.export .btn-row { margin-bottom: 8px; }
+.hotspot-export select { padding: 2px 4px; border: 1px solid var(--line); border-radius: 6px; background: #fff; }
+button:disabled { opacity: 0.55; cursor: default; }

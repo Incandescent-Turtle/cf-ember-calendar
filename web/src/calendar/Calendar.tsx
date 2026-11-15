@@ -4,6 +4,7 @@ import { BarChart, HeatmapChart } from 'echarts/charts';
 import { GridComponent, TitleComponent, TooltipComponent, VisualMapComponent } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
 import { buildOption, legendTicks, RAMP, rowAt, ZERO_COLOR } from './option';
+import { live } from './png';
 import { METRIC_LABEL, metricsFor, valueOf } from './metric';
 import type { Harmonized } from '../lib/harmonize';
 import { MONTHS_SHORT } from '../lib/time';
@@ -34,6 +35,7 @@ export function Calendar({ h, currentYear }: { h: Harmonized; currentYear: numbe
   useEffect(() => {
     const c = echarts.init(el.current!, undefined, { renderer: 'canvas' });
     chart.current = c;
+    live.chart = c;
     const ro = new ResizeObserver(() => {
       if (!c.isDisposed()) c.resize();
     });
@@ -41,6 +43,7 @@ export function Calendar({ h, currentYear }: { h: Harmonized; currentYear: numbe
     return () => {
       ro.disconnect();
       chart.current = null;
+      if (live.chart === c) live.chart = null;
       c.dispose();
     };
   }, []);
@@ -49,6 +52,7 @@ export function Calendar({ h, currentYear }: { h: Harmonized; currentYear: numbe
     const c = chart.current;
     if (!c || c.isDisposed()) return;
     c.setOption(option, { notMerge: true });
+    live.range = { vmin, vmax };
     c.off('click');
     c.on('click', (p) => {
       if (p.seriesType !== 'heatmap') return;
@@ -56,7 +60,7 @@ export function Calendar({ h, currentYear }: { h: Harmonized; currentYear: numbe
       const cur = selectedCell(useStore.getState().window);
       setWindow(cur?.year === Number(y) && cur.month === m ? ALL_TIME : { year: Number(y), month: m });
     });
-  }, [option, setWindow]);
+  }, [option, setWindow, vmin, vmax]);
 
   const caption =
     viewMode === 'harmonized'
