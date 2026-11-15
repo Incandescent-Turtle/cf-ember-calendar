@@ -1,14 +1,21 @@
-// Two pages, no router library: "/" (the app) and "/methodology". Pages serves index.html for any path.
+// Three pages, no router library: "/" (the app), "/rekindle" and "/methodology". Pages serves index.html for any path.
 import { useSyncExternalStore } from 'react';
 
-export type Route = 'app' | 'methodology';
+export type Route = 'app' | 'rekindle' | 'methodology';
 
-const current = (): Route => (location.pathname.replace(/\/+$/, '').endsWith('/methodology') ? 'methodology' : 'app');
+const PATHS: Record<Route, string> = { app: '/', rekindle: '/rekindle', methodology: '/methodology' };
+
+const current = (): Route => {
+  const p = location.pathname.replace(/\/+$/, '');
+  if (p.endsWith('/methodology')) return 'methodology';
+  if (p.endsWith('/rekindle')) return 'rekindle';
+  return 'app';
+};
 const listeners = new Set<() => void>();
 window.addEventListener('popstate', () => listeners.forEach((l) => l()));
 
 export function navigate(to: Route): void {
-  const path = to === 'methodology' ? '/methodology' : '/';
+  const path = PATHS[to];
   if (location.pathname !== path) history.pushState(null, '', path);
   listeners.forEach((l) => l());
   window.scrollTo(0, 0);

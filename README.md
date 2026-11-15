@@ -16,8 +16,14 @@ Satellites have watched Earth's fires for 25 years, but the record is split betw
 4. **Validate**: the method is tested by leaving one year out at a time and by checking the 2012 seam. Results are on the in-app Methodology page.
 5. **Explore**: calendar, anomalies, seasonality, trends, and export for any area.
 
-## NASA data
-FIRMS MODIS (MCD14ML/MCD14DL), FIRMS VIIRS S-NPP (VNP14IMG) and NOAA-20 (VJ114IMG), NASADEM/SRTM, MODIS MCD12Q1, MODIS MOD44W, MERRA-2.
+## Data and credits
+- **NASA FIRMS** active fire detections (MODIS C6.1 MCD14ML/MCD14DL; VIIRS 375 m S-NPP VNP14IMG and NOAA-20 VJ114IMG): calendar, and Rekindle ignition/validation. "We acknowledge the use of imagery from the NASA LANCE FIRMS (https://earthdata.nasa.gov/firms), part of the NASA Earth Science Data and Information System (ESDIS)."
+
+Rekindle (`rekindle/credits.py` holds the exact strings; each was checked against the dataset's own page, see `docs/DECISIONS.md` S6):
+- **MERRA-2** hourly 10 m wind, T2M, QV2M: Global Modeling and Assimilation Office (GMAO) (2015), MERRA-2 tavg1_2d_slv_Nx: 2d,1-Hourly,Time-Averaged,Single-Level,Assimilation,Single-Level Diagnostics V5.12.4, Greenbelt, MD, USA, Goddard Earth Sciences Data and Information Services Center (GES DISC), Accessed: 2026-11-15, 10.5067/VJAFPLI1CSIV.
+- **MODIS MCD12Q1 v061** land cover (fuels): Friedl, M., & Sulla-Menashe, D. (2022). MODIS/Terra+Aqua Land Cover Type Yearly L3 Global 500m SIN Grid V061 [Data set]. NASA LP DAAC. https://doi.org/10.5067/MODIS/MCD12Q1.061
+- **MODIS MOD44W v061** water mask: Carroll, M., et al. (2024). MODIS/Terra Land Water Mask Derived from MODIS and SRTM L3 Global 250m SIN Grid V061 [Data set]. NASA LP DAAC. https://doi.org/10.5067/MODIS/MOD44W.061
+- **Copernicus DEM GLO-30** (slope and aspect, from AWS Open Data): produced using Copernicus WorldDEM-30 © DLR e.V. 2010-2014 and © Airbus Defence and Space GmbH 2014-2018 provided under COPERNICUS by the European Union and ESA; all rights reserved.
 
 ## Run locally
 See `CLAUDE.md` → Commands. The data pipeline runs on an HPC cluster (fixtures run locally); the app is a static site that reads the processed data from object storage (see `docs/ARCHITECTURE.md`).

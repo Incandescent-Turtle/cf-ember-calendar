@@ -81,7 +81,11 @@ def _head(fm: int, u10: float, from_deg: float, slope_deg: float, aspect_deg: fl
     from rekindle import ellipse
     from rekindle.fuels import fuel_bed
     from rekindle.rothermel import (
-        FTMIN_TO_MS, MS_TO_FTMIN, head_fire, spread_params, wind_from_to_toward_az,
+        FTMIN_TO_MS,
+        MS_TO_FTMIN,
+        head_fire,
+        spread_params,
+        wind_from_to_toward_az,
     )
     from rekindle.scenario import Moisture
 

@@ -18,6 +18,12 @@ dev = [
     "pytest>=9.2.0",
     "ruff>=0.17.5",
 ]
+rekindle-prep = [
+    "pyhdf>=0.11.7",
+    "pyproj>=3.8.0",
+    "rasterio>=1.5.2",
+    "requests>=2.34.2",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -26,3 +32,6 @@ pythonpath = ["."]
 [tool.ruff]
 line-length = 100
 target-version = "py312"
+
+[tool.uv]
+default-groups = ["dev", "rekindle-prep"]

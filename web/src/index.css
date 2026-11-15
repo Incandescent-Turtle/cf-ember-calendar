@@ -150,3 +150,38 @@ table.loyo tr.ours { background: #fff3e6; }
 table.loyo tr.ours th { font-weight: 650; }
 table.loyo tr.sparse { color: var(--ink-3); }
 table.loyo tr.dimrow td { color: var(--ink-3); font-size: 11px; }
+
+/* Tabs as links (Calendar / Rekindle) */
+.tabs a { padding: 6px 10px; border-bottom: 2px solid transparent; color: var(--ink-2); text-decoration: none; }
+.tabs a.on { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+.tabs .tab-note { font-size: 11px; color: var(--ink-3); font-weight: 400; }
+
+/* Rekindle */
+.rk h3 { font-size: 14px; margin: 16px 0 4px; }
+.rk-fire-select { margin-bottom: 8px; padding: 3px 4px; border: 1px solid var(--line); border-radius: 6px; background: #fff; }
+.rk-status { margin: 8px 0; padding: 8px 10px; border-radius: 6px; font-size: 13px; border-left: 4px solid var(--accent); background: #eef4fa; }
+.rk-status.illustrative { border-left-color: #c2410c; background: #fdf1e8; }
+.rk-badge { display: block; margin-top: 4px; font-size: 12px; color: var(--ink-2); }
+.rk-badge.poor_agreement, .rk-badge.uncalibrated { color: var(--warn-ink); font-weight: 600; }
+.rk-mode { margin: 4px 0 8px; }
+.rk-sliders { display: grid; gap: 6px; margin: 6px 0 10px; }
+.rk-slider { display: grid; gap: 2px; font-size: 13px; }
+.rk-slider input, .rk-time input { width: 100%; accent-color: var(--accent); }
+.rk-check { font-size: 12.5px; color: var(--ink-2); }
+.rk-time { display: grid; grid-template-columns: auto 1fr auto; gap: 8px; align-items: center; margin-top: 8px; }
+.rk-clock { font-size: 12.5px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.rk-legend { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--ink-2); margin: 4px 0; }
+.rk-ramp { flex: 1; height: 10px; border-radius: 2px; max-width: 220px; }
+.rk-chart { width: 100%; height: 200px; }
+.rk-metrics { border-collapse: collapse; font-size: 12.5px; width: 100%; }
+.rk-metrics th { text-align: left; font-weight: 500; color: var(--ink-2); padding: 3px 8px 3px 0; vertical-align: top; width: 38%; }
+.rk-metrics td { padding: 3px 0; font-variant-numeric: tabular-nums; }
+.rk-details { margin-top: 12px; font-size: 12.5px; color: var(--ink-2); }
+.rk-details summary, .rk-credits summary { cursor: pointer; color: var(--ink); }
+.rk-credits { margin-top: 12px; padding-top: 8px; border-top: 1px solid var(--line); font-size: 11.5px; color: var(--ink-3); }
+.rk-credits ul { padding-left: 18px; }
+@media (max-width: 900px) {
+  .rk-time { grid-template-columns: auto 1fr; }
+  .rk-clock { grid-column: 1 / -1; }
+  .tabs .tab-note { display: none; }
+}

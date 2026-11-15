@@ -1,6 +1,8 @@
 import { MapView } from './map/MapView';
 import { CalendarPanel } from './panels/CalendarPanel';
 import { Methodology } from './methodology/Methodology';
+import { RekindleView } from './rekindle/RekindleView';
+import { Tabs } from './Tabs';
 import { linkTo, useRoute } from './route';
 
 export default function App() {
@@ -22,15 +24,13 @@ export default function App() {
       </header>
       {route === 'methodology' ? (
         <Methodology />
+      ) : route === 'rekindle' ? (
+        <RekindleView />
       ) : (
         <main className="main">
           <MapView />
           <aside className="panel">
-            <nav className="tabs" role="tablist">
-              <button role="tab" aria-selected="true" className="on">
-                Calendar
-              </button>
-            </nav>
+            <Tabs />
             <CalendarPanel />
           </aside>
         </main>
