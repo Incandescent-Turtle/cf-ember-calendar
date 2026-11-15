@@ -10,6 +10,17 @@
     -29.05
    ],
    "status": "poor_agreement"
+  },
+  {
+   "id": "cordoba-2024",
+   "name": "Western C\u00f3rdoba sierras, Argentina (September 2024)",
+   "bbox": [
+    -65.48,
+    -31.45,
+    -65.29,
+    -31.2
+   ],
+   "status": "poor_agreement"
   }
  ]
 }

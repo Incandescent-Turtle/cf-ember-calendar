@@ -364,7 +364,7 @@ Constants and values checked against the primary sources (sub-agent lookups: And
   | 4.0 | −23.3 | 23.3 | 0.99 | 0.14 | 1,489 |
 
   - Gate: median |Δ| ≤ 3.2 h. Missed by a factor of 4. Detection footprints cover 112 km²; the simulation burns most of the 40 km domain.
-- **Why** (see `figures/chilecito-2026_baseline_map`):
+- **Why** (see `figures/chilecito-2026_s6_baseline_map`):
   - The real fire starts in the NE cluster, then moves SW and uphill over days on the Famatina foothills (2,000–3,200 m).
   - The model runs east and downslope into the FM 6 open-shrub lowlands within hours, pushed by MERRA-2's 10 m/s westerly on Jul 27.
   - Plausible causes, in the order REKINDLE.md lists them as limitations:
@@ -404,7 +404,7 @@ User decisions: **Chilecito is the priority.** Try to make its baseline pass the
 **Diagnosis (S6 handoff):**
 - Best ×1.41: median |Δ| 13.3 h vs a 3.2 h gate; 1,479 km² simulated vs 112 km² of detection footprints.
 - The model runs east and downslope into IGBP 7 open shrubland (FM 6) within hours. The real fire crept SW and uphill on the foothills for days.
-- Figure: `docs/report/rekindle/figures/chilecito-2026_baseline_map.png`.
+- Figure: `docs/report/rekindle/figures/chilecito-2026_s6_baseline_map.png`.
 
 **Rules:**
 - **No goal-post moving:** the gate (median |Δ| ≤ mean overpass interval, 3.2 h) and the metric definitions in `rekindle/metrics.py` stay as they are.

@@ -1,6 +1,7 @@
 // Methodology & validation page (PRODUCT.md F8). Renders validation.json, calibration.json and the
 // manifest: every number comes from the current build.
 import { useQuery } from '@tanstack/react-query';
+import { RekindleFindings } from '../rekindle/Findings';
 import { DATA_BASE_URL, fetchJson } from '../data/client';
 import { useCalibration, useManifest } from '../data/hooks';
 import { dataScope, globalTableLinks } from '../lib/export';
@@ -234,6 +235,14 @@ function Body({ v, m, cal }: { v: Validation; m: NonNullable<ReturnType<typeof u
             transparent and adapts to the drawn area.
           </li>
         </ul>
+      </section>
+      <section>
+        <h2>Rekindle fire-spread hindcasts</h2>
+        <p>
+          Rekindle replays two real fires with a level-set + Rothermel surface-spread model (90 m grid, MERRA-2 weather, MODIS fuels), calibrating one rate-of-spread multiplier to each
+          fire’s own hotspot times. See the <a href="/rekindle" onClick={linkTo('rekindle')}>Rekindle tab</a> for the maps.
+        </p>
+        <RekindleFindings headingLevel={3} />
       </section>
       <p className="dim">
         Data: NASA FIRMS — MODIS Collection 6.1 (Terra, Aqua) and VIIRS 375 m (Suomi NPP, NOAA-20) active fire products. Analytics rules are written once in{' '}

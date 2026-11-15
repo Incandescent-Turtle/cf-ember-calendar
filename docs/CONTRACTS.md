@@ -182,9 +182,17 @@ Written by `pipeline.export_global` from the L10 cube + `calibration.json` + `ma
   "axes": {"wind_ms": [0, 3, 6, 9, 12, 15],
            "wind_from_deg": [0, 45, 90, 135, 180, 225, 270, 315],
            "dead_moisture_pct": [4, 6, 10, 14]},
-  "notes": "dead_moisture_pct is the 1-h value; 10-h = +1, 100-h = +2 points; live moisture fixed at baseline"
+  "notes": "dead_moisture_pct is the 1-h value; 10-h = +1, 100-h = +2 points; live moisture fixed at baseline",
+  // S6b additions (rekindle.export):
+  "model_settings": {"nonveg_max_pct": 50, "diurnal_moisture": true, "wind": "bilinear", "seed_h": 0},
+  "moisture": {"baseline": "hourly",   // "constant": the baseline used dead_moisture_pct; "hourly": time-lag series
+               "dead_1h_pct_min": 3.1, "dead_1h_pct_median": 5.4, "dead_1h_pct_max": 14.0,
+               "hourly": {"columns": ["t_h", "d1_pct", "d10_pct", "d100_pct"], "rows": [[0, 5.2, 6.0, 6.1]]}},
+  "spread_profile": {"observed": [{"t_h": 1.4, "max_km": 5.8, "median_km": 2.1, "n": 12}],
+                     "model_km_by_hour": [0, 3.2, "..."], "definition": "…"}
 }
 ```
+With `moisture.baseline == "hourly"` the baseline's `dead_moisture_pct` is only the what-if starting value; what-if runs always use a constant moisture. `spread_profile` = burst-and-stall diagnostic (`rekindle.spread_profile`): farthest detection per overpass vs the calibrated model's head-run distance from the nearest ignition.
 
 `<fire_id>/observed.geojson`: FeatureCollection of Points, properties `{t: ISO, sensor: "VIIRS_SNPP", frp: number, scan: km, track: km}`.
 

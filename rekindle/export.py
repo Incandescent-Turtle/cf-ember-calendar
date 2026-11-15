@@ -19,15 +19,17 @@ import numpy as np
 
 from rekindle import domain as dm
 from rekindle.credits import CREDITS
-from rekindle.hindcast import MOISTURE_AXIS
+from rekindle.hindcast import MOISTURE_AXIS, load_model
+from rekindle.spread_profile import profile as spread_profile
 from rekindle.scenario_grid import WIND_FROM, WIND_MS, grid_runs, run_key
 
 WEB = Path("web/public/rekindle")
 LIMITS = (
     "Surface fire only: no crowning, spotting, suppression or fire–atmosphere feedback. "
     "Fuels from 500 m MODIS land cover through a coarse IGBP→Anderson crosswalk (the largest "
-    "error source). Single-point MERRA-2 wind (~50 km grid) over steep terrain. Dead fuel "
-    "moisture is a scenario value, constant in time (no day/night cycle). Hotspot times are "
+    "error source). Single-point MERRA-2 wind (~50 km grid) over steep terrain. Baseline dead "
+    "fuel moisture follows MERRA-2 humidity hour by hour (time-lag model); what-if runs use a "
+    "constant scenario value. Hotspot times are "
     "upper bounds limited by the overpass frequency. Counterfactuals and absolute timings are "
     "illustrative; differences between runs are more reliable than absolute arrival times."
 )
@@ -105,7 +107,8 @@ def main() -> None:
     if status == "validated":
         entries += [(run_key(*r), r) for r in grid_runs()]
     for key, r in entries:
-        src = base / "runs" / f"{key}.npy"
+        # the baseline comes from the hindcast itself (runs/baseline.npy is the grid's copy)
+        src = base / "baseline.npy" if r is None else base / "runs" / f"{key}.npy"
         if not src.exists():
             print(f"missing {key}, skipped")
             continue
@@ -139,6 +142,9 @@ def main() -> None:
 
     t0 = dm.parse_t(meta["t0"])
     from datetime import timedelta
+    settings = cal.get("model_settings") or {}
+    moisture_info, moisture_note = _moisture(a.fire, settings, hours, cal)
+    sp = spread_profile(a.fire)
     web_meta = {
         "id": a.fire, "name": meta["name"], "bbox": meta["bbox"],
         "raster": {"crs": "EPSG:3857", "width": w, "height": h, "bounds_3857": b3857,
@@ -160,20 +166,49 @@ def main() -> None:
                                  for s in cal["sweep"]],
                        "calibrated_not_blind": cal["calibrated_not_blind"],
                        "moisture_estimate": cal["moisture_estimate"]},
+        "model_settings": settings,
+        "moisture": moisture_info,
+        "spread_profile": {k: sp[k] for k in ("observed", "model_km_by_hour", "definition")},
         "notes": "dead_moisture_pct is the 1-h value; 10-h = +1, 100-h = +2 points; live moisture "
-                 "fixed at baseline. Grid runs use a constant wind; the baseline uses the hourly "
-                 "MERRA-2 wind. " + LIMITS,
+                 "fixed at baseline. " + moisture_note + " Grid runs use a constant wind; the "
+                 "baseline uses the hourly MERRA-2 wind. " + LIMITS,
         "prep_notes": meta["notes"],
         "credits": CREDITS,
     }
     (out / "meta.json").write_text(json.dumps(web_meta, indent=1))
     idx_path = a.out / "index.json"
     idx = json.loads(idx_path.read_text()) if idx_path.exists() else {"fires": []}
-    idx["fires"] = [f for f in idx["fires"] if f["id"] != a.fire] + [
-        {"id": a.fire, "name": meta["name"], "bbox": meta["bbox"], "status": status}]
+    entry = {"id": a.fire, "name": meta["name"], "bbox": meta["bbox"], "status": status}
+    ids = [f["id"] for f in idx["fires"]]
+    if a.fire in ids:  # keep the order (the first fire is the tab's default)
+        idx["fires"][ids.index(a.fire)] = entry
+    else:
+        idx["fires"].append(entry)
     idx_path.write_text(json.dumps(idx, indent=1))
     print(f"exported {n_files} run files ({len(runs)} index entries), {total / 1e6:.1f} MB "
           f"rasters, {w}×{h} px → {out}")
+
+
+def _moisture(fire: str, settings: dict, hours: int, cal: dict) -> tuple[dict, str]:
+    """How the baseline's dead fuel moisture was set (S6b change B = hourly time-lag series)."""
+    if not settings.get("diurnal_moisture"):
+        return ({"baseline": "constant", "dead_1h_pct": cal["dead_moisture_pct"]},
+                "The baseline uses a constant dead_moisture_pct (no day/night cycle).")
+    _, _, series = load_model(fire, settings, hours)
+    t0 = dm.parse_t(cal["t0"])
+    d1 = [s.d1 * 100 for s in series]
+    hourly = [[round(s.t_s / 3600, 2), round(s.d1 * 100, 2), round(s.d10 * 100, 2),
+               round(s.d100 * 100, 2)] for s in series]
+    info = {"baseline": "hourly", "method": "Simard (1968) EMC from MERRA-2 T2M/QV2M; 1-, 10-, "
+            "100-h classes relax toward EMC with their time lags (DECISIONS.md, S6b change B)",
+            "start": t0.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "dead_1h_pct_min": round(min(d1), 2), "dead_1h_pct_median": round(float(np.median(d1)), 2),
+            "dead_1h_pct_max": round(max(d1), 2),
+            "hourly": {"columns": ["t_h", "d1_pct", "d10_pct", "d100_pct"], "rows": hourly}}
+    note = (f"The baseline's dead moisture is hourly (1-h {min(d1):.1f}–{max(d1):.1f} %, median "
+            f"{np.median(d1):.1f} %; `moisture.hourly`), so the baseline dead_moisture_pct is only "
+            "the what-if starting value.")
+    return info, note
 
 
 def _mean_wind(meta: dict, hours: float) -> tuple[float, float]:

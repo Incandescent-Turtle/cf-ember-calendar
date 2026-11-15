@@ -183,6 +183,17 @@ table.loyo tr.dimrow td { color: var(--ink-3); font-size: 11px; }
 .rk-details summary, .rk-credits summary { cursor: pointer; color: var(--ink); }
 .rk-credits { margin-top: 12px; padding-top: 8px; border-top: 1px solid var(--line); font-size: 11.5px; color: var(--ink-3); }
 .rk-credits ul { padding-left: 18px; }
+.rk-fire-pick { display: flex; align-items: baseline; gap: 6px; font-size: 13px; }
+.rk-fire-pick select { max-width: 100%; min-height: 32px; }
+.rk-figure { margin: 0; }
+.rk-findings { color: var(--ink); }
+.rk-findings h4 { font-size: 13px; margin: 12px 0 4px; }
+.rk-variants { border-collapse: collapse; font-size: 12px; width: 100%; min-width: 420px; }
+.rk-variants caption { text-align: left; font-size: 12px; color: var(--ink-2); padding-bottom: 4px; }
+.rk-variants th, .rk-variants td { text-align: left; padding: 3px 6px 3px 0; border-bottom: 1px solid var(--line); vertical-align: top; font-variant-numeric: tabular-nums; }
+.rk-tag { display: inline-block; margin-left: 4px; padding: 0 4px; border-radius: 3px; font-size: 10px; font-weight: 600; letter-spacing: 0.02em; background: #fdf1e8; color: #8a2c08; }
+.rk-tag.blind { background: #eef4fa; color: #1b4f7a; }
+.rk-refs { padding-left: 18px; font-size: 11.5px; }
 @media (max-width: 900px) {
   .rk-time { grid-template-columns: auto 1fr; }
   .rk-clock { grid-column: 1 / -1; }

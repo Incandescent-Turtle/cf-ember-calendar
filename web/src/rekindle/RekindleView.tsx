@@ -12,6 +12,8 @@ import {
   renderRgba, runKey, windAt, type FireMeta, type Run,
 } from './data';
 import { AreaChart } from './AreaChart';
+import { RekindleFindings } from './Findings';
+import { SpreadChart } from './SpreadChart';
 import { Tabs } from '../Tabs';
 
 maplibregl.setWorkerUrl(maplibreWorkerUrl);
@@ -40,13 +42,16 @@ export function RekindleView() {
   if (meta.data && runs.data && observed.data) {
     const picker =
       fires.data && fires.data.fires.length > 1 ? (
-        <select value={id ?? ''} onChange={(e) => setFireId(e.target.value)} aria-label="Fire" className="rk-fire-select">
-          {fires.data.fires.map((f) => (
-            <option key={f.id} value={f.id}>
-              {f.name}
-            </option>
-          ))}
-        </select>
+        <label className="rk-fire-pick">
+          Fire:
+          <select value={id ?? ''} onChange={(e) => setFireId(e.target.value)} className="rk-fire-select">
+            {fires.data.fires.map((f) => (
+              <option key={f.id} value={f.id}>
+                {f.name}
+              </option>
+            ))}
+          </select>
+        </label>
       ) : null;
     return <RkLoaded key={meta.data.id} meta={meta.data} runs={runs.data.runs} observed={observed.data} picker={picker} />;
   }
@@ -313,8 +318,17 @@ function RkPanel(p: PanelProps) {
       </p>
       {isBase && (
         <p className="meta">
-          Wind at this hour (MERRA-2): {f1(wNow.speed_ms)} m/s from {compass(wNow.from_deg)} ({Math.round(wNow.from_deg)}°). Dead fuel moisture {meta.baseline.dead_moisture_pct} % (estimated from
-          MERRA-2 humidity, median EMC {f1(v.moisture_estimate.emc_pct_median)} %).
+          Wind at this hour (MERRA-2): {f1(wNow.speed_ms)} m/s from {compass(wNow.from_deg)} ({Math.round(wNow.from_deg)}°).{' '}
+          {meta.moisture?.baseline === 'hourly' ? (
+            <>
+              Dead fuel moisture follows MERRA-2 humidity hour by hour (1-h fuels {f1(meta.moisture.dead_1h_pct_min)}–{f1(meta.moisture.dead_1h_pct_max)} %, median{' '}
+              {f1(meta.moisture.dead_1h_pct_median)} %).
+            </>
+          ) : (
+            <>
+              Dead fuel moisture {meta.baseline.dead_moisture_pct} % (estimated from MERRA-2 humidity, median EMC {f1(v.moisture_estimate.emc_pct_median)} %).
+            </>
+          )}
         </p>
       )}
 
@@ -371,6 +385,18 @@ function RkPanel(p: PanelProps) {
           </tr>
         </tbody>
       </table>
+
+      {meta.spread_profile && (
+        <>
+          <h3>Distance from ignition vs time</h3>
+          <SpreadChart profile={meta.spread_profile} mult={meta.baseline.ros_multiplier} />
+        </>
+      )}
+
+      <details className="rk-details" open={meta.status !== 'validated'}>
+        <summary>Limits / what validation showed</summary>
+        <RekindleFindings headingLevel={4} />
+      </details>
 
       <details className="rk-details">
         <summary>Intended use and limits</summary>

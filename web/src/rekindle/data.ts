@@ -75,9 +75,25 @@ export interface FireMeta {
     calibrated_not_blind: string;
     moisture_estimate: { method: string; rh_pct_median: number; emc_pct_median: number };
   };
+  model_settings?: { nonveg_max_pct: number | null; diurnal_moisture: boolean; wind?: string; seed_h?: number };
+  moisture?: {
+    baseline: 'constant' | 'hourly';
+    dead_1h_pct?: number;
+    method?: string;
+    dead_1h_pct_min?: number;
+    dead_1h_pct_median?: number;
+    dead_1h_pct_max?: number;
+  };
+  spread_profile?: SpreadProfile;
   notes: string;
   prep_notes: string[];
   credits: Credit[];
+}
+
+export interface SpreadProfile {
+  observed: { t_h: number; max_km: number; median_km: number; n: number }[];
+  model_km_by_hour: number[];
+  definition: string;
 }
 
 export interface ObservedProps {
