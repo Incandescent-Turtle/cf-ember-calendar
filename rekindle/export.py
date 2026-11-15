@@ -98,6 +98,7 @@ def main() -> None:
 
     runs = []
     total = 0
+    n_files = 0
     status = cal["status"]
     base_wind = _mean_wind(meta, hours)
     entries = [("baseline", None)]
@@ -112,6 +113,7 @@ def main() -> None:
         blob = encode(to_3857(arr, meta, dst_t, h, w), hours)
         (out / "runs" / f"{key}.u16.gz").write_bytes(blob)
         total += len(blob)
+        n_files += 1
         byh = burned_by_hour(arr, dx, hours)
         e = {"key": key, "file": f"runs/{key}.u16.gz", "burned_km2_by_hour": byh}
         if r is None:
@@ -170,7 +172,7 @@ def main() -> None:
     idx["fires"] = [f for f in idx["fires"] if f["id"] != a.fire] + [
         {"id": a.fire, "name": meta["name"], "bbox": meta["bbox"], "status": status}]
     idx_path.write_text(json.dumps(idx, indent=1))
-    print(f"exported {len(entries)} runs ({len(runs)} index entries), {total / 1e6:.1f} MB "
+    print(f"exported {n_files} run files ({len(runs)} index entries), {total / 1e6:.1f} MB "
           f"rasters, {w}×{h} px → {out}")
 
 

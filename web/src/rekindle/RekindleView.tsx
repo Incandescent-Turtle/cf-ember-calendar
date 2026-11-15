@@ -91,7 +91,7 @@ function RkLoaded({ meta, runs, observed, picker }: { meta: FireMeta; runs: Run[
   return (
     <main className="main">
       <div className="map-wrap">
-        <RkMap meta={meta} minutes={raster.data ?? null} baseMinutes={compare && key !== 'baseline' ? (baseRaster.data ?? null) : null} t={t} hours={hours} observed={observed} />
+        <RkMap meta={meta} minutes={raster.data ?? null} baseMinutes={compare && run.key !== 'baseline' ? (baseRaster.data ?? null) : null} t={t} hours={hours} observed={observed} />
       </div>
       <aside className="panel">
         <Tabs />
@@ -117,7 +117,7 @@ function RkMap({ meta, minutes, baseMinutes, t, hours, observed }: { meta: FireM
   const coords: [[number, number], [number, number], [number, number], [number, number]] = [[w, n], [e, n], [e, s], [w, s]];
 
   useEffect(() => {
-    const map = new maplibregl.Map({ container: container.current!, style: STYLE_URL, bounds: meta.bbox, fitBoundsOptions: { padding: 40 }, attributionControl: { compact: true } });
+    const map = new maplibregl.Map({ container: container.current!, style: STYLE_URL, bounds: meta.raster.bounds_lonlat, fitBoundsOptions: { padding: 20 }, attributionControl: { compact: true } });
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'bottom-right');
     map.addControl(new maplibregl.ScaleControl({ unit: 'metric' }), 'bottom-left');
     map.on('load', () => {
@@ -125,7 +125,7 @@ function RkMap({ meta, minutes, baseMinutes, t, hours, observed }: { meta: FireM
       map.addSource('rk-arrival', { type: 'image', url: blank, coordinates: coords });
       map.addLayer({ id: 'rk-arrival', type: 'raster', source: 'rk-arrival', paint: { 'raster-opacity': 0.85, 'raster-resampling': 'nearest', 'raster-fade-duration': 0 } });
       map.addSource('rk-iso', { type: 'geojson', data: EMPTY });
-      map.addLayer({ id: 'rk-iso', type: 'line', source: 'rk-iso', paint: { 'line-color': '#1f1f1f', 'line-width': 0.7, 'line-opacity': 0.6 } });
+      map.addLayer({ id: 'rk-iso', type: 'line', source: 'rk-iso', paint: { 'line-color': '#ffffff', 'line-width': 0.8, 'line-opacity': 0.75 } });
       map.addSource('rk-base', { type: 'geojson', data: EMPTY });
       map.addLayer({ id: 'rk-base', type: 'line', source: 'rk-base', paint: { 'line-color': '#1f6fb2', 'line-width': 2, 'line-dasharray': [2, 1.5] } });
       map.addSource('rk-obs', { type: 'geojson', data: EMPTY });
@@ -308,7 +308,7 @@ function RkPanel(p: PanelProps) {
         <span>{hours} h after the first detection</span>
       </div>
       <p className="meta">
-        Colour = simulated arrival time; thin lines = burned outline every {hours > 48 ? 12 : 6} h; white dots = FIRMS detections up to the clock time; red = ignition (first overpass,{' '}
+        Colour = simulated arrival time; thin white lines = simulated burned outline every {hours > 48 ? 12 : 6} h; white dots = FIRMS detections up to the clock time; red = ignition (first overpass,{' '}
         {fmtUtc(meta.start, 0)}). {p.loading && 'Loading run…'}
       </p>
       {isBase && (

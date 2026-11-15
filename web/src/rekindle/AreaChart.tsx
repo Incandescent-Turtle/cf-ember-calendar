@@ -4,7 +4,6 @@ import * as echarts from 'echarts/core';
 import { LineChart } from 'echarts/charts';
 import { GridComponent, LegendComponent, MarkLineComponent, TooltipComponent } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
-import { fmtUtc } from './data';
 
 echarts.use([LineChart, GridComponent, LegendComponent, MarkLineComponent, TooltipComponent, CanvasRenderer]);
 
@@ -39,7 +38,7 @@ export function AreaChart({ start, baseline, selected, t }: { start: string; bas
         series: [
           {
             name: 'Baseline (hindcast)', type: 'line', data: baseline, showSymbol: false, lineStyle: { color: '#1f6fb2', width: 2 }, itemStyle: { color: '#1f6fb2' },
-            markLine: { symbol: 'none', silent: true, label: { show: true, formatter: fmtUtc(start, t), fontSize: 10 }, lineStyle: { color: '#6b6b6b', type: 'dashed' }, data: [{ xAxis: t }] },
+            markLine: { symbol: 'none', silent: true, label: { show: false }, lineStyle: { color: '#6b6b6b', type: 'dashed' }, data: [{ xAxis: t }] },
           },
           ...(selected
             ? [{ name: 'What-if (illustrative)', type: 'line', data: selected, showSymbol: false, lineStyle: { color: '#c2410c', width: 2, type: 'dashed' }, itemStyle: { color: '#c2410c' } }]

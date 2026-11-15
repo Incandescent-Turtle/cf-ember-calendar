@@ -4,7 +4,9 @@ import { gunzipSync } from 'fflate';
 import type { Feature, FeatureCollection, MultiPolygon, Point } from 'geojson';
 
 export const NOT_REACHED = 65535;
-const BASE = `${(import.meta.env.BASE_URL ?? '/').replace(/\/+$/, '')}/rekindle`;
+// Dev only: ?rkbase=<dir under public/> loads a test export (used for the what-if UI check).
+const devBase = import.meta.env.DEV ? new URLSearchParams(location.search).get('rkbase') : null;
+const BASE = `${(import.meta.env.BASE_URL ?? '/').replace(/\/+$/, '')}/${devBase ?? 'rekindle'}`;
 
 export interface FireRef {
   id: string;

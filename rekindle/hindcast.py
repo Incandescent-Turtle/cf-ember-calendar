@@ -96,7 +96,11 @@ def main() -> None:
     ap.add_argument("--d1", type=float, default=None, help="baseline dead 1-h %% (default: EMC)")
     ap.add_argument("--workers", type=int, default=3)
     ap.add_argument("--report", type=Path, default=Path("docs/report/rekindle"))
+    ap.add_argument("--figures-only", action="store_true", help="map figure from baseline.npy")
     a = ap.parse_args()
+    if a.figures_only:
+        map_figure(a.fire, a.report / "figures")
+        return
     dom, meta = dm.load(a.fire)
     t0 = dm.parse_t(meta["t0"])
     last = max(dm.parse_t(o["t"]) for o in meta["observed"])
@@ -181,6 +185,48 @@ def _figure(sweep, best, gate_h, figs: Path, fire: str) -> None:
                  fontsize=9)
     for ext in ("pdf", "png"):
         fig.savefig(figs / f"{fire}_calibration.{ext}", dpi=150, bbox_inches="tight")
+    plt.close(fig)
+
+
+def map_figure(fire: str, figs: Path) -> None:
+    """Baseline arrival time vs detections, with terrain and fuels (report figure)."""
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    dom, meta = dm.load(fire)
+    d = np.load(dm.DATA / fire / "domain.npz")
+    cal = json.loads((dm.DATA / fire / "calibration.json").read_text())
+    arr = np.load(dm.DATA / fire / "baseline.npy")
+    t0 = dm.parse_t(meta["t0"])
+    ny, nx = dom.shape
+    ext = [0, nx * dom.dx / 1e3, 0, ny * dom.dx / 1e3]
+    ox = np.array([o["x_m"] for o in meta["observed"]]) / 1e3
+    oy = np.array([o["y_m"] for o in meta["observed"]]) / 1e3
+    oh = np.array([(dm.parse_t(o["t"]) - t0).total_seconds() / 3600 for o in meta["observed"]])
+    hours = cal["hours"]
+    fig, ax = plt.subplots(1, 3, figsize=(13, 4.3))
+    im = ax[0].imshow(np.where(np.isfinite(arr), arr / 3600, np.nan), extent=ext, cmap="inferno",
+                      vmin=0, vmax=hours)
+    ax[0].scatter(ox, oy, c=oh, s=5, cmap="inferno", vmin=0, vmax=hours, edgecolors="w",
+                  linewidths=0.3)
+    fig.colorbar(im, ax=ax[0], label="hours after first detection")
+    ax[0].set_title(f"Baseline ×{cal['ros_multiplier']}: simulated arrival; dots = FIRMS", fontsize=8)
+    im = ax[1].imshow(d["elevation"], extent=ext, cmap="terrain")
+    fig.colorbar(im, ax=ax[1], label="m")
+    ax[1].set_title("Copernicus GLO-30 elevation", fontsize=8)
+    im = ax[2].imshow(np.where(d["nonburnable"], np.nan, d["fuel"]), extent=ext, cmap="Set2",
+                      interpolation="nearest")
+    fig.colorbar(im, ax=ax[2], label="Anderson fuel model")
+    ax[2].set_title("Fuels (MCD12Q1 IGBP crosswalk; blank = non-burnable)", fontsize=8)
+    for a_ in ax[1:]:
+        a_.scatter(ox, oy, s=2, c="k")
+    for a_ in ax:
+        a_.set(xlabel="km (UTM 19S, domain origin)", ylabel="km")
+    figs.mkdir(parents=True, exist_ok=True)
+    for ext_ in ("pdf", "png"):
+        fig.savefig(figs / f"{fire}_baseline_map.{ext_}", dpi=150, bbox_inches="tight")
     plt.close(fig)
 
 

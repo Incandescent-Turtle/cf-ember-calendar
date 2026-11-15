@@ -1,0 +1,15 @@
+{
+ "fires": [
+  {
+   "id": "chilecito-2026",
+   "name": "Chilecito, La Rioja, Argentina (July 2026)",
+   "bbox": [
+    -67.78,
+    -29.24,
+    -67.62,
+    -29.05
+   ],
+   "status": "poor_agreement"
+  }
+ ]
+}

@@ -1,0 +1,226 @@
+{
+ "fire": "chilecito-2026",
+ "hours": 110,
+ "t0": "2026-07-27T17:40:00Z",
+ "dead_moisture_pct": 6,
+ "moisture_estimate": {
+  "method": "Simard (1968) EMC from MERRA-2 T2M/QV2M (2 m, grid-cell mean), pressure at the ignition elevation 2345 m; no time lag",
+  "rh_pct_median": 24.147150279553443,
+  "emc_pct_median": 5.375766111680685,
+  "emc_pct_p10": 2.9745224044861587,
+  "emc_pct_p90": 10.640235373353587
+ },
+ "ros_multiplier": 1.41,
+ "params_hash": "8f27ddc5203eed62",
+ "gate": {
+  "rule": "median |\u0394| \u2264 mean interval between overpasses (REKINDLE.md \u00a75)",
+  "threshold_h": 3.207843137254902,
+  "overpass_median_gap_h": 1.3666666666666667,
+  "passed": false
+ },
+ "status": "poor_agreement",
+ "baseline_metrics": {
+  "n_pixels": 640,
+  "n_reached": 640,
+  "median_timing_error_h": -10.396302403330386,
+  "iqr_h": [
+   -31.108776426058572,
+   4.686678150146101
+  ],
+  "median_abs_timing_error_h": 13.334644405797444,
+  "hit_rate": 0.6578125,
+  "consistent_rate": 0.04375,
+  "sorensen": 0.14058506684587266,
+  "false_alarm_km2": 1367.3447999999999,
+  "missed_km2": 0.0,
+  "area_km2": 1479.1815,
+  "observed_footprint_km2": 111.8367,
+  "ros_multiplier": 1.41,
+  "wall_s": 263.2159724000376,
+  "edge_reached": true
+ },
+ "sweep": [
+  {
+   "n_pixels": 640,
+   "n_reached": 179,
+   "median_timing_error_h": null,
+   "iqr_h": [
+    87.4597718148805,
+    null
+   ],
+   "median_abs_timing_error_h": null,
+   "hit_rate": 0.071875,
+   "consistent_rate": 0.0046875,
+   "sorensen": 0.20301845450595946,
+   "false_alarm_km2": 273.45599999999996,
+   "missed_km2": 68.3073,
+   "area_km2": 316.98539999999997,
+   "observed_footprint_km2": 111.8367,
+   "ros_multiplier": 0.25,
+   "wall_s": 62.52260209992528,
+   "edge_reached": false
+  },
+  {
+   "n_pixels": 640,
+   "n_reached": 331,
+   "median_timing_error_h": 79.1164151468147,
+   "iqr_h": [
+    51.69214543213468,
+    null
+   ],
+   "median_abs_timing_error_h": 79.1164151468147,
+   "hit_rate": 0.1015625,
+   "consistent_rate": 0.0109375,
+   "sorensen": 0.2072277614611826,
+   "false_alarm_km2": 464.17859999999996,
+   "missed_km2": 45.2547,
+   "area_km2": 530.7606,
+   "observed_footprint_km2": 111.8367,
+   "ros_multiplier": 0.35,
+   "wall_s": 74.9892811998725,
+   "edge_reached": true
+  },
+  {
+   "n_pixels": 640,
+   "n_reached": 620,
+   "median_timing_error_h": 31.858901879952697,
+   "iqr_h": [
+    5.081756101385345,
+    48.66547612776646
+   ],
+   "median_abs_timing_error_h": 32.45497999630717,
+   "hit_rate": 0.2515625,
+   "consistent_rate": 0.034375,
+   "sorensen": 0.2137876595184844,
+   "false_alarm_km2": 767.9529,
+   "missed_km2": 6.5367,
+   "area_km2": 873.2529,
+   "observed_footprint_km2": 111.8367,
+   "ros_multiplier": 0.5,
+   "wall_s": 99.44603470014408,
+   "edge_reached": true
+  },
+  {
+   "n_pixels": 640,
+   "n_reached": 640,
+   "median_timing_error_h": 9.906063143557418,
+   "iqr_h": [
+    -8.966991878503242,
+    33.0043726768743
+   ],
+   "median_abs_timing_error_h": 22.03617663597609,
+   "hit_rate": 0.434375,
+   "consistent_rate": 0.0390625,
+   "sorensen": 0.16337324876940554,
+   "false_alarm_km2": 1145.421,
+   "missed_km2": 0.0,
+   "area_km2": 1257.2576999999999,
+   "observed_footprint_km2": 111.8367,
+   "ros_multiplier": 0.71,
+   "wall_s": 129.69824029994197,
+   "edge_reached": true
+  },
+  {
+   "n_pixels": 640,
+   "n_reached": 640,
+   "median_timing_error_h": -3.8275091512343837,
+   "iqr_h": [
+    -18.051546589766982,
+    16.90959180173376
+   ],
+   "median_abs_timing_error_h": 17.235047225756556,
+   "hit_rate": 0.578125,
+   "consistent_rate": 0.059375,
+   "sorensen": 0.14248710010319918,
+   "false_alarm_km2": 1346.1065999999998,
+   "missed_km2": 0.0,
+   "area_km2": 1457.9433,
+   "observed_footprint_km2": 111.8367,
+   "ros_multiplier": 1.0,
+   "wall_s": 180.95492819999345,
+   "edge_reached": true
+  },
+  {
+   "n_pixels": 640,
+   "n_reached": 640,
+   "median_timing_error_h": -10.396302403330386,
+   "iqr_h": [
+    -31.108776426058572,
+    4.686678150146101
+   ],
+   "median_abs_timing_error_h": 13.334644405797444,
+   "hit_rate": 0.6578125,
+   "consistent_rate": 0.04375,
+   "sorensen": 0.14058506684587266,
+   "false_alarm_km2": 1367.3447999999999,
+   "missed_km2": 0.0,
+   "area_km2": 1479.1815,
+   "observed_footprint_km2": 111.8367,
+   "ros_multiplier": 1.41,
+   "wall_s": 263.2159724000376,
+   "edge_reached": true
+  },
+  {
+   "n_pixels": 640,
+   "n_reached": 640,
+   "median_timing_error_h": -13.374924009794793,
+   "iqr_h": [
+    -43.76281381926556,
+    -4.94541866568769
+   ],
+   "median_abs_timing_error_h": 13.803913641258074,
+   "hit_rate": 0.90625,
+   "consistent_rate": 0.0578125,
+   "sorensen": 0.1397264571495074,
+   "false_alarm_km2": 1377.1215,
+   "missed_km2": 0.0,
+   "area_km2": 1488.9581999999998,
+   "observed_footprint_km2": 111.8367,
+   "ros_multiplier": 2.0,
+   "wall_s": 391.7541946999263,
+   "edge_reached": true
+  },
+  {
+   "n_pixels": 640,
+   "n_reached": 640,
+   "median_timing_error_h": -19.043345257405036,
+   "iqr_h": [
+    -53.21418865274623,
+    -9.55080398282791
+   ],
+   "median_abs_timing_error_h": 19.043345257405036,
+   "hit_rate": 0.9375,
+   "consistent_rate": 0.01875,
+   "sorensen": 0.1397264571495074,
+   "false_alarm_km2": 1377.1215,
+   "missed_km2": 0.0,
+   "area_km2": 1488.9581999999998,
+   "observed_footprint_km2": 111.8367,
+   "ros_multiplier": 2.83,
+   "wall_s": 522.7720794000197,
+   "edge_reached": true
+  },
+  {
+   "n_pixels": 640,
+   "n_reached": 640,
+   "median_timing_error_h": -23.28045858754808,
+   "iqr_h": [
+    -58.51699668991912,
+    -12.617354376260185
+   ],
+   "median_abs_timing_error_h": 23.28045858754808,
+   "hit_rate": 0.99375,
+   "consistent_rate": 0.0375,
+   "sorensen": 0.1397264571495074,
+   "false_alarm_km2": 1377.1215,
+   "missed_km2": 0.0,
+   "area_km2": 1488.9581999999998,
+   "observed_footprint_km2": 111.8367,
+   "ros_multiplier": 4.0,
+   "wall_s": 668.6891447000671,
+   "edge_reached": true
+  }
+ ],
+ "calibrated_not_blind": "the multiplier is fitted on this fire's own detections",
+ "wall_s": 1031.8689439296722
+}

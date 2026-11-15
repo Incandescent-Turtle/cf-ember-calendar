@@ -301,3 +301,94 @@ Constants and values checked against the primary sources (sub-agent lookups: And
   - Put any new figure or number in `rekindle/verification_report.py`, so `docs/report/rekindle/` stays the single source for the LaTeX report.
 - 2026-11-15 — **No backend for Rekindle.** The solver is fast (≤ 30 s / 24 h on 400 × 400), but the plan stands. CLAUDE.md forbids servers. Per-fire inputs need offline prep and credentials, uncalibrated runs aren't hindcasts, and free Python hosts cold-start. Spend the speed on a **denser precomputed grid** instead (finer wind/moisture steps, if the export budget allows). A live backend is a post-hackathon roadmap item only.
 - 2026-11-15 — **Credentials check:** `.env` has no `EARTHDATA_USERNAME`/`EARTHDATA_PASSWORD` yet, and there is no `~/.netrc`. MCD12Q1/MOD44W (LP DAAC) and MERRA-2 (GES DISC; authorize the "NASA GESDISC DATA ARCHIVE" app in the Earthdata profile) need them. The DEM can come from Copernicus GLO-30 on AWS (no login) instead of NASADEM (REKINDLE.md §4 named NASADEM; either is fine, so log the choice).
+
+## Implementation decisions (S6, 2026-11-15)
+
+- 2026-11-15 — **Solver tests 6–10** (`tests/rekindle/test_levelset.py`, cases in `rekindle/verify.py`, numbers in `docs/report/rekindle/results.json`):
+  - 6 slope: 20° incline, FM 1, no wind, dx 10 m. Head 0.1508 vs Rothermel 0.1509 m/s (−0.1 %). Backing 0.038 m/s = ellipse backing rate.
+  - 7 wind shift: 6 m/s from 270° for 3,273 s, then from 180°. Before the shift, east 0.456 / north 0.171 m/s. After it, north 0.456 / east 0.171 (expected head 0.458).
+  - 8 ×2 multiplier: arrival times exactly halved (0 s difference on 6,698 cells). dt scales with 1/S, so the scheme is exactly scale-invariant while dt_max doesn't bind.
+  - 9 fuel interface FM 1 → FM 12: rates 0.02337 / 0.00766 m/s vs R0 0.02339 / 0.00766; arrival is monotone across the boundary.
+  - 10 determinism: identical arrival field and params_hash.
+- 2026-11-15 — **DEM = Copernicus GLO-30** (AWS Open Data COGs, windowed reads, no login), not NASADEM (which needs a login). Tiles S30W068 + S29W068, bilinear to the 90 m UTM 19S grid (444 × 444, 40 km).
+- 2026-11-15 — **Fuels = MCD12Q1 v061 2025** (the year before the fire), **water = MOD44W v061 2025 ∪ IGBP 17**. Downloaded from LP DAAC with the Earthdata token. GDAL has no HDF4 driver here, so the files are read with `pyhdf`.
+  - In the domain: IGBP 7 (open shrubland → FM 6) 57 %, 10 (grassland → FM 1) 36 %, 16 barren 6 %, 13 urban 1 %. 0 water cells.
+  - Detections fall on FM 1 (265) and FM 6 (384).
+- 2026-11-15 — **Wind = MERRA-2 M2T1NXSLV hourly via the Earthdata cloud OPeNDAP** (`opendap.earthdata.nasa.gov/collections/C1276812863-GES_DISC/…dap.csv`). The old `goldsmr4.gesdisc` OPeNDAP returns **410 Gone**.
+  - July 2026 is published (CMR granules exist to 2026-10-01).
+  - The domain centre is bilinear from the 4 surrounding grid points; values are hourly means centred on :30.
+  - Jul 27 afternoon: dry westerly 9–10 m/s, QV2M ≈ 2 g/kg.
+- 2026-11-15 — **Token handling:** `rekindle/earthdata.py` sends `Authorization: Bearer` only to `*.earthdata.nasa.gov`, `*.earthdatacloud.nasa.gov` and `*.gesdisc.eosdis.nasa.gov`, never on redirects to S3. It never prints the token. The first probe script re-sent the header on every redirect and was blocked by the safety check; this fixes it.
+- 2026-11-15 — **Baseline dead fuel moisture = 6 %.** This is the moisture-axis value nearest the median Simard (1968) EMC over the run (5.4 %; p10 3.0, p90 10.6), from MERRA-2 T2M/QV2M at the ignition elevation (2,345 m, median RH 24 %). It is constant in time, with no diurnal cycle.
+  - Live moisture: defaults. They don't matter here, because FM 1 and FM 6 carry no live fuel.
+- 2026-11-15 — **Metrics definitions** (`rekindle/metrics.py`):
+  - T_sim per detection = the minimum arrival inside its scan × track footprint.
+  - Pixels never reached count as Δ = +inf; they are not dropped.
+  - Hit = reached by the next overpass.
+  - **Gate threshold = mean interval between overpasses (3.2 h)**, fixed before the sweep. The median gap (1.4 h) would be stricter; it is dominated by NOAA-20/S-NPP pairs 80 min apart.
+  - Grid and baseline runs use `stop_at_edge=False`, so a fire leaving the domain keeps burning inside it.
+- 2026-11-15 — **Grid axes** (only used if a fire passes): wind 0–15 m/s step 3; 8 directions; dead moisture **3, 4, 6, 8, 10, 14 %**. 3 % was added because the EMC p10 is 3 %, and 8 % fills the gap. Calm runs once per moisture and is shared by all 8 directions in `runs/index.json`. That gives 247 runs per fire.
+  - Timing: 100–320 s per 110 h run at 444² on this machine. A full grid with 3 workers takes about 3–4 h.
+- 2026-11-15 — **Data credits** (exact strings in `rekindle/credits.py`; also in each exported `meta.json`, the Rekindle panel, the README and `references.bib`):
+  - **MERRA-2:** "Global Modeling and Assimilation Office (GMAO) (2015), MERRA-2 tavg1_2d_slv_Nx: 2d,1-Hourly,Time-Averaged,Single-Level,Assimilation,Single-Level Diagnostics V5.12.4, Greenbelt, MD, USA, Goddard Earth Sciences Data and Information Services Center (GES DISC), Accessed: 2026-11-15, 10.5067/VJAFPLI1CSIV".
+    - Assembled from the collection's own CMR `CollectionCitations` fields (creator, title, place, publisher, release 2015) and the DOI.
+    - The GES DISC acknowledgement FAQ (disc.gsfc.nasa.gov/data-guidelines) is JavaScript-rendered and **could not be read verbatim**, so no GES DISC acknowledgement sentence is quoted.
+    - The Earthdata data-use guidance (read) asks users to cite the dataset (DOI) and acknowledge NASA. The credits do both.
+  - **MCD12Q1:** "Friedl, Mark, & Sulla-Menashe, Damien. (2022). MODIS/Terra+Aqua Land Cover Type Yearly L3 Global 500m SIN Grid V061 [Data set]. NASA Land Processes Distributed Active Archive Center. https://doi.org/10.5067/MODIS/MCD12Q1.061" (Earthdata catalog page).
+  - **MOD44W:** "Carroll, Mark, DiMiceli, Charlene, Townshend, John, Sohlberg, Robert, Hubbard, Alfred, Wooten, Margaret, Spradlin, Caleb, Gill, Roger, Strong, Savannah, Burke, Amanda, Blanco-Rojas, Mariana, & Frost, Melanie. (2024). MODIS/Terra Land Water Mask Derived from MODIS and SRTM L3 Global 250m SIN Grid V061 [Data set]. NASA Land Processes Distributed Active Archive Center. https://doi.org/10.5067/MODIS/MOD44W.061".
+  - **Copernicus DEM:** licence (License-COPDEM-30.pdf) Art. 6(b), the adapted/modified form, because we derive slope/aspect and reproject: "produced using Copernicus WorldDEM-30 © DLR e.V. 2010-2014 and © Airbus Defence and Space GmbH 2014-2018 provided under COPERNICUS by the European Union and ESA; all rights reserved". Also the AWS registry access line. DOI 10.5270/ESA-c5d3d65.
+  - **FIRMS:** "We acknowledge the use of imagery from the NASA LANCE FIRMS (https://earthdata.nasa.gov/firms), part of the NASA Earth Science Data and Information System (ESDIS)." (FIRMS FAQ).
+  - **From memory, not verified:** `schroeder2014` author list and `machado2009` DOI in references.bib; Simard 1968 publisher details beyond the report number FF-X-14.
+- 2026-11-15 — `pyproject.toml`: new dependency group `rekindle-prep` (rasterio, pyproj, requests, pyhdf), made a default group so `uv run` doesn't remove it.
+  - The sync only **added** packages (dry run checked first), so the running pipeline's environment was not changed.
+  - Web: `d3-contour` + types.
+  - Dev only: the `?rkbase=<dir>` query param loads a test export (used to check the what-if UI).
+
+## Handoff — S6 (2026-11-15, ~12:10)
+
+**Done** (branch s6)
+- Solver tests 6–10 pass. `uv run pytest` **94 passed**, ruff clean. The report regenerated with the new figure (`test6_7_slope_windshift`).
+- `rekindle/prep.py` → `data/rekindle/chilecito-2026/{domain.npz, meta.json}`.
+  - 9 NOAA-20 ignition pixels at 2026-07-27 17:40 UTC.
+  - 649 detections; 168 h of MERRA-2 wind.
+- `rekindle/metrics.py`, `rekindle/hindcast.py` (sweep + gate + figures), `scenario_grid.py` (smoke-tested on 2 keys with `--force`; works), `export.py`, `credits.py`, `domain.py`, `earthdata.py`.
+- **Chilecito baseline result — fails the gate, so `status: "poor_agreement"`; baseline only, no counterfactuals:**
+
+  | ×ROS | median Δ (h) | median abs Δ (h) | hit rate | Sørensen | area (km²) |
+  |---|---|---|---|---|---|
+  | 0.25 | +inf (most pixels never reached) | inf | 0.07 | 0.20 | 317 |
+  | 0.5 | +31.9 | 32.5 | 0.25 | 0.21 | 873 |
+  | 1.0 | −3.8 | 17.2 | 0.58 | 0.14 | 1,458 |
+  | **1.41 (best)** | **−10.4** (IQR −31.1 to +4.7) | **13.3** | **0.66** | **0.14** | 1,479 |
+  | 2.0 | −13.4 | 13.8 | 0.91 | 0.14 | 1,489 |
+  | 4.0 | −23.3 | 23.3 | 0.99 | 0.14 | 1,489 |
+
+  - Gate: median |Δ| ≤ 3.2 h. Missed by a factor of 4. Detection footprints cover 112 km²; the simulation burns most of the 40 km domain.
+- **Why** (see `figures/chilecito-2026_baseline_map`):
+  - The real fire starts in the NE cluster, then moves SW and uphill over days on the Famatina foothills (2,000–3,200 m).
+  - The model runs east and downslope into the FM 6 open-shrub lowlands within hours, pushed by MERRA-2's 10 m/s westerly on Jul 27.
+  - Plausible causes, in the order REKINDLE.md lists them as limitations:
+    - the 500 m land-cover → Anderson crosswalk (sparse Monte shrubland is not FM 6);
+    - single-point 50 km reanalysis wind over steep terrain;
+    - constant moisture with no night recovery.
+  - Nothing was tuned after seeing the result.
+- `web/public/rekindle/` exported: 433 KB in total, one 252 KB baseline raster at 444 × 446 px.
+- **Rekindle tab** (`/rekindle`; tabs in the panel are now links, `route.ts` has a third route):
+  - arrival-time ramp (inferno, truncated) with a time slider and play button;
+  - white isochrones every 12 h (d3-contour);
+  - FIRMS detections up to the clock time, with popups;
+  - burned area vs time (ECharts), baseline metrics table, status caption on every view;
+  - limits in a collapsible section, and a visible credits line with the Copernicus notice.
+  - What-if mode (sliders snap to the axes, dashed baseline outline, "not precomputed" fallback) appears only if `status == validated`. It was checked with a temporary validated test export of the two smoke-test runs, then removed.
+  - Checked at 1,280 px and 390 px (no horizontal overflow).
+  - CVD: unit test (Machado 2009 protan/deutan/tritan) confirms monotonic luminance and contrast > 4.
+  - Run loads in < 10 ms locally (250 KB gz).
+  - `npm test` 47 passed, lint clean, build OK (existing > 500 kB chunk warning).
+
+**Not done / next**
+- Deployed-URL check of `/rekindle` (Pages serves index.html for any path, as for `/methodology`).
+- Step 6, a second curated fire: not started. A fire that passes the gate would turn on the what-if UI with no code changes: run `prep` → `hindcast` → `scenario_grid` → `export`.
+- Physically motivated baseline improvements, untested. Don't tune until it passes; log every attempt:
+  - hourly dead moisture from the EMC series (solver change: time-varying Moisture);
+  - an IGBP 7 override for sparse desert shrub;
+  - a downscaled or terrain-adjusted wind.

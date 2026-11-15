@@ -91,7 +91,7 @@ def score(arrival_s: np.ndarray, prep: dict) -> dict:
         "n_pixels": int(d.size),
         "n_reached": int(fin.size),
         "median_timing_error_h": float(np.median(d)) if d.size else None,
-        "iqr_h": [float(np.percentile(d, 25)), float(np.percentile(d, 75))] if d.size else None,
+        "iqr_h": [float(np.percentile(d, q, method="nearest")) for q in (25, 75)] if d.size else None,
         "median_abs_timing_error_h": float(np.median(np.abs(d))) if d.size else None,
         "hit_rate": float(np.mean(hits)) if hits else None,
         "consistent_rate": float(np.mean(consistent)) if consistent else None,

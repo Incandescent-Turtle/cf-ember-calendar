@@ -1,0 +1,1071 @@
+{
+ "id": "chilecito-2026",
+ "name": "Chilecito, La Rioja, Argentina (July 2026)",
+ "bbox": [
+  -67.78,
+  -29.24,
+  -67.62,
+  -29.05
+ ],
+ "raster": {
+  "crs": "EPSG:3857",
+  "width": 444,
+  "height": 446,
+  "bounds_3857": [
+   -7559458.782796466,
+   -3417408.18129713,
+   -7513230.29147362,
+   -3370942.4991773777
+  ],
+  "bounds_lonlat": [
+   -67.90777364257619,
+   -29.32759658300279,
+   -67.49249603940518,
+   -28.963038456137216
+  ],
+  "dx_m": 90.0
+ },
+ "status": "poor_agreement",
+ "start": "2026-07-27T17:40:00Z",
+ "end": "2026-08-01T07:40:00Z",
+ "ignitions": [
+  {
+   "lon": -67.66011810302734,
+   "lat": -29.132509231567383,
+   "t": "2026-07-27T17:40:00Z"
+  },
+  {
+   "lon": -67.66095733642578,
+   "lat": -29.116830825805664,
+   "t": "2026-07-27T17:40:00Z"
+  },
+  {
+   "lon": -67.65757751464844,
+   "lat": -29.116559982299805,
+   "t": "2026-07-27T17:40:00Z"
+  },
+  {
+   "lon": -67.660888671875,
+   "lat": -29.10633087158203,
+   "t": "2026-07-27T17:40:00Z"
+  },
+  {
+   "lon": -67.66452026367188,
+   "lat": -29.096120834350586,
+   "t": "2026-07-27T17:40:00Z"
+  },
+  {
+   "lon": -67.67514038085938,
+   "lat": -29.09173011779785,
+   "t": "2026-07-27T17:40:00Z"
+  },
+  {
+   "lon": -67.67236328125,
+   "lat": -29.09149932861328,
+   "t": "2026-07-27T17:40:00Z"
+  },
+  {
+   "lon": -67.67769622802734,
+   "lat": -29.086679458618164,
+   "t": "2026-07-27T17:40:00Z"
+  },
+  {
+   "lon": -67.67474365234375,
+   "lat": -29.08643913269043,
+   "t": "2026-07-27T17:40:00Z"
+  }
+ ],
+ "baseline": {
+  "wind_ms": 2.32,
+  "wind_from_deg": 320.2,
+  "dead_moisture_pct": 6,
+  "ros_multiplier": 1.41,
+  "wind_source": "MERRA-2",
+  "wind_hourly": [
+   {
+    "t": "2026-07-27T00:30:00Z",
+    "speed_ms": 2.442,
+    "from_deg": 3.4
+   },
+   {
+    "t": "2026-07-27T01:30:00Z",
+    "speed_ms": 2.661,
+    "from_deg": 351.0
+   },
+   {
+    "t": "2026-07-27T02:30:00Z",
+    "speed_ms": 2.561,
+    "from_deg": 345.0
+   },
+   {
+    "t": "2026-07-27T03:30:00Z",
+    "speed_ms": 2.431,
+    "from_deg": 335.1
+   },
+   {
+    "t": "2026-07-27T04:30:00Z",
+    "speed_ms": 2.312,
+    "from_deg": 323.3
+   },
+   {
+    "t": "2026-07-27T05:30:00Z",
+    "speed_ms": 2.049,
+    "from_deg": 312.7
+   },
+   {
+    "t": "2026-07-27T06:30:00Z",
+    "speed_ms": 1.789,
+    "from_deg": 306.3
+   },
+   {
+    "t": "2026-07-27T07:30:00Z",
+    "speed_ms": 1.602,
+    "from_deg": 311.7
+   },
+   {
+    "t": "2026-07-27T08:30:00Z",
+    "speed_ms": 1.7,
+    "from_deg": 323.7
+   },
+   {
+    "t": "2026-07-27T09:30:00Z",
+    "speed_ms": 1.986,
+    "from_deg": 327.1
+   },
+   {
+    "t": "2026-07-27T10:30:00Z",
+    "speed_ms": 2.386,
+    "from_deg": 324.7
+   },
+   {
+    "t": "2026-07-27T11:30:00Z",
+    "speed_ms": 2.811,
+    "from_deg": 319.5
+   },
+   {
+    "t": "2026-07-27T12:30:00Z",
+    "speed_ms": 2.603,
+    "from_deg": 315.1
+   },
+   {
+    "t": "2026-07-27T13:30:00Z",
+    "speed_ms": 4.324,
+    "from_deg": 302.7
+   },
+   {
+    "t": "2026-07-27T14:30:00Z",
+    "speed_ms": 7.483,
+    "from_deg": 287.5
+   },
+   {
+    "t": "2026-07-27T15:30:00Z",
+    "speed_ms": 9.157,
+    "from_deg": 283.8
+   },
+   {
+    "t": "2026-07-27T16:30:00Z",
+    "speed_ms": 9.911,
+    "from_deg": 282.5
+   },
+   {
+    "t": "2026-07-27T17:30:00Z",
+    "speed_ms": 10.324,
+    "from_deg": 282.0
+   },
+   {
+    "t": "2026-07-27T18:30:00Z",
+    "speed_ms": 10.489,
+    "from_deg": 282.4
+   },
+   {
+    "t": "2026-07-27T19:30:00Z",
+    "speed_ms": 10.061,
+    "from_deg": 283.9
+   },
+   {
+    "t": "2026-07-27T20:30:00Z",
+    "speed_ms": 8.676,
+    "from_deg": 286.2
+   },
+   {
+    "t": "2026-07-27T21:30:00Z",
+    "speed_ms": 5.462,
+    "from_deg": 288.0
+   },
+   {
+    "t": "2026-07-27T22:30:00Z",
+    "speed_ms": 3.55,
+    "from_deg": 289.9
+   },
+   {
+    "t": "2026-07-27T23:30:00Z",
+    "speed_ms": 2.825,
+    "from_deg": 298.8
+   },
+   {
+    "t": "2026-07-28T00:30:00Z",
+    "speed_ms": 2.28,
+    "from_deg": 312.9
+   },
+   {
+    "t": "2026-07-28T01:30:00Z",
+    "speed_ms": 2.1,
+    "from_deg": 324.5
+   },
+   {
+    "t": "2026-07-28T02:30:00Z",
+    "speed_ms": 2.236,
+    "from_deg": 326.6
+   },
+   {
+    "t": "2026-07-28T03:30:00Z",
+    "speed_ms": 2.424,
+    "from_deg": 324.0
+   },
+   {
+    "t": "2026-07-28T04:30:00Z",
+    "speed_ms": 2.565,
+    "from_deg": 317.9
+   },
+   {
+    "t": "2026-07-28T05:30:00Z",
+    "speed_ms": 2.844,
+    "from_deg": 311.9
+   },
+   {
+    "t": "2026-07-28T06:30:00Z",
+    "speed_ms": 3.21,
+    "from_deg": 310.1
+   },
+   {
+    "t": "2026-07-28T07:30:00Z",
+    "speed_ms": 3.566,
+    "from_deg": 309.2
+   },
+   {
+    "t": "2026-07-28T08:30:00Z",
+    "speed_ms": 3.807,
+    "from_deg": 307.6
+   },
+   {
+    "t": "2026-07-28T09:30:00Z",
+    "speed_ms": 3.904,
+    "from_deg": 308.3
+   },
+   {
+    "t": "2026-07-28T10:30:00Z",
+    "speed_ms": 3.875,
+    "from_deg": 312.8
+   },
+   {
+    "t": "2026-07-28T11:30:00Z",
+    "speed_ms": 3.59,
+    "from_deg": 318.8
+   },
+   {
+    "t": "2026-07-28T12:30:00Z",
+    "speed_ms": 3.611,
+    "from_deg": 323.8
+   },
+   {
+    "t": "2026-07-28T13:30:00Z",
+    "speed_ms": 5.087,
+    "from_deg": 312.3
+   },
+   {
+    "t": "2026-07-28T14:30:00Z",
+    "speed_ms": 6.346,
+    "from_deg": 292.4
+   },
+   {
+    "t": "2026-07-28T15:30:00Z",
+    "speed_ms": 7.164,
+    "from_deg": 279.9
+   },
+   {
+    "t": "2026-07-28T16:30:00Z",
+    "speed_ms": 7.929,
+    "from_deg": 271.9
+   },
+   {
+    "t": "2026-07-28T17:30:00Z",
+    "speed_ms": 8.217,
+    "from_deg": 266.4
+   },
+   {
+    "t": "2026-07-28T18:30:00Z",
+    "speed_ms": 7.823,
+    "from_deg": 264.1
+   },
+   {
+    "t": "2026-07-28T19:30:00Z",
+    "speed_ms": 6.57,
+    "from_deg": 263.3
+   },
+   {
+    "t": "2026-07-28T20:30:00Z",
+    "speed_ms": 4.261,
+    "from_deg": 259.0
+   },
+   {
+    "t": "2026-07-28T21:30:00Z",
+    "speed_ms": 1.549,
+    "from_deg": 247.9
+   },
+   {
+    "t": "2026-07-28T22:30:00Z",
+    "speed_ms": 1.251,
+    "from_deg": 261.6
+   },
+   {
+    "t": "2026-07-28T23:30:00Z",
+    "speed_ms": 1.574,
+    "from_deg": 250.4
+   },
+   {
+    "t": "2026-07-29T00:30:00Z",
+    "speed_ms": 0.878,
+    "from_deg": 232.5
+   },
+   {
+    "t": "2026-07-29T01:30:00Z",
+    "speed_ms": 0.467,
+    "from_deg": 168.8
+   },
+   {
+    "t": "2026-07-29T02:30:00Z",
+    "speed_ms": 0.501,
+    "from_deg": 140.8
+   },
+   {
+    "t": "2026-07-29T03:30:00Z",
+    "speed_ms": 0.357,
+    "from_deg": 130.4
+   },
+   {
+    "t": "2026-07-29T04:30:00Z",
+    "speed_ms": 0.312,
+    "from_deg": 140.5
+   },
+   {
+    "t": "2026-07-29T05:30:00Z",
+    "speed_ms": 0.671,
+    "from_deg": 232.6
+   },
+   {
+    "t": "2026-07-29T06:30:00Z",
+    "speed_ms": 1.576,
+    "from_deg": 234.1
+   },
+   {
+    "t": "2026-07-29T07:30:00Z",
+    "speed_ms": 1.769,
+    "from_deg": 237.2
+   },
+   {
+    "t": "2026-07-29T08:30:00Z",
+    "speed_ms": 1.526,
+    "from_deg": 254.1
+   },
+   {
+    "t": "2026-07-29T09:30:00Z",
+    "speed_ms": 1.317,
+    "from_deg": 292.1
+   },
+   {
+    "t": "2026-07-29T10:30:00Z",
+    "speed_ms": 1.579,
+    "from_deg": 336.1
+   },
+   {
+    "t": "2026-07-29T11:30:00Z",
+    "speed_ms": 1.931,
+    "from_deg": 355.9
+   },
+   {
+    "t": "2026-07-29T12:30:00Z",
+    "speed_ms": 2.151,
+    "from_deg": 9.7
+   },
+   {
+    "t": "2026-07-29T13:30:00Z",
+    "speed_ms": 2.393,
+    "from_deg": 31.8
+   },
+   {
+    "t": "2026-07-29T14:30:00Z",
+    "speed_ms": 2.315,
+    "from_deg": 51.5
+   },
+   {
+    "t": "2026-07-29T15:30:00Z",
+    "speed_ms": 1.82,
+    "from_deg": 60.4
+   },
+   {
+    "t": "2026-07-29T16:30:00Z",
+    "speed_ms": 1.407,
+    "from_deg": 74.9
+   },
+   {
+    "t": "2026-07-29T17:30:00Z",
+    "speed_ms": 1.642,
+    "from_deg": 81.8
+   },
+   {
+    "t": "2026-07-29T18:30:00Z",
+    "speed_ms": 2.057,
+    "from_deg": 76.5
+   },
+   {
+    "t": "2026-07-29T19:30:00Z",
+    "speed_ms": 2.572,
+    "from_deg": 72.2
+   },
+   {
+    "t": "2026-07-29T20:30:00Z",
+    "speed_ms": 3.011,
+    "from_deg": 70.7
+   },
+   {
+    "t": "2026-07-29T21:30:00Z",
+    "speed_ms": 2.505,
+    "from_deg": 71.2
+   },
+   {
+    "t": "2026-07-29T22:30:00Z",
+    "speed_ms": 2.491,
+    "from_deg": 65.0
+   },
+   {
+    "t": "2026-07-29T23:30:00Z",
+    "speed_ms": 2.465,
+    "from_deg": 52.5
+   },
+   {
+    "t": "2026-07-30T00:30:00Z",
+    "speed_ms": 2.474,
+    "from_deg": 41.8
+   },
+   {
+    "t": "2026-07-30T01:30:00Z",
+    "speed_ms": 2.508,
+    "from_deg": 36.0
+   },
+   {
+    "t": "2026-07-30T02:30:00Z",
+    "speed_ms": 2.471,
+    "from_deg": 34.8
+   },
+   {
+    "t": "2026-07-30T03:30:00Z",
+    "speed_ms": 2.367,
+    "from_deg": 36.1
+   },
+   {
+    "t": "2026-07-30T04:30:00Z",
+    "speed_ms": 2.259,
+    "from_deg": 37.9
+   },
+   {
+    "t": "2026-07-30T05:30:00Z",
+    "speed_ms": 2.112,
+    "from_deg": 36.9
+   },
+   {
+    "t": "2026-07-30T06:30:00Z",
+    "speed_ms": 1.951,
+    "from_deg": 32.8
+   },
+   {
+    "t": "2026-07-30T07:30:00Z",
+    "speed_ms": 1.802,
+    "from_deg": 29.4
+   },
+   {
+    "t": "2026-07-30T08:30:00Z",
+    "speed_ms": 1.616,
+    "from_deg": 29.0
+   },
+   {
+    "t": "2026-07-30T09:30:00Z",
+    "speed_ms": 1.597,
+    "from_deg": 31.6
+   },
+   {
+    "t": "2026-07-30T10:30:00Z",
+    "speed_ms": 1.748,
+    "from_deg": 28.5
+   },
+   {
+    "t": "2026-07-30T11:30:00Z",
+    "speed_ms": 1.94,
+    "from_deg": 24.2
+   },
+   {
+    "t": "2026-07-30T12:30:00Z",
+    "speed_ms": 2.101,
+    "from_deg": 28.0
+   },
+   {
+    "t": "2026-07-30T13:30:00Z",
+    "speed_ms": 3.115,
+    "from_deg": 30.7
+   },
+   {
+    "t": "2026-07-30T14:30:00Z",
+    "speed_ms": 3.731,
+    "from_deg": 28.8
+   },
+   {
+    "t": "2026-07-30T15:30:00Z",
+    "speed_ms": 4.103,
+    "from_deg": 33.6
+   },
+   {
+    "t": "2026-07-30T16:30:00Z",
+    "speed_ms": 4.364,
+    "from_deg": 43.0
+   },
+   {
+    "t": "2026-07-30T17:30:00Z",
+    "speed_ms": 4.796,
+    "from_deg": 52.6
+   },
+   {
+    "t": "2026-07-30T18:30:00Z",
+    "speed_ms": 5.23,
+    "from_deg": 56.4
+   },
+   {
+    "t": "2026-07-30T19:30:00Z",
+    "speed_ms": 5.349,
+    "from_deg": 56.8
+   },
+   {
+    "t": "2026-07-30T20:30:00Z",
+    "speed_ms": 4.859,
+    "from_deg": 57.0
+   },
+   {
+    "t": "2026-07-30T21:30:00Z",
+    "speed_ms": 3.086,
+    "from_deg": 55.3
+   },
+   {
+    "t": "2026-07-30T22:30:00Z",
+    "speed_ms": 2.387,
+    "from_deg": 34.0
+   },
+   {
+    "t": "2026-07-30T23:30:00Z",
+    "speed_ms": 2.422,
+    "from_deg": 14.5
+   },
+   {
+    "t": "2026-07-31T00:30:00Z",
+    "speed_ms": 2.795,
+    "from_deg": 359.1
+   },
+   {
+    "t": "2026-07-31T01:30:00Z",
+    "speed_ms": 3.044,
+    "from_deg": 350.4
+   },
+   {
+    "t": "2026-07-31T02:30:00Z",
+    "speed_ms": 3.121,
+    "from_deg": 347.9
+   },
+   {
+    "t": "2026-07-31T03:30:00Z",
+    "speed_ms": 3.104,
+    "from_deg": 347.1
+   },
+   {
+    "t": "2026-07-31T04:30:00Z",
+    "speed_ms": 3.097,
+    "from_deg": 344.8
+   },
+   {
+    "t": "2026-07-31T05:30:00Z",
+    "speed_ms": 3.087,
+    "from_deg": 339.3
+   },
+   {
+    "t": "2026-07-31T06:30:00Z",
+    "speed_ms": 3.15,
+    "from_deg": 336.8
+   },
+   {
+    "t": "2026-07-31T07:30:00Z",
+    "speed_ms": 3.233,
+    "from_deg": 337.8
+   },
+   {
+    "t": "2026-07-31T08:30:00Z",
+    "speed_ms": 3.193,
+    "from_deg": 337.8
+   },
+   {
+    "t": "2026-07-31T09:30:00Z",
+    "speed_ms": 3.285,
+    "from_deg": 332.6
+   },
+   {
+    "t": "2026-07-31T10:30:00Z",
+    "speed_ms": 3.44,
+    "from_deg": 324.7
+   },
+   {
+    "t": "2026-07-31T11:30:00Z",
+    "speed_ms": 3.507,
+    "from_deg": 318.7
+   },
+   {
+    "t": "2026-07-31T12:30:00Z",
+    "speed_ms": 4.051,
+    "from_deg": 315.7
+   },
+   {
+    "t": "2026-07-31T13:30:00Z",
+    "speed_ms": 6.39,
+    "from_deg": 310.9
+   },
+   {
+    "t": "2026-07-31T14:30:00Z",
+    "speed_ms": 8.16,
+    "from_deg": 307.8
+   },
+   {
+    "t": "2026-07-31T15:30:00Z",
+    "speed_ms": 9.106,
+    "from_deg": 306.3
+   },
+   {
+    "t": "2026-07-31T16:30:00Z",
+    "speed_ms": 9.9,
+    "from_deg": 305.9
+   },
+   {
+    "t": "2026-07-31T17:30:00Z",
+    "speed_ms": 10.435,
+    "from_deg": 306.7
+   },
+   {
+    "t": "2026-07-31T18:30:00Z",
+    "speed_ms": 10.402,
+    "from_deg": 307.0
+   },
+   {
+    "t": "2026-07-31T19:30:00Z",
+    "speed_ms": 10.041,
+    "from_deg": 305.9
+   },
+   {
+    "t": "2026-07-31T20:30:00Z",
+    "speed_ms": 9.108,
+    "from_deg": 303.5
+   },
+   {
+    "t": "2026-07-31T21:30:00Z",
+    "speed_ms": 6.785,
+    "from_deg": 301.0
+   },
+   {
+    "t": "2026-07-31T22:30:00Z",
+    "speed_ms": 4.92,
+    "from_deg": 299.4
+   },
+   {
+    "t": "2026-07-31T23:30:00Z",
+    "speed_ms": 3.822,
+    "from_deg": 299.9
+   },
+   {
+    "t": "2026-08-01T00:30:00Z",
+    "speed_ms": 3.007,
+    "from_deg": 298.9
+   },
+   {
+    "t": "2026-08-01T01:30:00Z",
+    "speed_ms": 1.975,
+    "from_deg": 282.4
+   },
+   {
+    "t": "2026-08-01T02:30:00Z",
+    "speed_ms": 1.656,
+    "from_deg": 258.3
+   },
+   {
+    "t": "2026-08-01T03:30:00Z",
+    "speed_ms": 1.512,
+    "from_deg": 255.6
+   },
+   {
+    "t": "2026-08-01T04:30:00Z",
+    "speed_ms": 1.336,
+    "from_deg": 254.7
+   },
+   {
+    "t": "2026-08-01T05:30:00Z",
+    "speed_ms": 1.105,
+    "from_deg": 245.9
+   },
+   {
+    "t": "2026-08-01T06:30:00Z",
+    "speed_ms": 1.1,
+    "from_deg": 240.0
+   },
+   {
+    "t": "2026-08-01T07:30:00Z",
+    "speed_ms": 1.028,
+    "from_deg": 244.6
+   },
+   {
+    "t": "2026-08-01T08:30:00Z",
+    "speed_ms": 0.817,
+    "from_deg": 252.4
+   },
+   {
+    "t": "2026-08-01T09:30:00Z",
+    "speed_ms": 0.496,
+    "from_deg": 255.0
+   },
+   {
+    "t": "2026-08-01T10:30:00Z",
+    "speed_ms": 0.298,
+    "from_deg": 15.8
+   },
+   {
+    "t": "2026-08-01T11:30:00Z",
+    "speed_ms": 1.225,
+    "from_deg": 44.3
+   },
+   {
+    "t": "2026-08-01T12:30:00Z",
+    "speed_ms": 2.415,
+    "from_deg": 61.4
+   },
+   {
+    "t": "2026-08-01T13:30:00Z",
+    "speed_ms": 3.338,
+    "from_deg": 69.3
+   },
+   {
+    "t": "2026-08-01T14:30:00Z",
+    "speed_ms": 2.75,
+    "from_deg": 56.7
+   },
+   {
+    "t": "2026-08-01T15:30:00Z",
+    "speed_ms": 2.035,
+    "from_deg": 32.3
+   },
+   {
+    "t": "2026-08-01T16:30:00Z",
+    "speed_ms": 1.655,
+    "from_deg": 18.2
+   },
+   {
+    "t": "2026-08-01T17:30:00Z",
+    "speed_ms": 1.437,
+    "from_deg": 31.3
+   },
+   {
+    "t": "2026-08-01T18:30:00Z",
+    "speed_ms": 1.6,
+    "from_deg": 44.7
+   },
+   {
+    "t": "2026-08-01T19:30:00Z",
+    "speed_ms": 2.03,
+    "from_deg": 45.9
+   },
+   {
+    "t": "2026-08-01T20:30:00Z",
+    "speed_ms": 2.539,
+    "from_deg": 45.7
+   },
+   {
+    "t": "2026-08-01T21:30:00Z",
+    "speed_ms": 2.496,
+    "from_deg": 55.8
+   },
+   {
+    "t": "2026-08-01T22:30:00Z",
+    "speed_ms": 2.863,
+    "from_deg": 47.1
+   },
+   {
+    "t": "2026-08-01T23:30:00Z",
+    "speed_ms": 3.015,
+    "from_deg": 31.7
+   },
+   {
+    "t": "2026-08-02T00:30:00Z",
+    "speed_ms": 3.26,
+    "from_deg": 18.2
+   },
+   {
+    "t": "2026-08-02T01:30:00Z",
+    "speed_ms": 3.428,
+    "from_deg": 10.3
+   },
+   {
+    "t": "2026-08-02T02:30:00Z",
+    "speed_ms": 3.384,
+    "from_deg": 3.7
+   },
+   {
+    "t": "2026-08-02T03:30:00Z",
+    "speed_ms": 3.201,
+    "from_deg": 358.4
+   },
+   {
+    "t": "2026-08-02T04:30:00Z",
+    "speed_ms": 2.816,
+    "from_deg": 0.5
+   },
+   {
+    "t": "2026-08-02T05:30:00Z",
+    "speed_ms": 1.766,
+    "from_deg": 352.9
+   },
+   {
+    "t": "2026-08-02T06:30:00Z",
+    "speed_ms": 1.309,
+    "from_deg": 316.6
+   },
+   {
+    "t": "2026-08-02T07:30:00Z",
+    "speed_ms": 1.657,
+    "from_deg": 310.3
+   },
+   {
+    "t": "2026-08-02T08:30:00Z",
+    "speed_ms": 1.985,
+    "from_deg": 324.0
+   },
+   {
+    "t": "2026-08-02T09:30:00Z",
+    "speed_ms": 2.483,
+    "from_deg": 337.2
+   },
+   {
+    "t": "2026-08-02T10:30:00Z",
+    "speed_ms": 2.866,
+    "from_deg": 344.5
+   },
+   {
+    "t": "2026-08-02T11:30:00Z",
+    "speed_ms": 2.955,
+    "from_deg": 350.1
+   },
+   {
+    "t": "2026-08-02T12:30:00Z",
+    "speed_ms": 2.722,
+    "from_deg": 355.7
+   },
+   {
+    "t": "2026-08-02T13:30:00Z",
+    "speed_ms": 3.62,
+    "from_deg": 352.0
+   },
+   {
+    "t": "2026-08-02T14:30:00Z",
+    "speed_ms": 3.571,
+    "from_deg": 344.2
+   },
+   {
+    "t": "2026-08-02T15:30:00Z",
+    "speed_ms": 2.487,
+    "from_deg": 332.0
+   },
+   {
+    "t": "2026-08-02T16:30:00Z",
+    "speed_ms": 1.418,
+    "from_deg": 298.9
+   },
+   {
+    "t": "2026-08-02T17:30:00Z",
+    "speed_ms": 1.379,
+    "from_deg": 231.6
+   },
+   {
+    "t": "2026-08-02T18:30:00Z",
+    "speed_ms": 2.431,
+    "from_deg": 194.4
+   },
+   {
+    "t": "2026-08-02T19:30:00Z",
+    "speed_ms": 3.402,
+    "from_deg": 179.1
+   },
+   {
+    "t": "2026-08-02T20:30:00Z",
+    "speed_ms": 3.825,
+    "from_deg": 166.5
+   },
+   {
+    "t": "2026-08-02T21:30:00Z",
+    "speed_ms": 2.418,
+    "from_deg": 161.7
+   },
+   {
+    "t": "2026-08-02T22:30:00Z",
+    "speed_ms": 1.529,
+    "from_deg": 178.1
+   },
+   {
+    "t": "2026-08-02T23:30:00Z",
+    "speed_ms": 1.223,
+    "from_deg": 211.9
+   }
+  ]
+ },
+ "axes": null,
+ "validation": {
+  "gate": {
+   "rule": "median |\u0394| \u2264 mean interval between overpasses (REKINDLE.md \u00a75)",
+   "threshold_h": 3.207843137254902,
+   "overpass_median_gap_h": 1.3666666666666667,
+   "passed": false
+  },
+  "metrics": {
+   "n_pixels": 640,
+   "n_reached": 640,
+   "median_timing_error_h": -10.396,
+   "iqr_h": [
+    -31.109,
+    4.687
+   ],
+   "median_abs_timing_error_h": 13.335,
+   "hit_rate": 0.658,
+   "consistent_rate": 0.044,
+   "sorensen": 0.141,
+   "false_alarm_km2": 1367.345,
+   "missed_km2": 0.0,
+   "area_km2": 1479.181,
+   "observed_footprint_km2": 111.837,
+   "ros_multiplier": 1.41,
+   "wall_s": 263.216,
+   "edge_reached": true
+  },
+  "sweep": [
+   {
+    "ros_multiplier": 0.25,
+    "median_abs_timing_error_h": null,
+    "hit_rate": 0.071875,
+    "sorensen": 0.20301845450595946
+   },
+   {
+    "ros_multiplier": 0.35,
+    "median_abs_timing_error_h": 79.1164151468147,
+    "hit_rate": 0.1015625,
+    "sorensen": 0.2072277614611826
+   },
+   {
+    "ros_multiplier": 0.5,
+    "median_abs_timing_error_h": 32.45497999630717,
+    "hit_rate": 0.2515625,
+    "sorensen": 0.2137876595184844
+   },
+   {
+    "ros_multiplier": 0.71,
+    "median_abs_timing_error_h": 22.03617663597609,
+    "hit_rate": 0.434375,
+    "sorensen": 0.16337324876940554
+   },
+   {
+    "ros_multiplier": 1.0,
+    "median_abs_timing_error_h": 17.235047225756556,
+    "hit_rate": 0.578125,
+    "sorensen": 0.14248710010319918
+   },
+   {
+    "ros_multiplier": 1.41,
+    "median_abs_timing_error_h": 13.334644405797444,
+    "hit_rate": 0.6578125,
+    "sorensen": 0.14058506684587266
+   },
+   {
+    "ros_multiplier": 2.0,
+    "median_abs_timing_error_h": 13.803913641258074,
+    "hit_rate": 0.90625,
+    "sorensen": 0.1397264571495074
+   },
+   {
+    "ros_multiplier": 2.83,
+    "median_abs_timing_error_h": 19.043345257405036,
+    "hit_rate": 0.9375,
+    "sorensen": 0.1397264571495074
+   },
+   {
+    "ros_multiplier": 4.0,
+    "median_abs_timing_error_h": 23.28045858754808,
+    "hit_rate": 0.99375,
+    "sorensen": 0.1397264571495074
+   }
+  ],
+  "calibrated_not_blind": "the multiplier is fitted on this fire's own detections",
+  "moisture_estimate": {
+   "method": "Simard (1968) EMC from MERRA-2 T2M/QV2M (2 m, grid-cell mean), pressure at the ignition elevation 2345 m; no time lag",
+   "rh_pct_median": 24.147150279553443,
+   "emc_pct_median": 5.375766111680685,
+   "emc_pct_p10": 2.9745224044861587,
+   "emc_pct_p90": 10.640235373353587
+  }
+ },
+ "notes": "dead_moisture_pct is the 1-h value; 10-h = +1, 100-h = +2 points; live moisture fixed at baseline. Grid runs use a constant wind; the baseline uses the hourly MERRA-2 wind. Surface fire only: no crowning, spotting, suppression or fire\u2013atmosphere feedback. Fuels from 500 m MODIS land cover through a coarse IGBP\u2192Anderson crosswalk (the largest error source). Single-point MERRA-2 wind (~50 km grid) over steep terrain. Dead fuel moisture is a scenario value, constant in time (no day/night cycle). Hotspot times are upper bounds limited by the overpass frequency. Counterfactuals and absolute timings are illustrative; differences between runs are more reliable than absolute arrival times.",
+ "prep_notes": [
+  "Grid: EPSG:32719, 444\u00d7444 at 90 m, lon/lat bounds [-67.9278, -29.3476, -67.4725, -28.943]",
+  "Ignition: 9 VIIRS_NOAA20 pixels at 2026-07-27T17:40:00Z (first overpass); 649 detections to 2026-08-01T06:44:00Z",
+  "Fuels: MCD12Q1 v061 IGBP 2025 (h12v11), nearest to 90 m",
+  "Water: MOD44W v061 2025 \u222a IGBP 17 (0 cells)",
+  "IGBP classes (cells): 7:112905, 9:276, 10:70670, 12:339, 13:1641, 16:11305",
+  "Wind: MERRA-2 M2T1NXSLV hourly at (-67.700, -29.145), bilinear from grid points lat -29.5/-29.0, lon -68.125/-67.5; 168 hours"
+ ],
+ "credits": [
+  {
+   "id": "merra2",
+   "short": "MERRA-2 (NASA GMAO, GES DISC)",
+   "use": "hourly 10 m wind (U10M, V10M), T2M, QV2M at the fire",
+   "citation": "Global Modeling and Assimilation Office (GMAO) (2015), MERRA-2 tavg1_2d_slv_Nx: 2d,1-Hourly,Time-Averaged,Single-Level,Assimilation,Single-Level Diagnostics V5.12.4, Greenbelt, MD, USA, Goddard Earth Sciences Data and Information Services Center (GES DISC), Accessed: 2026-11-15, 10.5067/VJAFPLI1CSIV",
+   "doi": "10.5067/VJAFPLI1CSIV",
+   "url": "https://doi.org/10.5067/VJAFPLI1CSIV"
+  },
+  {
+   "id": "mcd12q1",
+   "short": "MODIS MCD12Q1 v061 land cover (NASA LP DAAC)",
+   "use": "IGBP land cover \u2192 Anderson fuel models",
+   "citation": "Friedl, Mark, & Sulla-Menashe, Damien. (2022). MODIS/Terra+Aqua Land Cover Type Yearly L3 Global 500m SIN Grid V061 [Data set]. NASA Land Processes Distributed Active Archive Center. https://doi.org/10.5067/MODIS/MCD12Q1.061. Date Accessed: 2026-11-15",
+   "doi": "10.5067/MODIS/MCD12Q1.061",
+   "url": "https://doi.org/10.5067/MODIS/MCD12Q1.061"
+  },
+  {
+   "id": "mod44w",
+   "short": "MODIS MOD44W v061 water mask (NASA LP DAAC)",
+   "use": "water cells (non-burnable)",
+   "citation": "Carroll, Mark, DiMiceli, Charlene, Townshend, John, Sohlberg, Robert, Hubbard, Alfred, Wooten, Margaret, Spradlin, Caleb, Gill, Roger, Strong, Savannah, Burke, Amanda, Blanco-Rojas, Mariana, & Frost, Melanie. (2024). MODIS/Terra Land Water Mask Derived from MODIS and SRTM L3 Global 250m SIN Grid V061 [Data set]. NASA Land Processes Distributed Active Archive Center. https://doi.org/10.5067/MODIS/MOD44W.061. Date Accessed: 2026-11-15",
+   "doi": "10.5067/MODIS/MOD44W.061",
+   "url": "https://doi.org/10.5067/MODIS/MOD44W.061"
+  },
+  {
+   "id": "copdem",
+   "short": "Copernicus DEM GLO-30",
+   "use": "elevation \u2192 slope and aspect (reprojected to 90 m UTM)",
+   "citation": "produced using Copernicus WorldDEM-30 \u00a9 DLR e.V. 2010-2014 and \u00a9 Airbus Defence and Space GmbH 2014-2018 provided under COPERNICUS by the European Union and ESA; all rights reserved",
+   "doi": "10.5270/ESA-c5d3d65",
+   "url": "https://registry.opendata.aws/copernicus-dem/",
+   "access": "Copernicus Digital Elevation Model (DEM) was accessed on 2026-11-15 from https://registry.opendata.aws/copernicus-dem."
+  },
+  {
+   "id": "firms",
+   "short": "NASA FIRMS active fire detections (VIIRS 375 m, MODIS)",
+   "use": "ignition (first overpass) and the observed arrival times used for validation",
+   "citation": "We acknowledge the use of imagery from the NASA LANCE FIRMS (https://earthdata.nasa.gov/firms), part of the NASA Earth Science Data and Information System (ESDIS).",
+   "url": "https://earthdata.nasa.gov/firms"
+  }
+ ]
+}
