@@ -22,8 +22,16 @@ export interface MtdResult extends MonthToDate {
   baseDekads: number[][];
 }
 
+/** Below this share of months with activity, medians and percentiles are coarse: say so. */
+export const SPARSE_ZERO_SHARE = 0.5;
+
 export interface Glance {
   summary: SeriesSummary;
+  /** share of baseline full months with zero harmonized activity, and the count behind it */
+  zeroShare: number;
+  zeroMonths: number;
+  baseMonths: number;
+  sparse: boolean;
   mtd: MtdResult | null;
   topYears: { year: number; value: number }[];
   topMonths: { month: number; median: number }[];
@@ -82,5 +90,13 @@ export function computeGlance(h: Harmonized, series: AoiSeries, manifest: Manife
     .slice(0, 3);
   let busiest: MonthRow | null = null;
   for (const r of h.rows) if (r && !r.partial && Number.isFinite(r.harmonized) && (!busiest || r.harmonized > busiest.harmonized)) busiest = r;
-  return { summary, mtd, topYears, topMonths, busiest };
+  let zeroMonths = 0;
+  let baseMonths = 0;
+  for (const r of h.rows)
+    if (r && !r.partial && Number.isFinite(r.harmonized) && r.year !== currentYear) {
+      baseMonths++;
+      if (r.harmonized === 0) zeroMonths++;
+    }
+  const zeroShare = baseMonths ? zeroMonths / baseMonths : 0;
+  return { summary, mtd, topYears, topMonths, busiest, zeroShare, zeroMonths, baseMonths, sparse: zeroShare >= SPARSE_ZERO_SHARE };
 }

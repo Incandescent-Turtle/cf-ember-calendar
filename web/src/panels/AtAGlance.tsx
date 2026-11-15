@@ -4,6 +4,9 @@ import type { Harmonized } from '../lib/harmonize';
 import { dayRange, fmtP, k2, LABEL_RULE, LABEL_TEXT, monthRun, n0, ord, yearSpan } from '../lib/format';
 import { MONTHS_LONG, MONTHS_SHORT } from '../lib/time';
 
+/** Below this median (FCD) the month-to-date label rests on a handful of cell-days. */
+const SMALL_COUNT = 5;
+
 export function AtAGlance({ g, h }: { g: Glance; h: Harmonized }) {
   const { summary: s, mtd } = g;
   const base = yearSpan(s.baselineYears);
@@ -45,6 +48,12 @@ export function AtAGlance({ g, h }: { g: Glance; h: Harmonized }) {
   return (
     <section className="glance" aria-label="At a glance">
       <h3>At a glance</h3>
+      {g.sparse && (
+        <p className="warn">
+          Hotspot activity is rare in this area: {Math.round(100 * g.zeroShare)} % of months ({g.zeroMonths} of {g.baseMonths}) have none, so typical
+          values are often 0 and the comparisons below are coarse. Draw a larger area for a steadier baseline.
+        </p>
+      )}
       {mtd && (
         <div className="glance-now" title={mtdTip}>
           <div className="glance-k">
@@ -52,14 +61,25 @@ export function AtAGlance({ g, h }: { g: Glance; h: Harmonized }) {
           </div>
           <div className="glance-v">
             {mtd.label && <span className={`chip chip-${mtd.label}`}>{LABEL_TEXT[mtd.label]}</span>}{' '}
-            <strong>{n0(mtd.value)}</strong> FCD vs a median of {n0(mtd.clim.median)}
-            {mtd.ratio !== null && <> ({mtd.ratio.toFixed(mtd.ratio < 10 ? 1 : 0)}×)</>}
-            {Number.isFinite(mtd.percentile) && <> · {ord(mtd.percentile)} percentile</>}
+            {mtd.value === 0 && mtd.clim.median === 0 ? (
+              <>
+                <strong>No activity</strong> so far, like {mtd.baseDekads.filter((d) => d.slice(0, mtd.dekads).every((x) => x === 0)).length} of{' '}
+                {mtd.baseYears.length} past years at this time
+              </>
+            ) : (
+              <>
+                <strong>{n0(mtd.value)}</strong> FCD vs a median of {n0(mtd.clim.median)}
+                {mtd.ratio !== null && <> ({mtd.ratio.toFixed(mtd.ratio < 10 ? 1 : 0)}×)</>}
+                {Number.isFinite(mtd.percentile) && <> · {ord(mtd.percentile)} percentile</>}
+              </>
+            )}
           </div>
           <p className="caption">
             Same {mtd.dekads === 3 ? 'whole month' : `${mtd.dekads} dekad${mtd.dekads > 1 ? 's' : ''} (10-day period${mtd.dekads > 1 ? 's' : ''})`} in{' '}
             {yearSpan(mtd.baseYears)}, so a partly observed month is compared fairly.
             {mtd.droppedIncomplete && ' The latest dekad was still in progress when the data was built and is left out.'}
+            {!g.sparse && mtd.clim.median < SMALL_COUNT && mtd.value < 2 * SMALL_COUNT && (mtd.value > 0 || mtd.clim.median > 0) &&
+              ' Small numbers: a few fire-cell-days either way would change this label.'}
           </p>
         </div>
       )}

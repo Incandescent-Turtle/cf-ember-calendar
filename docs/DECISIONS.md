@@ -197,3 +197,16 @@ The S2 header (Track B item 4) included map layers, but the first S2 pass left t
 - The fixture's last dekad (Nov 11–20) was only partly observed at build time. Without the MTD rule above, the Argentina headline would compare 4 days with full dekads.
 - In sparse AOIs (Chilecito 25 km) most monthly medians are 0. So the panel reads "critical period Aug–Sep, 100 % of a typical year" and "0 vs a median of 0, Normal". Correct by the rules, but thin. For the demo, a bigger hero AOI (50–100 km, or La Rioja province) would give a more telling At-a-glance.
 - To stop the dev/preview servers, match node processes by port (5191/5192), not every `node.exe`. The global build (Python) must stay up.
+
+## Addendum — S4 hero radius and sparse areas (2026-11-15)
+
+- 2026-11-15 — **"Try: Chilecito" is now 50 km, not 25 km** (`web/src/map/aoiActions.ts`). User feedback: the 25 km At-a-glance read oddly ("0 FCD vs a median of 0", "critical period Aug–Sep, 100 % of a typical year"). Measured on the fixture, same centre:
+
+  | radius | months with no activity | months with median > 0 | critical period | trend | Jul 2026 vs median July |
+  |---|---|---|---|---|---|
+  | 25 km | 69 % | 2 of 12 | Aug–Sep (100 %) | +2.7 %/yr, p = 0.20 | 98 vs 0 |
+  | 50 km | 27 % | 12 of 12 | Jun–Oct (70 %) | +4.3 %/yr, p = 0.01 | 101 vs 6 |
+  | 100 km | 8 % | 12 of 12 | Jul–Oct (61 %) | +1.2 %/yr, p = 0.56 | 114 vs 28 |
+
+  50 km keeps the fire dominant (Jul 2026 is the busiest month on record) and gives every calendar month a non-zero median. **Not changed:** the validation seam scope (`pipeline/validate.py` HERO, still 25 km, flagged `sparse`) and the golden `fixture-chilecito` case. They are pipeline-side and independent of the button, and at 50 km the seam test would still be sparse (≈ 3 MODIS FCD a month).
+- 2026-11-15 — **Sparse areas get honest wording**, since users can draw small areas too. At-a-glance shows a warning when ≥ 50 % of baseline months have no activity ("Hotspot activity is rare in this area: 69 % of months (209 of 302) have none…; draw a larger area"). Month-to-date with 0 now and a median of 0 reads "No activity so far, like 24 of 25 past years at this time" instead of a mid-rank "48th percentile" of zeros. When the month-to-date median is < 5 FCD (and the area isn't already flagged sparse), a caveat says a few fire-cell-days either way would change the label. Example: the 50 km hero's Nov 1–10 2026 = 4 vs a median of 1, "Extreme". The rules themselves (analytics.py / golden) are unchanged; only the wording around them.
