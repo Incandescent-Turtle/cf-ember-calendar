@@ -28,22 +28,25 @@ export function Calendar({ h, currentYear }: { h: Harmonized; currentYear: numbe
   const chart = useRef<echarts.ECharts | null>(null);
   const { viewMode, setViewMode, selected, setSelected, showTable, toggleTable } = useStore();
   const metrics = metricsFor(viewMode);
-  const { option, vmax } = useMemo(() => buildOption({ h, metrics, currentYear, selected }), [h, viewMode, currentYear, selected]); // eslint-disable-line react-hooks/exhaustive-deps
+  const { option, vmin, vmax } = useMemo(() => buildOption({ h, metrics, currentYear, selected }), [h, viewMode, currentYear, selected]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const c = echarts.init(el.current!, undefined, { renderer: 'canvas' });
     chart.current = c;
-    const ro = new ResizeObserver(() => c.resize());
+    const ro = new ResizeObserver(() => {
+      if (!c.isDisposed()) c.resize();
+    });
     ro.observe(el.current!);
     return () => {
       ro.disconnect();
+      chart.current = null;
       c.dispose();
     };
   }, []);
 
   useEffect(() => {
     const c = chart.current;
-    if (!c) return;
+    if (!c || c.isDisposed()) return;
     c.setOption(option, { notMerge: true });
     c.off('click');
     c.on('click', (p) => {
@@ -74,7 +77,7 @@ export function Calendar({ h, currentYear }: { h: Harmonized; currentYear: numbe
       </div>
       <p className="caption">{caption}</p>
       <div ref={el} className={`chart ${viewMode === 'split' ? 'split' : ''}`} />
-      <Legend vmax={vmax} />
+      <Legend vmin={vmin} vmax={vmax} />
       <div className="calendar-foot">
         <span className="unit" title={UNIT_TIP}>
           Units: {UNIT_LONG} <span aria-hidden>ⓘ</span>
@@ -96,8 +99,8 @@ export function Calendar({ h, currentYear }: { h: Harmonized; currentYear: numbe
   );
 }
 
-function Legend({ vmax }: { vmax: number }) {
-  const ticks = legendTicks(vmax);
+function Legend({ vmin, vmax }: { vmin: number; vmax: number }) {
+  const ticks = legendTicks(vmin, vmax);
   const grad = `linear-gradient(to right, ${RAMP.join(', ')})`;
   return (
     <div className="legend" aria-label="Colour scale">
@@ -107,13 +110,13 @@ function Legend({ vmax }: { vmax: number }) {
         <div className="ramp" style={{ background: grad }} />
         <div className="ticks">
           {ticks.map((t) => (
-            <span key={t} style={{ left: `${(100 * Math.log10(1 + t)) / vmax}%` }}>
+            <span key={t} style={{ left: `${(100 * (Math.log10(1 + t) - vmin)) / (vmax - vmin)}%` }}>
               {t >= 1000 ? `${t / 1000}k` : t}
             </span>
           ))}
         </div>
       </div>
-      <span className="legend-note">FCD / month (log) · dashed = partial month</span>
+      <span className="legend-note">FCD / month (log{vmin > 0 ? '; lighter = at or below the left end' : ''}) · dashed = partial month</span>
     </div>
   );
 }

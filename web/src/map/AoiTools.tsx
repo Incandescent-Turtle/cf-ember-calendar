@@ -1,8 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
-import { area, circle } from '@turf/turf';
+import { area } from '@turf/turf';
 import type { Feature, FeatureCollection, MultiPolygon, Polygon } from 'geojson';
 import { useState } from 'react';
 import { newAoiId, useStore } from '../store';
+import { setCircleAoi } from './aoiActions';
 
 type Country = Feature<Polygon | MultiPolygon, { name: string; iso: string }>;
 
@@ -17,17 +18,6 @@ const useCountries = () =>
       return ((await r.json()) as FeatureCollection<Polygon | MultiPolygon, { name: string; iso: string }>).features as Country[];
     },
   });
-
-export const HERO = { lon: -67.7, lat: -29.15, radiusKm: 25, label: 'Chilecito, Argentina (25 km)' };
-
-export function setCircleAoi(lon: number, lat: number, radiusKm: number, label: string, kind: 'circle' | 'preset' = 'circle') {
-  useStore.getState().setAoi({
-    id: newAoiId(),
-    kind,
-    label,
-    feature: circle([lon, lat], radiusKm, { steps: 96, units: 'kilometers' }) as Feature<Polygon>,
-  });
-}
 
 export function AoiTools() {
   const { aoi, drawMode, setDrawMode, setAoi } = useStore();

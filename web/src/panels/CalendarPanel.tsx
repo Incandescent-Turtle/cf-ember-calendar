@@ -1,12 +1,12 @@
 import { useCalendarData } from '../data/hooks';
 import { Calendar } from '../calendar/Calendar';
 import { useStore } from '../store';
-import { HERO, setCircleAoi } from '../map/AoiTools';
+import { HERO, setCircleAoi } from '../map/aoiActions';
 import { dekadRange } from '../lib/time';
 
 export function CalendarPanel() {
   const aoi = useStore((s) => s.aoi);
-  const { data, isLoading, error } = useCalendarData(aoi);
+  const { data, isLoading, isStale, error } = useCalendarData(aoi);
 
   if (!aoi)
     return (
@@ -26,7 +26,7 @@ export function CalendarPanel() {
 
   const { series, harmonized, manifest, calibration } = data;
   const [, t1] = manifest.dekad_range;
-  const lastDay = dekadRange(t1)[1];
+  const [lastA, lastB] = dekadRange(t1);
   const currentYear = Math.floor(t1 / 36) + 2000;
   const total = harmonized.rows.reduce((a, r) => a + (r?.harmonized ?? 0), 0);
   const strata = new Set(harmonized.kModis.map((k) => k.stratum));
@@ -37,7 +37,7 @@ export function CalendarPanel() {
         <h2>{aoi.label}</h2>
         <p className="meta">
           resolution {series.level === 1 ? '0.1°' : '1° (large area)'} · {series.nCells.toLocaleString('en-US')} cells ·{' '}
-          {series.fetched.length} file{series.fetched.length === 1 ? '' : 's'} · {Math.round(series.ms)} ms · data to {lastDay}
+          {series.fetched.length} file{series.fetched.length === 1 ? '' : 's'} · {Math.round(series.ms)} ms · latest dekad {lastA}…{lastB.slice(8)}
           {isLoading && ' · updating…'}
         </p>
         {(manifest.mock || calibration?.mock) && (
@@ -54,7 +54,9 @@ export function CalendarPanel() {
       {total === 0 && series.tiles.length === 0 ? (
         <p className="empty-note">No hotspot activity recorded in this area.</p>
       ) : (
-        <Calendar h={harmonized} currentYear={currentYear} />
+        <div className={isStale ? 'stale' : ''} aria-busy={isStale}>
+          <Calendar h={harmonized} currentYear={currentYear} />
+        </div>
       )}
     </div>
   );

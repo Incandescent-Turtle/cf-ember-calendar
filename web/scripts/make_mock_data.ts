@@ -25,7 +25,14 @@ const rand = () => {
 const poisson = (lam: number) => {
   if (lam > 30) return Math.max(0, Math.round(lam + Math.sqrt(lam) * (rand() + rand() + rand() - 1.5) * 2));
   let k = 0;
-  for (let p = Math.exp(-lam), s = p, u = rand(); u > s; k++) p *= lam / (k + 1), (s += p);
+  let p = Math.exp(-lam);
+  let s = p;
+  const u = rand();
+  while (u > s) {
+    k++;
+    p *= lam / k;
+    s += p;
+  }
   return k;
 };
 

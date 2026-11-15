@@ -8,10 +8,28 @@ import { N_SERIES } from './types';
 
 export type AoiGeometry = Polygon | MultiPolygon;
 
-/** ≤ 16 tiles touched by the bbox → L01, otherwise L10 (ARCHITECTURE.md). */
+/** Tiles touched by the AOI: union over polygon parts of each part's bbox (so far-flung islands
+ * don't blow up the count the way a single overall bbox would). */
+export function tilesForGeometry(geom: AoiGeometry): string[] {
+  const polys = geom.type === 'Polygon' ? [geom.coordinates] : geom.coordinates;
+  const out = new Set<string>();
+  for (const poly of polys) {
+    let w = Infinity, s = Infinity, e = -Infinity, n = -Infinity;
+    for (const [x, y] of poly[0]) {
+      if (x < w) w = x;
+      if (x > e) e = x;
+      if (y < s) s = y;
+      if (y > n) n = y;
+    }
+    for (const t of tilesForBbox([w, s, e, n])) out.add(t);
+  }
+  return [...out];
+}
+
+/** ≤ 16 tiles touched by the AOI → L01, otherwise L10 (ARCHITECTURE.md). */
 export const MAX_L01_TILES = 16;
-export function pickLevel(bbox: Bbox): 1 | 10 {
-  return tilesForBbox(bbox).length <= MAX_L01_TILES ? 1 : 10;
+export function pickLevel(geom: AoiGeometry): 1 | 10 {
+  return tilesForGeometry(geom).length <= MAX_L01_TILES ? 1 : 10;
 }
 
 const inBbox = (lon: number, lat: number, [w, s, e, n]: Bbox) => lon >= w && lon <= e && lat >= s && lat <= n;

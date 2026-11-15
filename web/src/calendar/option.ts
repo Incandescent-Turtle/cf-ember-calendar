@@ -6,7 +6,7 @@ import { MONTHS_SHORT } from '../lib/time';
 import { METRIC_LABEL, tooltipHtml, valueOf, type Metric } from './metric';
 
 /** Reversed inferno (perceptually uniform, monotonic lightness → CVD-safe): light = low, dark = high. */
-export const RAMP = ['#fcffa4', '#f7d13d', '#fb9b06', '#ed6925', '#cf4446', '#a52c60', '#781c6d', '#4a0c6b', '#1b0c41', '#000004'];
+export const RAMP = ['#fcffa4', '#f7d13d', '#fb9b06', '#ed6925', '#cf4446', '#a52c60', '#781c6d', '#4a0c6b', '#1b0c41'];
 export const ZERO_COLOR = '#e7e4df';
 export const NODATA_COLOR = '#ffffff';
 
@@ -29,22 +29,25 @@ export interface BuildArgs {
   selected: { year: number; month: number } | null;
 }
 
-export function buildOption({ h, metrics, currentYear, selected }: BuildArgs): { option: EChartsCoreOption; vmax: number } {
+export function buildOption({ h, metrics, currentYear, selected }: BuildArgs): { option: EChartsCoreOption; vmin: number; vmax: number } {
   const years = h.years.map(String);
   const split = metrics.length > 1;
   let vmax = 0;
+  const logs: number[] = [];
   const heat = metrics.map((metric) => {
     const data: unknown[] = [];
+    const zeros: unknown[] = [];
     for (const y of h.years)
       for (let m = 0; m < 12; m++) {
         const r = rowAt(h, y, m);
         if (!r) continue;
         const v = valueOf(r, metric);
         if (!Number.isFinite(v)) continue;
-        const lv = v > 0 ? log(v) : -1; // −1 → outOfRange (zero colour)
+        const lv = v > 0 ? log(v) : 0;
         vmax = Math.max(vmax, lv);
+        if (v > 0) logs.push(lv);
         const isSel = selected?.year === y && selected?.month === m;
-        data.push({
+        (v > 0 ? data : zeros).push({
           value: [m, String(y), lv, v],
           itemStyle: r.partial
             ? { borderColor: '#5b5b5b', borderWidth: 1.5, borderType: 'dashed' }
@@ -53,9 +56,12 @@ export function buildOption({ h, metrics, currentYear, selected }: BuildArgs): {
               : undefined,
         });
       }
-    return { metric, data };
+    return { metric, data, zeros };
   });
   vmax = Math.max(vmax, 1);
+  // start the ramp at the 2nd percentile of non-zero months so large areas don't render all-dark
+  logs.sort((a, b) => a - b);
+  const vmin = Math.min(Math.max(0, Math.floor((logs[Math.floor(logs.length * 0.02)] ?? 0) * 2) / 2), vmax - 1);
 
   // marginals for the (last) displayed metric
   const main = metrics[metrics.length - 1];
@@ -70,7 +76,10 @@ export function buildOption({ h, metrics, currentYear, selected }: BuildArgs): {
         continue;
       }
       const v = valueOf(r, main);
-      if (Number.isFinite(v)) (s += v), (any = true);
+      if (Number.isFinite(v)) {
+        s += v;
+        any = true;
+      }
       if (r.partial) partial = true;
     }
     return { value: any ? s : null, itemStyle: { color: partial ? '#b9b4ac' : '#7a6f63' }, partial };
@@ -130,6 +139,20 @@ export function buildOption({ h, metrics, currentYear, selected }: BuildArgs): {
       animation: false,
     });
   });
+  // zero months: own series with a fixed neutral colour (not part of the visualMap)
+  heat.forEach(({ metric, zeros }, i) => {
+    series.push({
+      name: `${METRIC_LABEL[metric]} (zero)`,
+      type: 'heatmap',
+      xAxisIndex: i,
+      yAxisIndex: i,
+      data: zeros,
+      encode: { x: 0, y: 1, value: 2 },
+      itemStyle: { color: ZERO_COLOR, borderColor: '#ffffff', borderWidth: 1 },
+      emphasis: { itemStyle: { borderColor: '#1f6fb2', borderWidth: 2 } },
+      animation: false,
+    });
+  });
 
   if (!split) {
     // right: per-year totals
@@ -163,7 +186,7 @@ export function buildOption({ h, metrics, currentYear, selected }: BuildArgs): {
 
   const titles = split
     ? heat.map(({ metric }, i) => ({
-        text: METRIC_LABEL[metric],
+        text: metric === 'spliced' ? 'Raw (MODIS → VIIRS at Feb 2012)' : 'Harmonized',
         left: `${i === 0 ? 9 : 54}%`,
         top: 6,
         textStyle: { fontSize: 12, fontWeight: 600, color: '#2b2b2b' },
@@ -171,6 +194,8 @@ export function buildOption({ h, metrics, currentYear, selected }: BuildArgs): {
     : [];
 
   const fmt = (v: number) => Math.round(v).toLocaleString('en-US');
+  for (const { data } of heat)
+    for (const d of data as { value: [number, string, number, number] }[]) if (d.value[2] < vmin) d.value[2] = vmin;
   const option: EChartsCoreOption = {
     title: titles,
     animation: false,
@@ -178,16 +203,25 @@ export function buildOption({ h, metrics, currentYear, selected }: BuildArgs): {
     xAxis: xAxes,
     yAxis: yAxes,
     series,
-    visualMap: {
-      type: 'continuous',
-      show: false,
-      min: 0,
-      max: vmax,
-      dimension: 2,
-      seriesIndex: heat.map((_, i) => i),
-      inRange: { color: RAMP },
-      outOfRange: { color: ZERO_COLOR },
-    },
+    visualMap: [
+      {
+        type: 'continuous',
+        show: false,
+        min: vmin,
+        max: vmax,
+        dimension: 2,
+        seriesIndex: heat.map((_, i) => i),
+        inRange: { color: RAMP },
+      },
+      {
+        // zero months: a single neutral colour (ECharts needs a visualMap on every heatmap series)
+        type: 'piecewise',
+        show: false,
+        dimension: 2,
+        seriesIndex: heat.map((_, i) => heat.length + i),
+        pieces: [{ min: -1, max: 1e9, color: ZERO_COLOR }],
+      },
+    ],
     tooltip: {
       confine: true,
       borderColor: '#cfcac3',
@@ -208,12 +242,12 @@ export function buildOption({ h, metrics, currentYear, selected }: BuildArgs): {
       },
     },
   };
-  return { option, vmax };
+  return { option, vmin, vmax };
 }
 
 /** Legend ticks (FCD values) for a log scale up to 10^vmax. */
-export function legendTicks(vmax: number): number[] {
-  const out = [1];
-  for (let p = 1; p <= Math.floor(vmax); p++) out.push(10 ** p);
+export function legendTicks(vmin: number, vmax: number): number[] {
+  const out: number[] = [];
+  for (let p = 0; p <= Math.floor(vmax); p++) if (Math.log10(1 + 10 ** p) >= vmin - 1e-9) out.push(10 ** p);
   return out;
 }

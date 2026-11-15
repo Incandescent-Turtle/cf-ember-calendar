@@ -19,6 +19,7 @@ export function MapView() {
   const container = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const drawRef = useRef<TerraDraw | null>(null);
+  const loadedRef = useRef(false);
   const aoi = useStore((s) => s.aoi);
   const drawMode = useStore((s) => s.drawMode);
 
@@ -54,22 +55,26 @@ export function MapView() {
         });
       });
       drawRef.current = draw;
+      loadedRef.current = true;
       // sync with any state set before load
       const s = useStore.getState();
       if (s.aoi) showAoi(map, s.aoi.feature, false);
     });
     mapRef.current = map;
+    if (import.meta.env.DEV) (window as unknown as { __map: maplibregl.Map }).__map = map; // e2e checks
     return () => {
+      loadedRef.current = false;
       drawRef.current?.stop();
+      drawRef.current = null;
       map.remove();
     };
   }, []);
 
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !map.isStyleLoaded() || !map.getSource('aoi')) return;
+    if (!map || !loadedRef.current) return;
     if (aoi) showAoi(map, aoi.feature, true);
-    else (map.getSource('aoi') as GeoJSONSource).setData(EMPTY);
+    else (map.getSource('aoi') as GeoJSONSource | undefined)?.setData(EMPTY);
   }, [aoi]);
 
   useEffect(() => {

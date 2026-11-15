@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { bbox as turfBbox } from '@turf/turf';
 import { useMemo } from 'react';
 import { aggregateInWorker, fetchCalibration, fetchManifest } from './client';
@@ -26,12 +26,13 @@ export function useCalendarData(aoi: Aoi | null) {
     queryKey: ['aoi-series', aoi?.id],
     enabled: !!aoi && !!manifest.data,
     staleTime: Infinity,
+    placeholderData: keepPreviousData, // keep the last calendar on screen while the next AOI loads
     queryFn: () => {
       const m = manifest.data!;
       const box = turfBbox(aoi!.feature) as Bbox;
       const [t0, t1] = m.dekad_range;
       return aggregateInWorker({
-        level: pickLevel(box),
+        level: pickLevel(aoi!.feature.geometry),
         manifestTiles: m.tiles,
         l10Path: m.l10,
         geometry: aoi!.feature.geometry,
@@ -49,6 +50,7 @@ export function useCalendarData(aoi: Aoi | null) {
   return {
     data,
     isLoading: series.isFetching || manifest.isLoading,
+    isStale: series.isPlaceholderData,
     error: (manifest.error ?? series.error) as Error | null,
   };
 }

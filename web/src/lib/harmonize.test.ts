@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { bboxPolygon } from '@turf/turf';
 import { harmonize, monthPercentile } from './harmonize';
-import { maskL01, maskL10, sumMasked, sumMaskedByTileL10, countMask } from '../data/aggregate';
+import { maskL01, maskL10, sumMasked, sumMaskedByTileL10, countMask, tilesForGeometry, pickLevel } from '../data/aggregate';
 import { encodeCube, decodeCube } from '../data/cube';
 import { dekadIndex } from './time';
 import type { AoiSeries, Calibration, Manifest } from '../data/types';
@@ -63,6 +63,16 @@ describe('harmonize', () => {
     const h = harmonize(synthetic(), manifest, null);
     expect(monthPercentile(h, 6, 75, 2026)).toBeCloseTo(50); // all Julys equal → 50
     expect(monthPercentile(h, 6, 1e9, 2026)).toBe(100);
+  });
+});
+
+describe('tile selection', () => {
+  it('counts tiles per polygon part, not over the overall bbox', () => {
+    const mainland = bboxPolygon([-72, -39.5, -68, -30.5]).geometry.coordinates;
+    const island = bboxPolygon([-109.5, -27.3, -109.2, -27.0]).geometry.coordinates; // Easter-Island-like
+    const geom = { type: 'MultiPolygon' as const, coordinates: [mainland, island] };
+    expect(tilesForGeometry(geom).length).toBe(3); // S40W080, S40W070, S30W110
+    expect(pickLevel(geom)).toBe(1);
   });
 });
 

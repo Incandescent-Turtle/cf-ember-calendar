@@ -1,8 +1,8 @@
 /// <reference lib="webworker" />
 // Web Worker: fetch → gunzip → decode cubes (LRU), AOI mask, per-dekad sums (ARCHITECTURE.md steps 2–4).
 import { decodeCubeFile, type Cube } from './cube';
-import { countMask, maskL01, maskL10, sumMasked, sumMaskedByTileL10, type AoiGeometry } from './aggregate';
-import { tilesForBbox, type Bbox } from '../lib/grid';
+import { countMask, maskL01, maskL10, sumMasked, sumMaskedByTileL10, tilesForGeometry, type AoiGeometry } from './aggregate';
+import type { Bbox } from '../lib/grid';
 import { N_SERIES, type AoiSeries } from './types';
 
 export interface AggregateRequest {
@@ -52,7 +52,7 @@ async function aggregate(req: AggregateRequest): Promise<AoiSeries> {
     return { level: 10, t0, nT, tiles, perTile, nCells: countMask(mask), fetched: [req.l10Path], ms: performance.now() - start };
   }
   const have = new Set(req.manifestTiles);
-  const touched = tilesForBbox(bbox);
+  const touched = tilesForGeometry(geometry);
   const fetchTiles = touched.filter((t) => have.has(t));
   const masks = touched.map((t) => maskL01(t, geometry, bbox));
   const nCells = masks.reduce((a, m) => a + countMask(m), 0);
