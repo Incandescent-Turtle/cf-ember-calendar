@@ -102,3 +102,52 @@ The S2 header (Track B item 4) included map layers, but the first S2 pass left t
   - The GeoJSON source is **clustered up to zoom 8** (count bubbles; click to zoom in), with individual dots from zoom 9. It was already a single MapLibre circle layer, not DOM markers.
   - Checked in headless Chrome: Argentina Aug 2025 → 17 clusters over 60,115 hotspots (sampled to 50k); zoom 9.5 → 543 dots; no AOI, 2026: zoom 7 → none, zoom 8.5 → clusters, zoom 10 → 672 dots.
 - 2026-11-15 — **Legends say their scale is relative:** the map says "Scale: current view — colours aren't comparable across views"; the calendar says "scale: this area". Both colour scales adapt on purpose (P2…max of what's shown).
+
+## Implementation decisions (S3, 2026-11-15)
+
+- 2026-11-15 — **Calibration input = per-tile dekad sums from `fcd_daily`** (`interim/tile_dekad.parquet`: tile, series, dekad, FCD, detections). The FCD column equals the L01 cube sums (same source, exact), so the tile k is what the browser would fit from the cubes. The detection column feeds the "raw counts" LOYO baseline. — One small table serves calibrate and validate. — Track A only.
+- 2026-11-15 — **Bootstrap = the web's.** Python ports mulberry32 bit for bit (checked against node) and draws year indices in the same order, so `calibration.json` bands and the AOI bands in the browser come from one rule. **This settles the S2 open question: no tolerance needed, golden carries the exact band.** The S2 percentile rule (mid-rank, complete years, current year excluded) is kept as is. The current `web/src/lib/harmonize.ts` already matches every golden case to 1e-9 (checked with a throwaway vitest, not committed). **No web change needed.**
+- 2026-11-15 — **`calibration.json` details:** `null` where a month's denominator is 0. `n_modis` in the `n20` blocks holds the NOAA-20 FCD denominator, so the web's one threshold check works for both. Tiles with no overlap MODIS at all are left out. An extra `params` object. All in CONTRACTS.md.
+- 2026-11-15 — **LOYO definitions:** pooled (series, month) points; MdAPE and bias only on months with obs ≥ 10. At tile level, a tile with < 200 other-year MODIS FCD in a month uses the global k (the web's fallback). `raw_counts` = a count ratio fitted the same way (the naive method). I also report `raw_counts_uncalibrated` (counts, k = 1), which is what splicing raw counts gives.
+- 2026-11-15 — **Seam test** = step across 2012-02 (mean log1p of the 24 months after minus the 24 before), minus the MODIS-only step. `before` = raw spliced, `after` = harmonized. The window after includes overlap years used in the fit, so it isn't out of sample. **The hero AOI is too sparse for this test** (0.35 MODIS FCD/month before 2012, mostly zero months), so scopes with < 10 MODIS FCD/month are flagged `sparse`, and I added the hero's 10° tile as a third scope.
+- 2026-11-15 — **Analytics rules written once** in `pipeline/analytics.py` (docstring, copied into `analytics_cases.json → rules`): linear quantiles; label by value vs the month's P25/P75/P90, checked in order (an all-zero history labels 0 "normal"); z with ddof 1, null if sd = 0; month-to-date ratio vs the median of the same dekads; critical period with ties going to the larger sum, then the earlier start; Theil–Sen + Mann–Kendall with tie correction and continuity correction, p via erfc (TS tolerance 1e-6).
+- 2026-11-15 — **`build_all` steps `calibrate`, `validate`** (run after `manifest`), and **`--add --inputs …`** for incremental sources. Partial runs write `build_report_<steps>.json`, so they don't overwrite the full build report. `.gitattributes` keeps `*.sh` LF for the cluster.
+- 2026-11-15 — **Data host = Hugging Face dataset** (ARCHITECTURE rule: mid-sized → HF). Cubes + JSON ~100–200 MB, points ≈ 7 GB, and the 1° global cube may pass 25 MiB, so it can't go inside Pages. One host for everything. Checked with curl on public HF dataset files, small (Git) and large (Xet/CDN): GET and HEAD with `Range: bytes=0-99` → 302/307 → 206 with `Content-Range`. CORS is on both hops (`allow-origin` echoes the origin, then `*` on the CDN). The preflight allows `range` on both hops. `Content-Length` and `ETag` are readable. **Not yet tested on our own upload** (the user deferred the HF login): `scripts/check_host.sh` re-runs all of this, plus "no Content-Encoding on .bin.gz", once data is up.
+
+## Handoff — S3 (2026-11-15, ~02:00)
+
+**Done**
+- `pipeline/series.py` (tile and circle-AOI dekad series), `calibrate.py`, `harmonize.py` (port of the TS `harmonize` + `monthPercentile`), `validate.py`, `analytics.py`, `make_golden.py`. `build_all` has `calibrate`, `validate` and `--add`. 39 tests pass, ruff clean.
+- `tests/golden/{time_cases,harmonize_cases,analytics_cases}.json` (5 harmonize cases covering every stratum — aoi, aoi-sparse, tile weighted, global, none — plus one real fixture case, Chilecito). The current TS matches them exactly.
+- `build_all --fixture` runs end to end (~1 min) and writes `calibration.json` and `validation.json`. Headless Chrome on the dev server: no "Development data" banner, and `/dev-data` serves real manifest/calibration/validation.
+- `scripts/sync_data.sh` (HF upload: points one commit per year, manifest last, with `manifest.points` matching what was uploaded) and `scripts/check_host.sh`.
+
+**Real numbers — Argentina fixture** (its "global" is Argentina)
+- Global k by month: **1.92 (Sep) … 2.58 (Mar)**. Bands are narrow, e.g. Aug 1.97 [1.91, 2.02], Apr 2.51 [2.39, 2.81]. Tile k (tile-months with ≥ 200 MODIS FCD, n = 60): p5 / p50 / p95 = **1.68 / 2.35 / 3.11**.
+- **k_N20 = 0.88 … 1.03** (median ≈ 0.98; lowest in July). Close to 1, as expected.
+- LOYO (r_log / MdAPE / bias_log):
+
+  | level | calibrated FCD | FCD, k = 1 | count ratio | raw counts, k = 1 |
+  |---|---|---|---|---|
+  | global (1) | 0.994 / 6.2 % / −0.02 | 0.993 / 56.7 % / −0.83 | 0.996 / 6.6 % / +0.01 | 0.995 / 71.2 % / −1.25 |
+  | tile (9) | 0.971 / 15.8 % / −0.24 | 0.978 / 59.9 % / −1.01 | 0.968 / 16.8 % / −0.21 | 0.980 / 72.4 % / −1.37 |
+- Seam (raw spliced → harmonized, minus the MODIS-only step): **global 0.80 → −0.002**; tile S30W070 0.71 → 0.013; Chilecito 25 km 0.52 → 0.51 (`sparse`, not meaningful).
+- Seasonality: median r = **0.89** (IQR 0.68–0.97) over 8 tiles.
+- Sizes: cubes **2.4 MB**, points **85 MB** (241 files), calibration 12 kB, validation 20 kB.
+
+**Global run (not finished at handoff)**
+- Running locally since 22:53 into `D:\ember` (log: `D:\ember\build_stdout.txt`). At 01:22 it was cleaning S-NPP 2015, at ~10 min per VIIRS year. Then fcd, cubes, points, manifest. The S3 steps aren't in that run because it started on the old code.
+- Size projection from the cleaned row counts so far: ≈ 470 M rows → **points ≈ 7 GB** (~15 B/row, ~10k files), cubes ~100–200 MB. Replace with `manifest.sizes_mb` once it exists.
+
+**Next — in this order, when `build_stdout.txt` shows `report:`**
+1. `uv run python -m pipeline.build_all --data-dir D:/ember --add --inputs data/raw/VIIRS_SNPP/viirs-snpp_2022_all_countries.zip data/raw/VIIRS_NOAA_20/viirs-jpss1_2024_all_countries.zip`. This also rebuilds cubes, points and manifest and runs calibrate + validate. Read the numbers from the log (k range, k_N20, LOYO, seam) into this file.
+2. `hf auth login`, then `HF_DATASET_REPO=<user>/cf-ember-calendar-data scripts/sync_data.sh D:/ember` (it ends by running `check_host.sh`). Add `--no-points` to put cubes up first if time is short (that uploads a manifest with empty `points`).
+3. In Pages, set `VITE_DATA_BASE_URL=https://huggingface.co/datasets/<user>/cf-ember-calendar-data/resolve/main`.
+4. S4: TS golden tests (port the `fromSeries`/analytics cases), At-a-glance, export, methodology page from `validation.json`.
+
+**Surprises**
+- **The global run is missing S-NPP 2022 and NOAA-20 2024.** Both zips were copied into `data/raw` at 01:08, after the run's source list was made (22:53). The copy kept the original mtimes (22:30), so they look older than the run. Step 1 above adds them.
+- **The global raw data ends 2025-12-31** (no 2026 files). The Chilecito July 2026 fire, the "Try: Chilecito (Jul 2026)" button and the `snpp_end` / NOAA-20-only era therefore have no global data. Only the Argentina fixture has 2026. When the requested 2026 files arrive, `--add` them. Otherwise point the hero button at a 2025 event, or note it in the UI.
+- **On monthly sums, a detection-count ratio calibrates about as well as FCD + k** (fixture LOYO: 6.6 % vs 6.2 % MdAPE globally, 16.8 % vs 15.8 % per tile). Without calibration, both are far off: FCD is ~57 % off and raw counts ~71 %. FCD's advantages lie elsewhere: a unit that doesn't depend on pixel size, and sums that are exact across cells. The methodology page should show this honestly. Recheck on global data.
+- Tile-level calibrated bias is negative (−0.24 on the fixture). In sparse tile-months MODIS sees nothing while VIIRS sees ≥ 10 FCD, and a ratio can't recover months MODIS missed. Say this under Limitations.
+- `hf upload-large-folder` no longer exists in `hf` 2.x, so points go up one commit per year with `hf upload --include`.

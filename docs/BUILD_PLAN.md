@@ -30,6 +30,7 @@ Status (2026-11-15): done, including the F4 map layers (per-cell density in the 
 ## S3 — Calibration, validation, upload (Track A item 5 + upload; Sun 06:00–08:00)
 Read: HARMONIZATION.md §calibration/validation. `calibrate`, `harmonize`, `validate`, `make_golden`; check global jobs; upload cubes + JSON; `manifest.json`; report total points size → decide points hosting.
 Done: `calibration.json`, `validation.json` with LOYO table and seam series exist for the real data.
+Status (2026-11-15, 02:00): code, tests and golden files done; fixture end to end done (calibration + validation in `data/processed`, dev server off the mocks). Host chosen (Hugging Face dataset; public-file CORS/Range test passed). **Still open:** the global build (local, ETA ~08:00), then `--add` for S-NPP 2022 + NOAA-20 2024, `--steps calibrate,validate` is included in `--add`, then `sync_data.sh` after `hf auth login`. See the S3 handoff in DECISIONS.md.
 
 ## S4 — Real data, analytics, deploy v0 (Track B items 3–5; Sun 08:00–11:00) — **checkpoint**
 Harmonize + analytics in TS against golden files; At-a-glance panel; export; methodology page; deploy with the real `VITE_DATA_BASE_URL`. Check the deployed URL from a fresh profile.

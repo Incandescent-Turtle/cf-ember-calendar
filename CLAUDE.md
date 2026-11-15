@@ -80,7 +80,11 @@ uv sync
 uv run python -m pipeline.inspect <file>          # look at real data before writing a parser
 uv run python -m pipeline.build_all --fixture     # small local build → data/processed
 uv run python -m pipeline.build_all --data-dir "$SCRATCH/ember"   # on the cluster, via scripts/slurm/*.sh
-uv run python -m pipeline.make_golden             # regenerate golden test files
+uv run python -m pipeline.build_all --data-dir D:/ember --steps calibrate,validate   # on an existing build
+uv run python -m pipeline.build_all --data-dir D:/ember --add --inputs <zip> ...    # add sources incrementally
+uv run python -m pipeline.make_golden             # regenerate golden test files (needs the fixture build)
+HF_DATASET_REPO=<user>/<name> scripts/sync_data.sh D:/ember [--no-points]   # upload to the data host
+scripts/check_host.sh <VITE_DATA_BASE_URL>        # CORS + Range check on the data host
 uv run python -m rekindle.scenario_grid --fire chilecito-2026 --workers 8
 uv run pytest
 cd web && npm i && npm run dev                    # serves /dev-data from data/processed, falling back to web/mock-data
