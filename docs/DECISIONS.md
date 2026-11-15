@@ -644,7 +644,7 @@ Screen (`rekindle.candidates --screen`), applied to each `rekindle.candidates` w
 - **Pick:** among windows passing all rules, the most distinct VIIRS overpasses (then most days). The top 3 with reasons are logged before any simulation; the pick goes through `prep` and the frozen A+B sweep (blind, same gate and metrics).
 - Chilecito and Córdoba would fail P2/P3 (sanity check, reported with the screen output).
 
-## S6b results: EXPLORATORY 24 h re-initialised windows (15:35; all on Fir, A+B frozen)
+## S6b results: EXPLORATORY 24 h re-initialised windows (15:19; all on Fir, A+B frozen)
 
 `rekindle.hindcast --fire <f> --nonveg-max 50 --diurnal --windows 24 [--window-ignite own] --tag x_win24[own]_AB`; JSON in `docs/report/rekindle/<fire>_x_win24*_AB_windows.json`. Pooled median |Δ| over all windows' new pixels; per-window medians in brackets ("—" = median pixel never reached).
 
@@ -659,7 +659,7 @@ Screen (`rekindle.candidates --screen`), applied to each `rekindle.candidates` w
 - **Why the floor:** many windows' medians barely move with the multiplier (Córdoba window 2: 9.7 h at every ×). New pixels next to the restart extent are reached within minutes, but the first overpass that sees them comes hours later (night gaps), so Δ ≈ −(time to the next overpass). Hotspot times are upper bounds; with a 24 h clock-based restart the metric is dominated by overpass timing rather than spread. Restarting at overpass times would reduce that, but it is a different (not pre-registered) protocol and is not run.
 - Nothing ships from this; no counterfactuals.
 
-## S6b free-spread pre-screen results (15:22; before any simulation of a candidate)
+## S6b free-spread pre-screen results (15:17; before any simulation of a candidate)
 
 `uv run python -m rekindle.candidates --region {argentina,canada} --screen --top 300 --out docs/report/rekindle/candidates_<region>_screen.json` (thresholds exactly as pre-registered; seconds per region).
 
@@ -673,7 +673,7 @@ Screen (`rekindle.candidates --screen`), applied to each `rekindle.candidates` w
 2. −66.614, −30.618, from 2025-11-17 (La Rioja/San Juan) — passes all, but only 31 overpasses and R_final 6.2 km, barely above P0. Second blind test if time allows.
 3. No third window passes. Nearest misses fail only P3 (e.g. −60.332, −23.968, 2024-06-03; −125.908, 53.352, 2024-08-02); they are not used.
 
-## S6b result: `sask-2023` blind test (15:50; Fir job 4240797; A+B frozen, original protocol)
+## S6b result: `sask-2023` blind test (15:23; Fir job 4240797; A+B frozen, original protocol)
 
 | fire | best ×ROS | median \|Δ\| | median Δ | hit | Sørensen | area km² | gate |
 |---|---|---|---|---|---|---|---|
@@ -685,20 +685,20 @@ Screen (`rekindle.candidates --screen`), applied to each `rekindle.candidates` w
 - Shipped as a third `poor_agreement` baseline-only fire (export + spread profile). No grid, no counterfactuals.
 - Second candidate (Argentina −66.614, −30.618, 2025-11-17) not run; time went to shipping.
 
-## Handoff — S6b (running; updated 2026-11-15 15:30)
+## Handoff — S6b (final, 2026-11-15 ~15:30)
 
 **Done**
-- `main` (S7) merged into `s6b`; pytest 104 passed, vitest 60 passed, oxlint clean, build OK.
-- **Task 1 shipped.** Chilecito's shipped baseline is the frozen A+B model: `rekindle.hindcast --fire chilecito-2026 --nonveg-max 50 --diurnal` **rerun without `--tag` on Fir** (job 4234707), giving ×1.41, median |Δ| 12.04 h vs gate 3.21 h → `poor_agreement` (identical to the s6b_AB variant). Córdoba the same way (job 4234708): ×0.25 (sweep edge), 15.16 h vs 2.93 h → `poor_agreement`, exported as a second baseline-only fire. The S6 Chilecito report files are renamed `chilecito-2026_s6_*`.
-- `export.py` writes `model_settings`, `moisture` (hourly 1-/10-/100-h series) and `spread_profile` to meta.json (CONTRACTS.md updated). New `rekindle.spread_profile` (burst-and-stall figure: farthest detection per overpass vs model head run) → `docs/report/rekindle/*_spread_profile.*`, and a chart on the Rekindle tab.
-- Rekindle tab: fire selector (labelled), "Distance from ignition vs time" chart, "Limits / what validation showed" (gate, all variants incl. exploratory and blind rows, diagnosis, 4 citations); the same summary is a section on /methodology. Checked at 1920/1280-class and 390 px: no horizontal overflow.
+- `main` (S7) merged into `s6b`. pytest 106 passed, vitest 60 passed, oxlint clean, `npm run build` OK. Rekindle tab and /methodology checked at desktop width and 390 px (no horizontal overflow; fire selector, spread chart, findings table render for all three fires).
+- **Task 1:** Chilecito's shipped baseline = frozen A+B, by **rerunning `rekindle.hindcast --fire chilecito-2026 --nonveg-max 50 --diurnal` without `--tag` on Fir** (job 4234707): ×1.41, 12.04 h vs 3.21 h, `poor_agreement` (same as variant s6b_AB). Córdoba likewise (job 4234708): ×0.25, 15.16 h vs 2.93 h, shipped as a second baseline-only fire. S6 Chilecito report files renamed `chilecito-2026_s6_*`. `export.py` writes `model_settings`, `moisture` (hourly series) and `spread_profile` (CONTRACTS.md updated). New `rekindle.spread_profile` + `SpreadChart` (burst-and-stall figure) and `Findings` (gate, every variant with BLIND/EXPLORATORY tags, diagnosis, the 4 citations) on the Rekindle tab and /methodology. Status caption on every view.
+- **Task 2 (EXPLORATORY):** `hindcast --windows 24 [--window-ignite own]` + `tests/rekindle/test_windows.py`. Restart windows: Chilecito 8.13 h (×2.0), Córdoba 9.13 h (×0.5); both fail. Own-time sensitivity: Córdoba 37.85 h. Nothing to decide: no window run passed.
+- **Task 3:** `rekindle.candidates --screen` (thresholds pre-registered 15:16). 1/300 Argentina and 1/300 Canada windows pass. Picked `sask-2023` (58 overpasses): prep on the desktop, blind A+B sweep on Fir (job 4240797): ×4.0 (sweep edge), 22.38 h vs 1.67 h → fail. Shipped as a third baseline-only fire. No grid, so no what-if UI anywhere.
 
-**In progress (15:25)**
-- (done, see results above) Task 2 windows on Fir (tags `x_win24_AB` = restart, `x_win24own_AB` = own-time sensitivity): Córdoba done (restart 9.13 h at ×0.5; own 37.85 h; both fail 2.93 h). Chilecito jobs 4240228 (restart) and 4240230 (own) running → `data/rekindle/chilecito-2026/variants/x_win24*_AB/windows.json` and `docs/report/rekindle/chilecito-2026_x_win24*_AB_windows.json` on Fir. Copy back: `rb run 'cd ~/scratch/cf-ember-calendar && tar czf ~/scratch/win.tgz docs/report/rekindle/*_x_win24*'`, `rb get`, extract in the repo root, commit.
-- Task 3: `sask-2023` picked by the screen; `rekindle.prep --fire sask-2023 --size-km 50 --points D:/ember/processed/points` done on the desktop (556×556 at 90 m, 4,451 detections, 3 ignition pixels; IGBP mostly woody savanna). Uploaded; **blind sweep = Fir job 4240797** (outputs `data/rekindle/sask-2023/{baseline.npy,calibration.json}`, `docs/report/rekindle/sask-2023_*`). Was: upload `domain.npz`, `meta.json`, `raw/merra2_point.json` to Fir `data/rekindle/sask-2023/` and run `sbatch ... rekindle_hindcast.sh sask-2023 "" --nonveg-max 50 --diurnal` (blind; no tag, so a pass becomes the fire's baseline).
+**Cut:** task 4 (cover-scaled fuel load, lapse-rate T2M); the second screened candidate (Argentina −66.614, −30.618, 2025-11-17); restart-at-overpass windows (not pre-registered).
 
-**Next:** finish task 2 logging; sask-2023 blind sweep; if it passes, grid array + export (what-if turns on automatically); if not, export it baseline-only. Then optional task 4.
+**Still running:** Fir job 4240230 (Chilecito own-time windows, sensitivity only; not shown in the UI). If wanted: `scripts/fir.sh run 'cd ~/scratch/cf-ember-calendar && grep EXPLORATORY logs/rk-hindcast-4240230.out'` and copy `docs/report/rekindle/chilecito-2026_x_win24own_AB_windows.json` back (tar + get), then add the row to the windows table above.
 
-**Deploy (user only):** `git push origin s6b:main` (s6b contains main).
+**User actions**
+- Deploy: `git push origin s6b:main` (s6b contains main; a fast-forward). Then re-test the deployed `/rekindle` and `/methodology`.
+- Nothing needs a counterfactual decision: no fire, exploratory or blind, passed the gate.
 
-**Fir access for a new session:** `scripts/fir.sh serve` in the background → approve the Duo push → `scripts/fir.sh run '<cmd>' | put <local-abs-win> <remote> | get <remote> <local>`. Checkout `~/scratch/cf-ember-calendar`, venv `~/scratch/rk-venv`, module `StdEnv/2023 python/3.12`, account `def-hngharti`. Run `git clean -fdq docs/report` there before `git pull`. Jobs: `REKINDLE_VENV=~/scratch/rk-venv sbatch --account=def-hngharti scripts/slurm/rekindle_hindcast.sh <fire> <tag> [opts]`.
+**Fir access for a new session:** `scripts/fir.sh serve` in the background → approve the Duo push → `scripts/fir.sh run '<cmd>' | put <local-abs-win> <remote> | get <remote> <local>`. Checkout `~/scratch/cf-ember-calendar`, venv `~/scratch/rk-venv`, module `StdEnv/2023 python/3.12`, account `def-hngharti`. Run `git clean -fdq docs/report` there before `git pull`.
