@@ -741,3 +741,18 @@ The user asked for what-ifs on `sask-2023` because its shape looked right. It di
 Design: frozen baseline (calibration.json: A+B, ×4, 122 h, hourly MERRA-2 wind and diurnal moisture), wind speed ×{0, 0.5, 1, 1.5, 2}, dead moisture {−6, −4, −2, 0, +2} points. Shifted toward drier because the observed fuels (dead 1-h 14 %) sit near FM2's extinction moisture, so damper runs stall at once. Output: `burst/index.json` → `shape`, rasters in `burst/shape/`. UI: a third view, "Footprint what-if (SHAPE ONLY)".
 
 S6d results (desktop, 1627 s): baseline rerun 22.38 h / Sør 0.721 = calibration exactly. Final footprint vs the baseline 463 km²: calm ×0.26, wind ×0.5 → ×0.40, ×1.5 → ≥×2.31, ×2 → ≥×3.91; dead −2 → ×2.08, −4 → ≥×3.50, +2 → ×0.39. 11 of 25 runs reached the domain edge (burnable 2372 km²), flagged `domain_limited` from the exported rasters and shown as "≥" lower bounds.
+
+## S6e — three more fires for the Rekindle demo (2026-11-15, ~17:50 Toronto; written before any run of these fires)
+
+User request: flesh out the demo with 2–3 more fires. Picked from the S6b screen output (`candidates_*_screen.json`): `bc-2024` (fails only P3; 1815 detections, 79 passes, R 25 km; 50 km domain), `larioja-2025` (the second window passing every rule; R 6.2 km), `chaco-2024` (fails only P3; 129 detections, sparse). They are demo fires, not a new blind test of the timing claim, but the frozen A+B model and **all rules apply unchanged**: whole-fire gate; S6c burst-window rule (incl. the ≥ 24 h tail exclusion); S6d footprint what-ifs only if whole-fire Sørensen ≥ 0.6. A fire passing none ships baseline-only with its window table. Fir: two Duo pushes timed out (user away), so everything runs on the desktop. Cut order if late: chaco, then larioja.
+
+## S6e results and S6f — shape-only window what-ifs (2026-11-15 ~18:00; user asked to "model any part")
+
+S6e (Fir jobs 4255620–24 + desktop): whole fire bc-2024 ×2.0, 41.7 h vs 1.76 h, Sør 0.47; larioja-2025 ×0.25 (edge), 17.1 h vs 3.28 h, Sør 0.15 (floods the domain, 528 vs 46 km²); chaco-2024 ×0.25 (edge), 61.1 h vs 4.91 h, Sør 0.58. Windows: bc 7.15 h at ×4, chaco 12.45 h, larioja 7.60 h; all fail. **No S6c window and no S6d footprint qualifies** (chaco 0.58 < 0.6, not relaxed). All three shipped baseline-only with window tables.
+
+S6f rule (post-hoc, written before these runs): a fire with **no other what-if view** gets one shape-only 24 h window, the window with the highest Sørensen (at its timing-best multiplier) that has Sørensen ≥ 0.6, ≥ 50 scored pixels and a full 24 h. Candidates: bc-2024 day 3 (0.674, n 264, 8.6 h), cordoba-2024 day 5 (0.651, n 303, 10.4 h). larioja/chaco have none (too few pixels). Same axes as S6c. Label: "shape-only window: the footprint matched, the timing did not".
+
+S6f results (desktop): bc-2024 day 3 (start 2024-08-04 05:09 UTC, ×1.0) rerun 8.57 h / Sør 0.674 = windows file; 102 km² simulated vs 79 km² detected. Wind ×2 → ×2.23 newly burned, calm → ×0.52, +4 points → ×0.43. cordoba-2024 day 5 (2024-09-23 19:42 UTC, ×0.5) rerun 10.42 h / 0.651; 224 vs 111 km² (over-burns 2×). Wind ×2 → ×2.56, calm → ×0.49. UI: "Window what-if (SHAPE ONLY)" with its own caption; Findings add the three fires and the shape-only window rule.
+
+## Handoff — S6e/S6f (2026-11-15 ~18:30)
+Six fires on the Rekindle tab. What-if views: Chilecito burst window (timing rule), Saskatchewan whole-fire footprint, BC day 3 and Córdoba day 5 shape-only windows. La Rioja and Chaco are hindcast-only. Fir bridge was used for S6e (jobs 4255620–24). Next: deploy (user pushes `s6b:main`), check the deployed `/rekindle` for all six fires and phone width.

@@ -1,0 +1,12 @@
+run 135 h; EMC median 4.9 % (RH 24 %) → baseline dead 1-h 4 %
+settings {'nonveg_max_pct': 50.0, 'diurnal_moisture': True, 'wind': 'bilinear', 'seed_h': 0.0} -> data\rekindle\larioja-2025
+  ×0.25  med|Δ|   17.14 h  medΔ   -9.62  hit 0.71  Sør 0.15  area   528.1 km²  96 s  EDGE
+  ×0.35  med|Δ|   29.69 h  medΔ  -29.69  hit 0.95  Sør 0.11  area   789.4 km²  107 s  EDGE
+  ×0.5   med|Δ|   39.94 h  medΔ  -39.94  hit 1.00  Sør 0.09  area  1016.4 km²  113 s  EDGE
+  ×0.71  med|Δ|   49.14 h  medΔ  -49.14  hit 1.00  Sør 0.07  area  1225.2 km²  121 s  EDGE
+  ×1.0   med|Δ|   56.80 h  medΔ  -56.80  hit 1.00  Sør 0.06  area  1518.9 km²  132 s  EDGE
+  ×1.41  med|Δ|   61.43 h  medΔ  -61.43  hit 1.00  Sør 0.06  area  1593.4 km²  109 s  EDGE
+  ×2.0   med|Δ|   65.12 h  medΔ  -65.12  hit 1.00  Sør 0.06  area  1593.4 km²  97 s  EDGE
+  ×2.83  med|Δ|   67.87 h  medΔ  -67.87  hit 1.00  Sør 0.06  area  1593.4 km²  95 s  EDGE
+  ×4.0   med|Δ|   69.04 h  medΔ  -69.04  hit 1.00  Sør 0.06  area  1593.4 km²  86 s  EDGE
+best ×0.25  gate 3.28 h → poor_agreement

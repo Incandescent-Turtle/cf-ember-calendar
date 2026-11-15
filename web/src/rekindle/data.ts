@@ -118,6 +118,8 @@ export interface BurstWindowEval {
   observed_footprint_km2: number;
   qualifies: boolean;
   reasons: string[];
+  /** Why a window carries what-ifs: S6c timing rule, or S6f shape-only (post-hoc). */
+  basis?: 'timing' | 'shape';
 }
 
 export interface BurstRun {
@@ -157,6 +159,7 @@ export interface BurstIndex {
   post_hoc: true;
   what: string;
   rule: string;
+  shape_rule?: string;
   gate_h: number;
   axes: { wind_scale: number[]; dead_delta_pct: number[]; dead_floor_pct: number };
   all_windows: BurstWindowEval[];

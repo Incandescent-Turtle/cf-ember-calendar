@@ -89,6 +89,21 @@ def evaluate(win: dict) -> list[dict]:
     return out
 
 
+SHAPE_SOR_MIN = 0.6
+SHAPE_RULE = (f"S6f (post-hoc): for a fire with no other what-if view, the full-length window with "
+              f"the highest Sørensen ≥ {SHAPE_SOR_MIN} and ≥ {N_MIN} scored pixels; shape only, "
+              "its timing failed the gate")
+
+
+def shape_window(ev: list[dict], win: dict) -> dict | None:
+    """S6f: best full-length window by Sørensen (≥ SHAPE_SOR_MIN, ≥ N_MIN pixels), or None."""
+    full = [w for w in ev if not any("only" in r and "long" in r for r in w["reasons"])]
+    ok = [w for w in full if w["sorensen"] >= SHAPE_SOR_MIN and w["n_pixels"] >= N_MIN]
+    if not ok:
+        return None
+    return dict(max(ok, key=lambda w: w["sorensen"]), basis="shape")
+
+
 def perturb(sc, scale: float, dpp: int):
     """Scenario with the wind speed scaled and the dead moisture shifted by dpp points."""
     wind = tuple(WindSample(w.t_s, w.speed_ms * scale, w.from_deg) for w in sc.wind)
@@ -177,7 +192,14 @@ def main() -> None:
     settings, hours, win_h, d1 = (win["model_settings"], win["hours"], win["window_h"],
                                   win["dead_moisture_pct"])
     ev = evaluate(win)
-    qual = [w for w in ev if w["qualifies"]]
+    qual = [dict(w, basis="timing") for w in ev if w["qualifies"]]
+    prev_idx = a.out / a.fire / "burst" / "index.json"
+    has_shape = prev_idx.exists() and "shape" in json.loads(prev_idx.read_text())
+    if not qual and not has_shape:
+        sw = shape_window(ev, win)
+        if sw is not None:
+            print(f"  S6f shape-only window: {sw['index']} (Sør {sw['sorensen']})")
+            qual = [sw]
     for w in ev:
         print(f"  window {w['index']} (t={w['t_k_h']:.0f} h) ×{w['ros_multiplier']}: "
               f"|Δ| {w['median_abs_timing_error_h']} h, Sør {w['sorensen']}, n {w['n_pixels']}"
@@ -252,7 +274,7 @@ def main() -> None:
            "what": "What-ifs only for 24 h windows where the hindcast, restarted from the "
                    "observed extent, matched the detections. Chosen with hindsight; the "
                    "whole-fire pre-registered gate still fails.",
-           "rule": RULE, "gate_h": round(win["gate"]["threshold_h"], 3),
+           "rule": RULE, "shape_rule": SHAPE_RULE, "gate_h": round(win["gate"]["threshold_h"], 3),
            "model_settings": settings, "source": str(wpath).replace("\\", "/"),
            "axes": {"wind_scale": WIND_SCALE, "dead_delta_pct": MOIST_DELTA,
                     "dead_floor_pct": MOIST_FLOOR * 100},

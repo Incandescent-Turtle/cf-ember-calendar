@@ -1,0 +1,138 @@
+{
+ "fire": "chaco-2024",
+ "EXPLORATORY": true,
+ "post_hoc": true,
+ "what": "What-ifs only for 24 h windows where the hindcast, restarted from the observed extent, matched the detections. Chosen with hindsight; the whole-fire pre-registered gate still fails.",
+ "rule": "at the window's own best multiplier: median |\u0394| \u2264 the fire's gate, S\u00f8rensen \u2265 0.4, \u2265 50 scored pixels (DECISIONS.md, S6c pre-registration)",
+ "gate_h": 4.91,
+ "model_settings": {
+  "nonveg_max_pct": 50.0,
+  "diurnal_moisture": true,
+  "wind": "bilinear",
+  "seed_h": 0.0
+ },
+ "source": "docs/report/rekindle/chaco-2024_x_win24_AB_windows.json",
+ "axes": {
+  "wind_scale": [
+   0.0,
+   0.5,
+   1.0,
+   1.5,
+   2.0
+  ],
+  "dead_delta_pct": [
+   -2,
+   0,
+   2,
+   4
+  ],
+  "dead_floor_pct": 2.0
+ },
+ "all_windows": [
+  {
+   "index": 0,
+   "t_k_h": 0.0,
+   "ros_multiplier": 2.83,
+   "median_abs_timing_error_h": 11.19,
+   "median_timing_error_h": -9.98,
+   "sorensen": 0.28,
+   "n_pixels": 21,
+   "hit_rate": 0.857,
+   "area_km2": 32.54,
+   "observed_footprint_km2": 9.46,
+   "qualifies": false,
+   "reasons": [
+    "median |\u0394| 11.2 h > gate 4.9 h",
+    "S\u00f8rensen 0.28 < 0.4",
+    "21 scored pixels < 50"
+   ]
+  },
+  {
+   "index": 1,
+   "t_k_h": 24.0,
+   "ros_multiplier": 0.5,
+   "median_abs_timing_error_h": 12.15,
+   "median_timing_error_h": -12.15,
+   "sorensen": 0.619,
+   "n_pixels": 3,
+   "hit_rate": 1.0,
+   "area_km2": 5.04,
+   "observed_footprint_km2": 9.53,
+   "qualifies": false,
+   "reasons": [
+    "median |\u0394| 12.2 h > gate 4.9 h",
+    "3 scored pixels < 50"
+   ]
+  },
+  {
+   "index": 2,
+   "t_k_h": 48.0,
+   "ros_multiplier": 0.5,
+   "median_abs_timing_error_h": 13.08,
+   "median_timing_error_h": -13.08,
+   "sorensen": 0.754,
+   "n_pixels": 25,
+   "hit_rate": 1.0,
+   "area_km2": 15.28,
+   "observed_footprint_km2": 12.45,
+   "qualifies": false,
+   "reasons": [
+    "median |\u0394| 13.1 h > gate 4.9 h",
+    "25 scored pixels < 50"
+   ]
+  },
+  {
+   "index": 3,
+   "t_k_h": 72.0,
+   "ros_multiplier": 0.25,
+   "median_abs_timing_error_h": 8.28,
+   "median_timing_error_h": -8.28,
+   "sorensen": 0.678,
+   "n_pixels": 26,
+   "hit_rate": 1.0,
+   "area_km2": 12.35,
+   "observed_footprint_km2": 17.82,
+   "qualifies": false,
+   "reasons": [
+    "median |\u0394| 8.3 h > gate 4.9 h",
+    "26 scored pixels < 50"
+   ]
+  },
+  {
+   "index": 4,
+   "t_k_h": 96.0,
+   "ros_multiplier": 0.35,
+   "median_abs_timing_error_h": 12.45,
+   "median_timing_error_h": -12.45,
+   "sorensen": 0.73,
+   "n_pixels": 20,
+   "hit_rate": 1.0,
+   "area_km2": 23.01,
+   "observed_footprint_km2": 25.22,
+   "qualifies": false,
+   "reasons": [
+    "median |\u0394| 12.4 h > gate 4.9 h",
+    "20 scored pixels < 50"
+   ]
+  },
+  {
+   "index": 5,
+   "t_k_h": 120.0,
+   "ros_multiplier": 0.5,
+   "median_abs_timing_error_h": 12.13,
+   "median_timing_error_h": -12.13,
+   "sorensen": 0.652,
+   "n_pixels": 30,
+   "hit_rate": 1.0,
+   "area_km2": 38.6,
+   "observed_footprint_km2": 25.86,
+   "qualifies": false,
+   "reasons": [
+    "median |\u0394| 12.1 h > gate 4.9 h",
+    "30 scored pixels < 50",
+    "only 13 h long (the detections end there); the rule is for 24 h windows"
+   ]
+  }
+ ],
+ "windows": []
+}

@@ -1,0 +1,8 @@
+Grid: EPSG:32610, 556×556 at 90 m, lon/lat bounds [-126.3208, 53.0974, -125.4994, 53.605]
+Ignition: 2 MODIS_TERRA pixels at 2024-08-02T05:09:00Z (first overpass); 1815 detections to 2024-08-07T22:19:00Z
+Fuels: MCD12Q1 v061 IGBP 2023 (h10v03), nearest to 90 m
+Water: MOD44W v061 2023 ∪ IGBP 17 (15364 cells)
+Fuel cover: MOD44B v061 Percent_NonVegetated 2023, nearest to the grid (non-vegetated median 16 %)
+IGBP classes (cells): 1:31231, 7:154, 8:234145, 9:169, 10:34347, 11:419, 16:1246, 17:7425
+Wind: MERRA-2 M2T1NXSLV hourly at (-125.908, 53.352), bilinear from grid points lat 53.0/53.5, lon -126.25/-125.625; 168 hours
+wrote data\rekindle\bc-2024/domain.npz + meta.json; burnable 95%, elev 850–1901 m, slope p50/p95 3.2/11.1°

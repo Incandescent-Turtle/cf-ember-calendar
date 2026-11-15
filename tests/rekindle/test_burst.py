@@ -35,3 +35,14 @@ def test_perturb_scales_wind_and_shifts_moisture_with_floor():
     assert abs(p.moisture_series[0].d10 - 0.03) < 1e-12
     assert p.moisture.herb == sc.moisture.herb  # live moisture unchanged
     assert run_key(1, 1.5, -2) == "w1_u150_dm2" and run_key(0, 0.0, 4) == "w0_u000_dp4"
+
+
+def test_shape_window_picks_best_full_window_with_enough_pixels():
+    from rekindle.burst import shape_window
+    ev = [{"index": 0, "sorensen": 0.9, "n_pixels": 20, "reasons": ["x"]},
+          {"index": 1, "sorensen": 0.62, "n_pixels": 80, "reasons": ["gate"]},
+          {"index": 2, "sorensen": 0.7, "n_pixels": 200, "reasons": ["gate"]},
+          {"index": 3, "sorensen": 0.95, "n_pixels": 300, "reasons": ["only 5 h long (the detections end there); the rule is for 24 h windows"]}]
+    w = shape_window(ev, {})
+    assert w["index"] == 2 and w["basis"] == "shape"
+    assert shape_window([dict(ev[0])], {}) is None

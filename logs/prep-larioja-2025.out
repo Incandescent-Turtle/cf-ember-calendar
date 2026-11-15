@@ -1,0 +1,8 @@
+Grid: EPSG:32719, 444×444 at 90 m, lon/lat bounds [-66.8471, -30.8225, -66.3817, -30.4146]
+Ignition: 1 VIIRS_SNPP pixels at 2025-11-17T05:15:00Z (first overpass); 507 detections to 2025-11-22T19:42:00Z
+Fuels: MCD12Q1 v061 IGBP 2024 (h12v12), nearest to 90 m
+Water: MOD44W v061 2024 ∪ IGBP 17 (0 cells)
+Fuel cover: MOD44B v061 Percent_NonVegetated 2024, nearest to the grid (non-vegetated median 23 %)
+IGBP classes (cells): 6:713, 7:130858, 9:1888, 10:63277, 13:400
+Wind: MERRA-2 M2T1NXSLV hourly at (-66.614, -30.618), bilinear from grid points lat -31.0/-30.5, lon -66.875/-66.25; 168 hours
+wrote data\rekindle\larioja-2025/domain.npz + meta.json; burnable 100%, elev 475–1888 m, slope p50/p95 1.1/20.5°

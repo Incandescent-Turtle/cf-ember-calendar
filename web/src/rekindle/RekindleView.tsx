@@ -145,7 +145,8 @@ function RkLoaded({ meta, runs, observed, burst, picker }: { meta: FireMeta; run
               </button>
               {canBurst && (
                 <button className={view === 'burst' ? 'on' : ''} onClick={() => switchView('burst')} role="radio" aria-checked={view === 'burst'}>
-                  Burst-window what-if <span className="rk-tag exploratory">EXPLORATORY</span>
+                  {burst?.windows[0]?.basis === 'shape' ? 'Window what-if' : 'Burst-window what-if'}{' '}
+                  <span className="rk-tag exploratory">{burst?.windows[0]?.basis === 'shape' ? 'SHAPE ONLY' : 'EXPLORATORY'}</span>
                 </button>
               )}
               {shape && (
@@ -353,7 +354,9 @@ function RkPanel(p: PanelProps) {
       ? 'Baseline passed the quality gate'
       : meta.status === 'poor_agreement'
         ? p.burst?.windows.length
-          ? 'Poor agreement: the whole-fire baseline did not pass the quality gate, so there are no whole-fire what-ifs. One 24 h window did match (see “Burst-window what-if”, exploratory)'
+          ? p.burst.windows[0].basis === 'shape'
+            ? 'Poor agreement: the baseline did not pass the quality gate. One 24 h window matches the detections in shape, though not in timing (see “Window what-if”, shape only)'
+            : 'Poor agreement: the whole-fire baseline did not pass the quality gate, so there are no whole-fire what-ifs. One 24 h window did match (see “Burst-window what-if”, exploratory)'
           : p.burst?.shape
             ? 'Poor agreement on timing: the baseline did not pass the quality gate, but its footprint matches the detections (see “Footprint what-if”, shape only)'
             : 'Poor agreement: the baseline did not pass the quality gate, so no what-if runs are shown'

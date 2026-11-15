@@ -32,6 +32,39 @@
     56.302
    ],
    "status": "poor_agreement"
+  },
+  {
+   "id": "bc-2024",
+   "name": "Central British Columbia, Canada (August 2024)",
+   "bbox": [
+    -126.108,
+    53.152,
+    -125.708,
+    53.552
+   ],
+   "status": "poor_agreement"
+  },
+  {
+   "id": "larioja-2025",
+   "name": "La Rioja / San Juan, Argentina (November 2025)",
+   "bbox": [
+    -66.814,
+    -30.818,
+    -66.414,
+    -30.418
+   ],
+   "status": "poor_agreement"
+  },
+  {
+   "id": "chaco-2024",
+   "name": "Gran Chaco, Argentina\u2013Paraguay border (June 2024)",
+   "bbox": [
+    -60.532,
+    -24.168,
+    -60.132,
+    -23.768
+   ],
+   "status": "poor_agreement"
   }
  ]
 }

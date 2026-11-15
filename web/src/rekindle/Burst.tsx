@@ -10,6 +10,14 @@ const windLabel = (s: number) => (s === 0 ? 'calm' : s === 1 ? 'as observed' : `
 const moistLabel = (d: number) => (d === 0 ? 'as observed' : `${d > 0 ? '+' : '−'}${Math.abs(d)} points`);
 
 function burstCaption(w: BurstWindow, gate: number) {
+  if (w.basis === 'shape')
+    return (
+      <>
+        <strong>Exploratory what-if (post-hoc), one 24 h window, shape only.</strong> Restarted from the satellite-detected extent, the simulated footprint in this window
+        matches the detections (Sørensen {f1(w.sorensen, 2)}), but the timing does not: median |timing error| {f1(w.median_abs_timing_error_h)} h against a {f1(gate)} h gate. The window
+        was chosen with hindsight, as the best-matching shape. Read where the fire could have spread, not when. Illustrative, not a reconstruction.
+      </>
+    );
   return (
     <>
       <strong>Exploratory what-if (post-hoc), one 24 h window.</strong> In this window the hindcast, restarted from the satellite-detected extent, matched the detections: median
@@ -137,7 +145,11 @@ export function BurstPanel(p: BurstPanelProps) {
               even the window baseline burns about {f1(overburn)}× the area covered by detection pixels ({f1(win.area_km2, 0)} vs {f1(win.observed_footprint_km2, 0)} km²).
             </>
           )}{' '}
-          Rule for a window to qualify, written down before the third fire was checked: {burst.rule}. Other windows did not qualify (table below).
+          {win.basis === 'shape' ? (
+            <>No window of this fire passed the timing rule. This one was picked by a later, looser rule: {burst.shape_rule}.</>
+          ) : (
+            <>Rule for a window to qualify, written down before the third fire was checked: {burst.rule}. Other windows did not qualify (table below).</>
+          )}
         </p>
       </details>
       <WindowScreen burst={burst} />

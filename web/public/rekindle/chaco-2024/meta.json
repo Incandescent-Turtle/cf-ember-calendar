@@ -1,0 +1,2182 @@
+{
+ "id": "chaco-2024",
+ "name": "Gran Chaco, Argentina\u2013Paraguay border (June 2024)",
+ "bbox": [
+  -60.532,
+  -24.168,
+  -60.132,
+  -23.768
+ ],
+ "raster": {
+  "crs": "EPSG:3857",
+  "width": 444,
+  "height": 446,
+  "bounds_3857": [
+   -6738368.137741384,
+   -2771942.272034329,
+   -6693864.538576966,
+   -2727188.6046413807
+  ],
+  "bounds_lonlat": [
+   -60.53179088157082,
+   -24.1520109188773,
+   -60.132008248293566,
+   -23.784649670643862
+  ],
+  "dx_m": 90.0
+ },
+ "status": "poor_agreement",
+ "start": "2024-06-03T05:09:00Z",
+ "end": "2024-06-08T18:09:00Z",
+ "ignitions": [
+  {
+   "lon": -60.34025955200195,
+   "lat": -23.985919952392578,
+   "t": "2024-06-03T05:09:00Z"
+  },
+  {
+   "lon": -60.339630126953125,
+   "lat": -23.98261070251465,
+   "t": "2024-06-03T05:09:00Z"
+  }
+ ],
+ "baseline": {
+  "wind_ms": 1.61,
+  "wind_from_deg": 44.8,
+  "dead_moisture_pct": 10,
+  "ros_multiplier": 0.25,
+  "wind_source": "MERRA-2",
+  "wind_hourly": [
+   {
+    "t": "2024-06-03T00:30:00Z",
+    "speed_ms": 2.379,
+    "from_deg": 64.7
+   },
+   {
+    "t": "2024-06-03T01:30:00Z",
+    "speed_ms": 2.29,
+    "from_deg": 72.6
+   },
+   {
+    "t": "2024-06-03T02:30:00Z",
+    "speed_ms": 2.12,
+    "from_deg": 83.6
+   },
+   {
+    "t": "2024-06-03T03:30:00Z",
+    "speed_ms": 1.941,
+    "from_deg": 99.0
+   },
+   {
+    "t": "2024-06-03T04:30:00Z",
+    "speed_ms": 1.806,
+    "from_deg": 114.3
+   },
+   {
+    "t": "2024-06-03T05:30:00Z",
+    "speed_ms": 1.593,
+    "from_deg": 128.2
+   },
+   {
+    "t": "2024-06-03T06:30:00Z",
+    "speed_ms": 1.646,
+    "from_deg": 152.3
+   },
+   {
+    "t": "2024-06-03T07:30:00Z",
+    "speed_ms": 2.213,
+    "from_deg": 176.6
+   },
+   {
+    "t": "2024-06-03T08:30:00Z",
+    "speed_ms": 2.707,
+    "from_deg": 183.4
+   },
+   {
+    "t": "2024-06-03T09:30:00Z",
+    "speed_ms": 3.141,
+    "from_deg": 183.9
+   },
+   {
+    "t": "2024-06-03T10:30:00Z",
+    "speed_ms": 3.31,
+    "from_deg": 184.4
+   },
+   {
+    "t": "2024-06-03T11:30:00Z",
+    "speed_ms": 3.691,
+    "from_deg": 184.1
+   },
+   {
+    "t": "2024-06-03T12:30:00Z",
+    "speed_ms": 4.205,
+    "from_deg": 180.6
+   },
+   {
+    "t": "2024-06-03T13:30:00Z",
+    "speed_ms": 4.342,
+    "from_deg": 177.1
+   },
+   {
+    "t": "2024-06-03T14:30:00Z",
+    "speed_ms": 4.202,
+    "from_deg": 178.2
+   },
+   {
+    "t": "2024-06-03T15:30:00Z",
+    "speed_ms": 4.042,
+    "from_deg": 181.9
+   },
+   {
+    "t": "2024-06-03T16:30:00Z",
+    "speed_ms": 3.882,
+    "from_deg": 185.2
+   },
+   {
+    "t": "2024-06-03T17:30:00Z",
+    "speed_ms": 3.617,
+    "from_deg": 185.2
+   },
+   {
+    "t": "2024-06-03T18:30:00Z",
+    "speed_ms": 3.283,
+    "from_deg": 182.5
+   },
+   {
+    "t": "2024-06-03T19:30:00Z",
+    "speed_ms": 3.009,
+    "from_deg": 176.9
+   },
+   {
+    "t": "2024-06-03T20:30:00Z",
+    "speed_ms": 2.644,
+    "from_deg": 170.4
+   },
+   {
+    "t": "2024-06-03T21:30:00Z",
+    "speed_ms": 1.806,
+    "from_deg": 167.5
+   },
+   {
+    "t": "2024-06-03T22:30:00Z",
+    "speed_ms": 2.03,
+    "from_deg": 162.7
+   },
+   {
+    "t": "2024-06-03T23:30:00Z",
+    "speed_ms": 1.934,
+    "from_deg": 155.9
+   },
+   {
+    "t": "2024-06-04T00:30:00Z",
+    "speed_ms": 1.805,
+    "from_deg": 149.8
+   },
+   {
+    "t": "2024-06-04T01:30:00Z",
+    "speed_ms": 1.646,
+    "from_deg": 146.4
+   },
+   {
+    "t": "2024-06-04T02:30:00Z",
+    "speed_ms": 1.526,
+    "from_deg": 148.7
+   },
+   {
+    "t": "2024-06-04T03:30:00Z",
+    "speed_ms": 1.418,
+    "from_deg": 157.9
+   },
+   {
+    "t": "2024-06-04T04:30:00Z",
+    "speed_ms": 1.395,
+    "from_deg": 169.3
+   },
+   {
+    "t": "2024-06-04T05:30:00Z",
+    "speed_ms": 1.397,
+    "from_deg": 179.0
+   },
+   {
+    "t": "2024-06-04T06:30:00Z",
+    "speed_ms": 1.394,
+    "from_deg": 184.2
+   },
+   {
+    "t": "2024-06-04T07:30:00Z",
+    "speed_ms": 1.429,
+    "from_deg": 183.5
+   },
+   {
+    "t": "2024-06-04T08:30:00Z",
+    "speed_ms": 1.389,
+    "from_deg": 177.8
+   },
+   {
+    "t": "2024-06-04T09:30:00Z",
+    "speed_ms": 1.231,
+    "from_deg": 164.0
+   },
+   {
+    "t": "2024-06-04T10:30:00Z",
+    "speed_ms": 1.113,
+    "from_deg": 146.9
+   },
+   {
+    "t": "2024-06-04T11:30:00Z",
+    "speed_ms": 1.466,
+    "from_deg": 133.6
+   },
+   {
+    "t": "2024-06-04T12:30:00Z",
+    "speed_ms": 1.311,
+    "from_deg": 114.9
+   },
+   {
+    "t": "2024-06-04T13:30:00Z",
+    "speed_ms": 0.892,
+    "from_deg": 90.0
+   },
+   {
+    "t": "2024-06-04T14:30:00Z",
+    "speed_ms": 0.688,
+    "from_deg": 50.1
+   },
+   {
+    "t": "2024-06-04T15:30:00Z",
+    "speed_ms": 1.041,
+    "from_deg": 9.3
+   },
+   {
+    "t": "2024-06-04T16:30:00Z",
+    "speed_ms": 1.645,
+    "from_deg": 2.5
+   },
+   {
+    "t": "2024-06-04T17:30:00Z",
+    "speed_ms": 2.167,
+    "from_deg": 5.3
+   },
+   {
+    "t": "2024-06-04T18:30:00Z",
+    "speed_ms": 2.454,
+    "from_deg": 9.8
+   },
+   {
+    "t": "2024-06-04T19:30:00Z",
+    "speed_ms": 2.467,
+    "from_deg": 16.0
+   },
+   {
+    "t": "2024-06-04T20:30:00Z",
+    "speed_ms": 1.596,
+    "from_deg": 24.9
+   },
+   {
+    "t": "2024-06-04T21:30:00Z",
+    "speed_ms": 1.967,
+    "from_deg": 36.9
+   },
+   {
+    "t": "2024-06-04T22:30:00Z",
+    "speed_ms": 1.897,
+    "from_deg": 43.1
+   },
+   {
+    "t": "2024-06-04T23:30:00Z",
+    "speed_ms": 1.948,
+    "from_deg": 46.9
+   },
+   {
+    "t": "2024-06-05T00:30:00Z",
+    "speed_ms": 1.898,
+    "from_deg": 51.3
+   },
+   {
+    "t": "2024-06-05T01:30:00Z",
+    "speed_ms": 1.703,
+    "from_deg": 60.4
+   },
+   {
+    "t": "2024-06-05T02:30:00Z",
+    "speed_ms": 1.668,
+    "from_deg": 73.9
+   },
+   {
+    "t": "2024-06-05T03:30:00Z",
+    "speed_ms": 1.938,
+    "from_deg": 81.9
+   },
+   {
+    "t": "2024-06-05T04:30:00Z",
+    "speed_ms": 1.896,
+    "from_deg": 83.4
+   },
+   {
+    "t": "2024-06-05T05:30:00Z",
+    "speed_ms": 1.963,
+    "from_deg": 85.5
+   },
+   {
+    "t": "2024-06-05T06:30:00Z",
+    "speed_ms": 1.967,
+    "from_deg": 89.2
+   },
+   {
+    "t": "2024-06-05T07:30:00Z",
+    "speed_ms": 1.9,
+    "from_deg": 90.7
+   },
+   {
+    "t": "2024-06-05T08:30:00Z",
+    "speed_ms": 1.868,
+    "from_deg": 87.0
+   },
+   {
+    "t": "2024-06-05T09:30:00Z",
+    "speed_ms": 1.845,
+    "from_deg": 81.4
+   },
+   {
+    "t": "2024-06-05T10:30:00Z",
+    "speed_ms": 1.866,
+    "from_deg": 75.7
+   },
+   {
+    "t": "2024-06-05T11:30:00Z",
+    "speed_ms": 2.235,
+    "from_deg": 70.3
+   },
+   {
+    "t": "2024-06-05T12:30:00Z",
+    "speed_ms": 1.712,
+    "from_deg": 68.2
+   },
+   {
+    "t": "2024-06-05T13:30:00Z",
+    "speed_ms": 2.3,
+    "from_deg": 55.2
+   },
+   {
+    "t": "2024-06-05T14:30:00Z",
+    "speed_ms": 3.319,
+    "from_deg": 39.6
+   },
+   {
+    "t": "2024-06-05T15:30:00Z",
+    "speed_ms": 3.949,
+    "from_deg": 26.3
+   },
+   {
+    "t": "2024-06-05T16:30:00Z",
+    "speed_ms": 4.135,
+    "from_deg": 19.0
+   },
+   {
+    "t": "2024-06-05T17:30:00Z",
+    "speed_ms": 4.079,
+    "from_deg": 16.2
+   },
+   {
+    "t": "2024-06-05T18:30:00Z",
+    "speed_ms": 3.883,
+    "from_deg": 16.4
+   },
+   {
+    "t": "2024-06-05T19:30:00Z",
+    "speed_ms": 3.465,
+    "from_deg": 19.5
+   },
+   {
+    "t": "2024-06-05T20:30:00Z",
+    "speed_ms": 2.299,
+    "from_deg": 26.9
+   },
+   {
+    "t": "2024-06-05T21:30:00Z",
+    "speed_ms": 2.201,
+    "from_deg": 33.8
+   },
+   {
+    "t": "2024-06-05T22:30:00Z",
+    "speed_ms": 2.294,
+    "from_deg": 37.4
+   },
+   {
+    "t": "2024-06-05T23:30:00Z",
+    "speed_ms": 2.304,
+    "from_deg": 39.4
+   },
+   {
+    "t": "2024-06-06T00:30:00Z",
+    "speed_ms": 2.258,
+    "from_deg": 40.0
+   },
+   {
+    "t": "2024-06-06T01:30:00Z",
+    "speed_ms": 2.193,
+    "from_deg": 39.5
+   },
+   {
+    "t": "2024-06-06T02:30:00Z",
+    "speed_ms": 2.155,
+    "from_deg": 38.7
+   },
+   {
+    "t": "2024-06-06T03:30:00Z",
+    "speed_ms": 2.145,
+    "from_deg": 38.6
+   },
+   {
+    "t": "2024-06-06T04:30:00Z",
+    "speed_ms": 2.185,
+    "from_deg": 38.6
+   },
+   {
+    "t": "2024-06-06T05:30:00Z",
+    "speed_ms": 2.251,
+    "from_deg": 38.7
+   },
+   {
+    "t": "2024-06-06T06:30:00Z",
+    "speed_ms": 2.142,
+    "from_deg": 39.6
+   },
+   {
+    "t": "2024-06-06T07:30:00Z",
+    "speed_ms": 1.957,
+    "from_deg": 40.2
+   },
+   {
+    "t": "2024-06-06T08:30:00Z",
+    "speed_ms": 1.942,
+    "from_deg": 37.8
+   },
+   {
+    "t": "2024-06-06T09:30:00Z",
+    "speed_ms": 2.098,
+    "from_deg": 32.8
+   },
+   {
+    "t": "2024-06-06T10:30:00Z",
+    "speed_ms": 2.067,
+    "from_deg": 35.5
+   },
+   {
+    "t": "2024-06-06T11:30:00Z",
+    "speed_ms": 2.376,
+    "from_deg": 39.6
+   },
+   {
+    "t": "2024-06-06T12:30:00Z",
+    "speed_ms": 2.164,
+    "from_deg": 42.0
+   },
+   {
+    "t": "2024-06-06T13:30:00Z",
+    "speed_ms": 3.0,
+    "from_deg": 32.5
+   },
+   {
+    "t": "2024-06-06T14:30:00Z",
+    "speed_ms": 3.686,
+    "from_deg": 25.5
+   },
+   {
+    "t": "2024-06-06T15:30:00Z",
+    "speed_ms": 4.528,
+    "from_deg": 16.4
+   },
+   {
+    "t": "2024-06-06T16:30:00Z",
+    "speed_ms": 4.737,
+    "from_deg": 11.4
+   },
+   {
+    "t": "2024-06-06T17:30:00Z",
+    "speed_ms": 4.558,
+    "from_deg": 11.2
+   },
+   {
+    "t": "2024-06-06T18:30:00Z",
+    "speed_ms": 4.175,
+    "from_deg": 14.6
+   },
+   {
+    "t": "2024-06-06T19:30:00Z",
+    "speed_ms": 3.527,
+    "from_deg": 21.0
+   },
+   {
+    "t": "2024-06-06T20:30:00Z",
+    "speed_ms": 2.309,
+    "from_deg": 32.3
+   },
+   {
+    "t": "2024-06-06T21:30:00Z",
+    "speed_ms": 2.39,
+    "from_deg": 42.1
+   },
+   {
+    "t": "2024-06-06T22:30:00Z",
+    "speed_ms": 2.481,
+    "from_deg": 46.9
+   },
+   {
+    "t": "2024-06-06T23:30:00Z",
+    "speed_ms": 2.514,
+    "from_deg": 47.8
+   },
+   {
+    "t": "2024-06-07T00:30:00Z",
+    "speed_ms": 2.491,
+    "from_deg": 45.5
+   },
+   {
+    "t": "2024-06-07T01:30:00Z",
+    "speed_ms": 2.478,
+    "from_deg": 41.5
+   },
+   {
+    "t": "2024-06-07T02:30:00Z",
+    "speed_ms": 2.49,
+    "from_deg": 38.1
+   },
+   {
+    "t": "2024-06-07T03:30:00Z",
+    "speed_ms": 2.465,
+    "from_deg": 35.7
+   },
+   {
+    "t": "2024-06-07T04:30:00Z",
+    "speed_ms": 2.436,
+    "from_deg": 34.1
+   },
+   {
+    "t": "2024-06-07T05:30:00Z",
+    "speed_ms": 2.419,
+    "from_deg": 32.6
+   },
+   {
+    "t": "2024-06-07T06:30:00Z",
+    "speed_ms": 2.432,
+    "from_deg": 30.8
+   },
+   {
+    "t": "2024-06-07T07:30:00Z",
+    "speed_ms": 2.402,
+    "from_deg": 29.3
+   },
+   {
+    "t": "2024-06-07T08:30:00Z",
+    "speed_ms": 2.388,
+    "from_deg": 27.9
+   },
+   {
+    "t": "2024-06-07T09:30:00Z",
+    "speed_ms": 2.408,
+    "from_deg": 27.1
+   },
+   {
+    "t": "2024-06-07T10:30:00Z",
+    "speed_ms": 2.422,
+    "from_deg": 27.2
+   },
+   {
+    "t": "2024-06-07T11:30:00Z",
+    "speed_ms": 2.74,
+    "from_deg": 28.4
+   },
+   {
+    "t": "2024-06-07T12:30:00Z",
+    "speed_ms": 2.744,
+    "from_deg": 30.1
+   },
+   {
+    "t": "2024-06-07T13:30:00Z",
+    "speed_ms": 2.566,
+    "from_deg": 32.7
+   },
+   {
+    "t": "2024-06-07T14:30:00Z",
+    "speed_ms": 2.897,
+    "from_deg": 32.2
+   },
+   {
+    "t": "2024-06-07T15:30:00Z",
+    "speed_ms": 3.786,
+    "from_deg": 23.3
+   },
+   {
+    "t": "2024-06-07T16:30:00Z",
+    "speed_ms": 3.997,
+    "from_deg": 20.3
+   },
+   {
+    "t": "2024-06-07T17:30:00Z",
+    "speed_ms": 3.98,
+    "from_deg": 20.9
+   },
+   {
+    "t": "2024-06-07T18:30:00Z",
+    "speed_ms": 3.913,
+    "from_deg": 23.7
+   },
+   {
+    "t": "2024-06-07T19:30:00Z",
+    "speed_ms": 3.547,
+    "from_deg": 27.3
+   },
+   {
+    "t": "2024-06-07T20:30:00Z",
+    "speed_ms": 2.347,
+    "from_deg": 33.1
+   },
+   {
+    "t": "2024-06-07T21:30:00Z",
+    "speed_ms": 2.353,
+    "from_deg": 38.4
+   },
+   {
+    "t": "2024-06-07T22:30:00Z",
+    "speed_ms": 2.465,
+    "from_deg": 41.6
+   },
+   {
+    "t": "2024-06-07T23:30:00Z",
+    "speed_ms": 2.601,
+    "from_deg": 42.6
+   },
+   {
+    "t": "2024-06-08T00:30:00Z",
+    "speed_ms": 2.704,
+    "from_deg": 41.3
+   },
+   {
+    "t": "2024-06-08T01:30:00Z",
+    "speed_ms": 2.793,
+    "from_deg": 38.9
+   },
+   {
+    "t": "2024-06-08T02:30:00Z",
+    "speed_ms": 2.839,
+    "from_deg": 36.7
+   },
+   {
+    "t": "2024-06-08T03:30:00Z",
+    "speed_ms": 2.796,
+    "from_deg": 34.7
+   },
+   {
+    "t": "2024-06-08T04:30:00Z",
+    "speed_ms": 2.743,
+    "from_deg": 33.1
+   },
+   {
+    "t": "2024-06-08T05:30:00Z",
+    "speed_ms": 2.747,
+    "from_deg": 31.8
+   },
+   {
+    "t": "2024-06-08T06:30:00Z",
+    "speed_ms": 2.824,
+    "from_deg": 30.1
+   },
+   {
+    "t": "2024-06-08T07:30:00Z",
+    "speed_ms": 2.943,
+    "from_deg": 28.1
+   },
+   {
+    "t": "2024-06-08T08:30:00Z",
+    "speed_ms": 3.094,
+    "from_deg": 26.4
+   },
+   {
+    "t": "2024-06-08T09:30:00Z",
+    "speed_ms": 3.183,
+    "from_deg": 26.2
+   },
+   {
+    "t": "2024-06-08T10:30:00Z",
+    "speed_ms": 3.093,
+    "from_deg": 28.5
+   },
+   {
+    "t": "2024-06-08T11:30:00Z",
+    "speed_ms": 3.638,
+    "from_deg": 27.9
+   },
+   {
+    "t": "2024-06-08T12:30:00Z",
+    "speed_ms": 4.139,
+    "from_deg": 26.3
+   },
+   {
+    "t": "2024-06-08T13:30:00Z",
+    "speed_ms": 4.31,
+    "from_deg": 25.4
+   },
+   {
+    "t": "2024-06-08T14:30:00Z",
+    "speed_ms": 5.145,
+    "from_deg": 21.4
+   },
+   {
+    "t": "2024-06-08T15:30:00Z",
+    "speed_ms": 6.234,
+    "from_deg": 13.8
+   },
+   {
+    "t": "2024-06-08T16:30:00Z",
+    "speed_ms": 6.466,
+    "from_deg": 11.9
+   },
+   {
+    "t": "2024-06-08T17:30:00Z",
+    "speed_ms": 6.397,
+    "from_deg": 13.2
+   },
+   {
+    "t": "2024-06-08T18:30:00Z",
+    "speed_ms": 6.229,
+    "from_deg": 14.9
+   },
+   {
+    "t": "2024-06-08T19:30:00Z",
+    "speed_ms": 5.774,
+    "from_deg": 17.4
+   },
+   {
+    "t": "2024-06-08T20:30:00Z",
+    "speed_ms": 4.711,
+    "from_deg": 21.5
+   },
+   {
+    "t": "2024-06-08T21:30:00Z",
+    "speed_ms": 4.074,
+    "from_deg": 25.8
+   },
+   {
+    "t": "2024-06-08T22:30:00Z",
+    "speed_ms": 4.261,
+    "from_deg": 26.9
+   },
+   {
+    "t": "2024-06-08T23:30:00Z",
+    "speed_ms": 4.386,
+    "from_deg": 25.8
+   },
+   {
+    "t": "2024-06-09T00:30:00Z",
+    "speed_ms": 4.436,
+    "from_deg": 23.4
+   },
+   {
+    "t": "2024-06-09T01:30:00Z",
+    "speed_ms": 4.354,
+    "from_deg": 19.8
+   },
+   {
+    "t": "2024-06-09T02:30:00Z",
+    "speed_ms": 4.197,
+    "from_deg": 15.4
+   },
+   {
+    "t": "2024-06-09T03:30:00Z",
+    "speed_ms": 3.966,
+    "from_deg": 11.1
+   },
+   {
+    "t": "2024-06-09T04:30:00Z",
+    "speed_ms": 3.755,
+    "from_deg": 8.0
+   },
+   {
+    "t": "2024-06-09T05:30:00Z",
+    "speed_ms": 3.64,
+    "from_deg": 5.9
+   },
+   {
+    "t": "2024-06-09T06:30:00Z",
+    "speed_ms": 3.532,
+    "from_deg": 5.8
+   },
+   {
+    "t": "2024-06-09T07:30:00Z",
+    "speed_ms": 3.412,
+    "from_deg": 7.8
+   },
+   {
+    "t": "2024-06-09T08:30:00Z",
+    "speed_ms": 3.396,
+    "from_deg": 9.4
+   },
+   {
+    "t": "2024-06-09T09:30:00Z",
+    "speed_ms": 3.572,
+    "from_deg": 8.9
+   },
+   {
+    "t": "2024-06-09T10:30:00Z",
+    "speed_ms": 3.641,
+    "from_deg": 8.5
+   },
+   {
+    "t": "2024-06-09T11:30:00Z",
+    "speed_ms": 3.878,
+    "from_deg": 8.7
+   },
+   {
+    "t": "2024-06-09T12:30:00Z",
+    "speed_ms": 4.49,
+    "from_deg": 8.0
+   },
+   {
+    "t": "2024-06-09T13:30:00Z",
+    "speed_ms": 5.595,
+    "from_deg": 3.8
+   },
+   {
+    "t": "2024-06-09T14:30:00Z",
+    "speed_ms": 6.61,
+    "from_deg": 0.5
+   },
+   {
+    "t": "2024-06-09T15:30:00Z",
+    "speed_ms": 7.04,
+    "from_deg": 359.3
+   },
+   {
+    "t": "2024-06-09T16:30:00Z",
+    "speed_ms": 7.027,
+    "from_deg": 359.8
+   },
+   {
+    "t": "2024-06-09T17:30:00Z",
+    "speed_ms": 6.795,
+    "from_deg": 0.9
+   },
+   {
+    "t": "2024-06-09T18:30:00Z",
+    "speed_ms": 6.317,
+    "from_deg": 2.1
+   },
+   {
+    "t": "2024-06-09T19:30:00Z",
+    "speed_ms": 5.5,
+    "from_deg": 3.6
+   },
+   {
+    "t": "2024-06-09T20:30:00Z",
+    "speed_ms": 4.032,
+    "from_deg": 6.4
+   },
+   {
+    "t": "2024-06-09T21:30:00Z",
+    "speed_ms": 3.105,
+    "from_deg": 9.4
+   },
+   {
+    "t": "2024-06-09T22:30:00Z",
+    "speed_ms": 3.04,
+    "from_deg": 9.9
+   },
+   {
+    "t": "2024-06-09T23:30:00Z",
+    "speed_ms": 3.046,
+    "from_deg": 8.2
+   }
+  ]
+ },
+ "axes": null,
+ "validation": {
+  "gate": {
+   "rule": "median |\u0394| \u2264 mean interval between overpasses (REKINDLE.md \u00a75)",
+   "threshold_h": 4.909876543209876,
+   "overpass_median_gap_h": 1.2333333333333334,
+   "passed": false
+  },
+  "metrics": {
+   "n_pixels": 125,
+   "n_reached": 103,
+   "median_timing_error_h": -24.8,
+   "iqr_h": [
+    -71.067,
+    24.288
+   ],
+   "median_abs_timing_error_h": 61.083,
+   "hit_rate": 0.693,
+   "consistent_rate": 0.056,
+   "sorensen": 0.579,
+   "false_alarm_km2": 8.821,
+   "missed_km2": 11.737,
+   "area_km2": 22.939,
+   "observed_footprint_km2": 25.855,
+   "ros_multiplier": 0.25,
+   "wall_s": 13.443,
+   "edge_reached": false
+  },
+  "sweep": [
+   {
+    "ros_multiplier": 0.25,
+    "median_abs_timing_error_h": 61.083333333333336,
+    "hit_rate": 0.6929133858267716,
+    "sorensen": 0.5786852589641435
+   },
+   {
+    "ros_multiplier": 0.35,
+    "median_abs_timing_error_h": 68.23271972949908,
+    "hit_rate": 0.7401574803149606,
+    "sorensen": 0.5135656714723578
+   },
+   {
+    "ros_multiplier": 0.5,
+    "median_abs_timing_error_h": 71.06666666666666,
+    "hit_rate": 0.7952755905511811,
+    "sorensen": 0.36103190767141885
+   },
+   {
+    "ros_multiplier": 0.71,
+    "median_abs_timing_error_h": 72.3,
+    "hit_rate": 0.8110236220472441,
+    "sorensen": 0.21538108531875025
+   },
+   {
+    "ros_multiplier": 1.0,
+    "median_abs_timing_error_h": 72.73333333333333,
+    "hit_rate": 0.8188976377952756,
+    "sorensen": 0.11466031474582138
+   },
+   {
+    "ros_multiplier": 1.41,
+    "median_abs_timing_error_h": 74.30497844875087,
+    "hit_rate": 0.8346456692913385,
+    "sorensen": 0.06690107383825905
+   },
+   {
+    "ros_multiplier": 2.0,
+    "median_abs_timing_error_h": 75.1464002795637,
+    "hit_rate": 0.8582677165354331,
+    "sorensen": 0.04591142160738887
+   },
+   {
+    "ros_multiplier": 2.83,
+    "median_abs_timing_error_h": 69.9269458079413,
+    "hit_rate": 0.9606299212598425,
+    "sorensen": 0.036955998897186065
+   },
+   {
+    "ros_multiplier": 4.0,
+    "median_abs_timing_error_h": 70.85142933998279,
+    "hit_rate": 0.984251968503937,
+    "sorensen": 0.032306547844965006
+   }
+  ],
+  "calibrated_not_blind": "the multiplier is fitted on this fire's own detections",
+  "moisture_estimate": {
+   "method": "Simard (1968) EMC from MERRA-2 T2M/QV2M (2 m, grid-cell mean), pressure at the ignition elevation 141 m; no time lag",
+   "rh_pct_median": 63.69534882587062,
+   "emc_pct_median": 11.37333311845321,
+   "emc_pct_p10": 6.234966413279034,
+   "emc_pct_p90": 17.11330076366373
+  }
+ },
+ "model_settings": {
+  "nonveg_max_pct": 50.0,
+  "diurnal_moisture": true,
+  "wind": "bilinear",
+  "seed_h": 0.0
+ },
+ "moisture": {
+  "baseline": "hourly",
+  "method": "Simard (1968) EMC from MERRA-2 T2M/QV2M; 1-, 10-, 100-h classes relax toward EMC with their time lags (DECISIONS.md, S6b change B)",
+  "start": "2024-06-03T05:09:00Z",
+  "dead_1h_pct_min": 5.45,
+  "dead_1h_pct_median": 11.49,
+  "dead_1h_pct_max": 26.13,
+  "hourly": {
+   "columns": [
+    "t_h",
+    "d1_pct",
+    "d10_pct",
+    "d100_pct"
+   ],
+   "rows": [
+    [
+     -0.65,
+     12.97,
+     11.37,
+     11.37
+    ],
+    [
+     0.35,
+     13.15,
+     11.55,
+     11.39
+    ],
+    [
+     1.35,
+     13.66,
+     11.78,
+     11.42
+    ],
+    [
+     2.35,
+     14.24,
+     12.05,
+     11.45
+    ],
+    [
+     3.35,
+     14.87,
+     12.35,
+     11.49
+    ],
+    [
+     4.35,
+     15.85,
+     12.74,
+     11.54
+    ],
+    [
+     5.35,
+     17.24,
+     13.24,
+     11.6
+    ],
+    [
+     6.35,
+     18.25,
+     13.78,
+     11.67
+    ],
+    [
+     7.35,
+     17.81,
+     14.13,
+     11.73
+    ],
+    [
+     8.35,
+     16.05,
+     14.22,
+     11.76
+    ],
+    [
+     9.35,
+     13.94,
+     14.08,
+     11.77
+    ],
+    [
+     10.35,
+     12.22,
+     13.8,
+     11.77
+    ],
+    [
+     11.35,
+     11.04,
+     13.48,
+     11.75
+    ],
+    [
+     12.35,
+     10.29,
+     13.13,
+     11.73
+    ],
+    [
+     13.35,
+     9.87,
+     12.8,
+     11.71
+    ],
+    [
+     14.35,
+     9.7,
+     12.49,
+     11.69
+    ],
+    [
+     15.35,
+     9.78,
+     12.24,
+     11.67
+    ],
+    [
+     16.35,
+     10.63,
+     12.13,
+     11.67
+    ],
+    [
+     17.35,
+     11.88,
+     12.18,
+     11.68
+    ],
+    [
+     18.35,
+     12.76,
+     12.28,
+     11.69
+    ],
+    [
+     19.35,
+     13.56,
+     12.45,
+     11.72
+    ],
+    [
+     20.35,
+     14.44,
+     12.69,
+     11.75
+    ],
+    [
+     21.35,
+     15.35,
+     12.99,
+     11.79
+    ],
+    [
+     22.35,
+     16.04,
+     13.32,
+     11.84
+    ],
+    [
+     23.35,
+     16.32,
+     13.62,
+     11.88
+    ],
+    [
+     24.35,
+     16.38,
+     13.88,
+     11.93
+    ],
+    [
+     25.35,
+     16.61,
+     14.16,
+     11.98
+    ],
+    [
+     26.35,
+     16.91,
+     14.44,
+     12.03
+    ],
+    [
+     27.35,
+     17.0,
+     14.68,
+     12.08
+    ],
+    [
+     28.35,
+     17.03,
+     14.91,
+     12.13
+    ],
+    [
+     29.35,
+     17.2,
+     15.14,
+     12.18
+    ],
+    [
+     30.35,
+     16.27,
+     15.19,
+     12.21
+    ],
+    [
+     31.35,
+     13.94,
+     14.95,
+     12.22
+    ],
+    [
+     32.35,
+     11.9,
+     14.54,
+     12.2
+    ],
+    [
+     33.35,
+     10.67,
+     14.11,
+     12.18
+    ],
+    [
+     34.35,
+     9.82,
+     13.65,
+     12.15
+    ],
+    [
+     35.35,
+     9.11,
+     13.18,
+     12.12
+    ],
+    [
+     36.35,
+     8.56,
+     12.71,
+     12.08
+    ],
+    [
+     37.35,
+     8.22,
+     12.26,
+     12.04
+    ],
+    [
+     38.35,
+     8.18,
+     11.87,
+     12.0
+    ],
+    [
+     39.35,
+     8.9,
+     11.63,
+     11.97
+    ],
+    [
+     40.35,
+     10.82,
+     11.66,
+     11.97
+    ],
+    [
+     41.35,
+     12.79,
+     11.88,
+     11.99
+    ],
+    [
+     42.35,
+     13.94,
+     12.13,
+     12.02
+    ],
+    [
+     43.35,
+     14.66,
+     12.42,
+     12.05
+    ],
+    [
+     44.35,
+     15.12,
+     12.7,
+     12.08
+    ],
+    [
+     45.35,
+     15.62,
+     13.0,
+     12.12
+    ],
+    [
+     46.35,
+     16.79,
+     13.43,
+     12.17
+    ],
+    [
+     47.35,
+     18.77,
+     14.05,
+     12.25
+    ],
+    [
+     48.35,
+     20.65,
+     14.78,
+     12.34
+    ],
+    [
+     49.35,
+     22.05,
+     15.55,
+     12.45
+    ],
+    [
+     50.35,
+     23.67,
+     16.41,
+     12.57
+    ],
+    [
+     51.35,
+     25.15,
+     17.32,
+     12.7
+    ],
+    [
+     52.35,
+     25.86,
+     18.18,
+     12.84
+    ],
+    [
+     53.35,
+     26.13,
+     18.95,
+     12.97
+    ],
+    [
+     54.35,
+     24.69,
+     19.41,
+     13.08
+    ],
+    [
+     55.35,
+     20.57,
+     19.3,
+     13.13
+    ],
+    [
+     56.35,
+     15.55,
+     18.66,
+     13.13
+    ],
+    [
+     57.35,
+     11.54,
+     17.76,
+     13.09
+    ],
+    [
+     58.35,
+     8.92,
+     16.78,
+     13.03
+    ],
+    [
+     59.35,
+     7.39,
+     15.8,
+     12.97
+    ],
+    [
+     60.35,
+     6.68,
+     14.89,
+     12.9
+    ],
+    [
+     61.35,
+     6.42,
+     14.07,
+     12.83
+    ],
+    [
+     62.35,
+     6.48,
+     13.35,
+     12.77
+    ],
+    [
+     63.35,
+     7.2,
+     12.81,
+     12.72
+    ],
+    [
+     64.35,
+     8.75,
+     12.51,
+     12.69
+    ],
+    [
+     65.35,
+     10.21,
+     12.37,
+     12.67
+    ],
+    [
+     66.35,
+     11.07,
+     12.29,
+     12.66
+    ],
+    [
+     67.35,
+     11.65,
+     12.26,
+     12.65
+    ],
+    [
+     68.35,
+     12.17,
+     12.28,
+     12.65
+    ],
+    [
+     69.35,
+     12.65,
+     12.34,
+     12.65
+    ],
+    [
+     70.35,
+     13.04,
+     12.43,
+     12.66
+    ],
+    [
+     71.35,
+     13.26,
+     12.52,
+     12.67
+    ],
+    [
+     72.35,
+     13.32,
+     12.6,
+     12.68
+    ],
+    [
+     73.35,
+     13.56,
+     12.71,
+     12.69
+    ],
+    [
+     74.35,
+     14.24,
+     12.89,
+     12.71
+    ],
+    [
+     75.35,
+     15.12,
+     13.15,
+     12.73
+    ],
+    [
+     76.35,
+     15.57,
+     13.41,
+     12.77
+    ],
+    [
+     77.35,
+     15.76,
+     13.64,
+     12.8
+    ],
+    [
+     78.35,
+     15.12,
+     13.75,
+     12.81
+    ],
+    [
+     79.35,
+     13.14,
+     13.58,
+     12.81
+    ],
+    [
+     80.35,
+     10.91,
+     13.2,
+     12.78
+    ],
+    [
+     81.35,
+     8.96,
+     12.69,
+     12.73
+    ],
+    [
+     82.35,
+     7.41,
+     12.1,
+     12.66
+    ],
+    [
+     83.35,
+     6.32,
+     11.49,
+     12.6
+    ],
+    [
+     84.35,
+     5.71,
+     10.91,
+     12.52
+    ],
+    [
+     85.35,
+     5.45,
+     10.37,
+     12.45
+    ],
+    [
+     86.35,
+     5.45,
+     9.9,
+     12.38
+    ],
+    [
+     87.35,
+     6.13,
+     9.58,
+     12.32
+    ],
+    [
+     88.35,
+     7.69,
+     9.49,
+     12.29
+    ],
+    [
+     89.35,
+     9.05,
+     9.52,
+     12.26
+    ],
+    [
+     90.35,
+     9.69,
+     9.57,
+     12.24
+    ],
+    [
+     91.35,
+     10.06,
+     9.64,
+     12.22
+    ],
+    [
+     92.35,
+     10.34,
+     9.72,
+     12.2
+    ],
+    [
+     93.35,
+     10.53,
+     9.81,
+     12.19
+    ],
+    [
+     94.35,
+     10.71,
+     9.91,
+     12.17
+    ],
+    [
+     95.35,
+     10.92,
+     10.01,
+     12.16
+    ],
+    [
+     96.35,
+     11.15,
+     10.13,
+     12.15
+    ],
+    [
+     97.35,
+     11.39,
+     10.27,
+     12.15
+    ],
+    [
+     98.35,
+     11.67,
+     10.42,
+     12.14
+    ],
+    [
+     99.35,
+     12.03,
+     10.59,
+     12.14
+    ],
+    [
+     100.35,
+     12.38,
+     10.78,
+     12.15
+    ],
+    [
+     101.35,
+     12.68,
+     10.98,
+     12.16
+    ],
+    [
+     102.35,
+     12.36,
+     11.09,
+     12.16
+    ],
+    [
+     103.35,
+     11.25,
+     11.04,
+     12.14
+    ],
+    [
+     104.35,
+     9.7,
+     10.83,
+     12.11
+    ],
+    [
+     105.35,
+     8.07,
+     10.48,
+     12.06
+    ],
+    [
+     106.35,
+     6.8,
+     10.06,
+     12.0
+    ],
+    [
+     107.35,
+     6.0,
+     9.63,
+     11.94
+    ],
+    [
+     108.35,
+     5.63,
+     9.22,
+     11.87
+    ],
+    [
+     109.35,
+     5.54,
+     8.87,
+     11.81
+    ],
+    [
+     110.35,
+     5.68,
+     8.58,
+     11.75
+    ],
+    [
+     111.35,
+     6.42,
+     8.41,
+     11.7
+    ],
+    [
+     112.35,
+     7.95,
+     8.45,
+     11.67
+    ],
+    [
+     113.35,
+     9.28,
+     8.61,
+     11.65
+    ],
+    [
+     114.35,
+     9.84,
+     8.75,
+     11.64
+    ],
+    [
+     115.35,
+     10.07,
+     8.89,
+     11.62
+    ],
+    [
+     116.35,
+     10.22,
+     9.03,
+     11.61
+    ],
+    [
+     117.35,
+     10.37,
+     9.16,
+     11.6
+    ],
+    [
+     118.35,
+     10.55,
+     9.3,
+     11.59
+    ],
+    [
+     119.35,
+     10.79,
+     9.46,
+     11.58
+    ],
+    [
+     120.35,
+     11.05,
+     9.62,
+     11.58
+    ],
+    [
+     121.35,
+     11.29,
+     9.8,
+     11.58
+    ],
+    [
+     122.35,
+     11.49,
+     9.97,
+     11.58
+    ],
+    [
+     123.35,
+     11.65,
+     10.14,
+     11.58
+    ],
+    [
+     124.35,
+     11.79,
+     10.3,
+     11.58
+    ],
+    [
+     125.35,
+     11.95,
+     10.47,
+     11.59
+    ],
+    [
+     126.35,
+     11.7,
+     10.57,
+     11.59
+    ],
+    [
+     127.35,
+     10.8,
+     10.54,
+     11.57
+    ],
+    [
+     128.35,
+     9.47,
+     10.37,
+     11.55
+    ],
+    [
+     129.35,
+     8.04,
+     10.07,
+     11.5
+    ],
+    [
+     130.35,
+     6.95,
+     9.71,
+     11.45
+    ],
+    [
+     131.35,
+     6.25,
+     9.34,
+     11.39
+    ],
+    [
+     132.35,
+     5.83,
+     8.98,
+     11.34
+    ],
+    [
+     133.35,
+     5.62,
+     8.65,
+     11.28
+    ]
+   ]
+  }
+ },
+ "spread_profile": {
+  "observed": [
+   {
+    "t_h": 12.467,
+    "max_km": 2.473,
+    "median_km": 0.717,
+    "n": 10
+   },
+   {
+    "t_h": 13.6,
+    "max_km": 17.853,
+    "median_km": 2.368,
+    "n": 4
+   },
+   {
+    "t_h": 23.267,
+    "max_km": 0.447,
+    "median_km": 0.447,
+    "n": 1
+   },
+   {
+    "t_h": 23.683,
+    "max_km": 18.946,
+    "median_km": 0.842,
+    "n": 6
+   },
+   {
+    "t_h": 36.15,
+    "max_km": 1.898,
+    "median_km": 1.485,
+    "n": 2
+   },
+   {
+    "t_h": 37.4,
+    "max_km": 3.0,
+    "median_km": 3.0,
+    "n": 1
+   },
+   {
+    "t_h": 61.083,
+    "max_km": 1.516,
+    "median_km": 0.559,
+    "n": 13
+   },
+   {
+    "t_h": 61.317,
+    "max_km": 1.432,
+    "median_km": 1.096,
+    "n": 4
+   },
+   {
+    "t_h": 61.5,
+    "max_km": 1.459,
+    "median_km": 0.767,
+    "n": 6
+   },
+   {
+    "t_h": 71.067,
+    "max_km": 0.377,
+    "median_km": 0.364,
+    "n": 2
+   },
+   {
+    "t_h": 72.3,
+    "max_km": 1.02,
+    "median_km": 0.502,
+    "n": 5
+   },
+   {
+    "t_h": 72.317,
+    "max_km": 0.616,
+    "median_km": 0.294,
+    "n": 3
+   },
+   {
+    "t_h": 72.733,
+    "max_km": 0.707,
+    "median_km": 0.452,
+    "n": 4
+   },
+   {
+    "t_h": 80.283,
+    "max_km": 0.895,
+    "median_km": 0.74,
+    "n": 3
+   },
+   {
+    "t_h": 84.767,
+    "max_km": 0.64,
+    "median_km": 0.351,
+    "n": 4
+   },
+   {
+    "t_h": 85.183,
+    "max_km": 0.724,
+    "median_km": 0.553,
+    "n": 3
+   },
+   {
+    "t_h": 86.0,
+    "max_km": 1.689,
+    "median_km": 1.689,
+    "n": 1
+   },
+   {
+    "t_h": 96.0,
+    "max_km": 0.568,
+    "median_km": 0.403,
+    "n": 4
+   },
+   {
+    "t_h": 96.417,
+    "max_km": 0.424,
+    "median_km": 0.308,
+    "n": 2
+   },
+   {
+    "t_h": 104.95,
+    "max_km": 2.338,
+    "median_km": 1.325,
+    "n": 4
+   },
+   {
+    "t_h": 108.45,
+    "max_km": 17.124,
+    "median_km": 0.667,
+    "n": 7
+   },
+   {
+    "t_h": 108.883,
+    "max_km": 17.027,
+    "median_km": 0.644,
+    "n": 3
+   },
+   {
+    "t_h": 119.683,
+    "max_km": 1.2,
+    "median_km": 0.607,
+    "n": 5
+   },
+   {
+    "t_h": 120.1,
+    "max_km": 1.322,
+    "median_km": 0.896,
+    "n": 5
+   },
+   {
+    "t_h": 132.133,
+    "max_km": 18.063,
+    "median_km": 1.476,
+    "n": 8
+   },
+   {
+    "t_h": 132.15,
+    "max_km": 18.205,
+    "median_km": 17.985,
+    "n": 4
+   },
+   {
+    "t_h": 132.567,
+    "max_km": 18.176,
+    "median_km": 1.62,
+    "n": 13
+   }
+  ],
+  "model_km_by_hour": [
+   0.135,
+   0.135,
+   0.135,
+   0.157,
+   0.157,
+   0.157,
+   0.157,
+   0.157,
+   0.157,
+   0.167,
+   0.167,
+   0.188,
+   0.253,
+   0.276,
+   0.343,
+   0.36,
+   0.433,
+   0.433,
+   0.437,
+   0.437,
+   0.437,
+   0.447,
+   0.447,
+   0.447,
+   0.447,
+   0.447,
+   0.447,
+   0.447,
+   0.447,
+   0.447,
+   0.447,
+   0.447,
+   0.447,
+   0.447,
+   0.447,
+   0.447,
+   0.447,
+   0.522,
+   0.522,
+   0.522,
+   0.522,
+   0.526,
+   0.526,
+   0.526,
+   0.526,
+   0.526,
+   0.526,
+   0.526,
+   0.526,
+   0.526,
+   0.526,
+   0.526,
+   0.526,
+   0.526,
+   0.526,
+   0.526,
+   0.526,
+   0.534,
+   0.594,
+   0.606,
+   0.676,
+   0.719,
+   0.734,
+   0.809,
+   0.822,
+   0.841,
+   0.895,
+   0.901,
+   0.929,
+   0.939,
+   0.95,
+   0.99,
+   1.004,
+   1.004,
+   1.025,
+   1.025,
+   1.025,
+   1.025,
+   1.025,
+   1.037,
+   1.053,
+   1.092,
+   1.149,
+   1.264,
+   1.388,
+   1.495,
+   1.583,
+   1.654,
+   1.692,
+   1.718,
+   1.779,
+   1.804,
+   1.833,
+   1.866,
+   1.89,
+   1.936,
+   1.976,
+   2.003,
+   2.033,
+   2.063,
+   2.088,
+   2.117,
+   2.13,
+   2.174,
+   2.202,
+   2.238,
+   2.287,
+   2.373,
+   2.468,
+   2.551,
+   2.658,
+   2.718,
+   2.751,
+   2.805,
+   2.834,
+   2.87,
+   2.918,
+   2.952,
+   3.003,
+   3.035,
+   3.071,
+   3.118,
+   3.153,
+   3.19,
+   3.236,
+   3.272,
+   3.319,
+   3.374,
+   3.455,
+   3.54,
+   3.683,
+   3.856,
+   4.055,
+   4.255
+  ],
+  "definition": "observed = max distance from the nearest ignition among each overpass's detections (times are upper bounds); model = max distance from the nearest ignition among cells the calibrated baseline reached by that hour"
+ },
+ "notes": "dead_moisture_pct is the 1-h value; 10-h = +1, 100-h = +2 points; live moisture fixed at baseline. The baseline's dead moisture is hourly (1-h 5.4\u201326.1 %, median 11.5 %; `moisture.hourly`), so the baseline dead_moisture_pct is only the what-if starting value. Grid runs use a constant wind; the baseline uses the hourly MERRA-2 wind. Surface fire only: no crowning, spotting, suppression or fire\u2013atmosphere feedback. Fuels from 500 m MODIS land cover through a coarse IGBP\u2192Anderson crosswalk (the largest error source). Single-point MERRA-2 wind (~50 km grid) over steep terrain. Baseline dead fuel moisture follows MERRA-2 humidity hour by hour (time-lag model); what-if runs use a constant scenario value. Hotspot times are upper bounds limited by the overpass frequency. Counterfactuals and absolute timings are illustrative; differences between runs are more reliable than absolute arrival times.",
+ "prep_notes": [
+  "Grid: EPSG:32720, 444\u00d7444 at 90 m, lon/lat bounds [-60.5518, -24.172, -60.112, -23.7646]",
+  "Ignition: 2 VIIRS_NOAA20 pixels at 2024-06-03T05:09:00Z (first overpass); 129 detections to 2024-06-08T17:43:00Z",
+  "Fuels: MCD12Q1 v061 IGBP 2023 (h12v11), nearest to 90 m",
+  "Water: MOD44W v061 2023 \u222a IGBP 17 (0 cells)",
+  "Fuel cover: MOD44B v061 Percent_NonVegetated 2023, nearest to the grid (non-vegetated median 17 %)",
+  "IGBP classes (cells): 8:163336, 9:16884, 10:16396, 12:157, 13:363",
+  "Wind: MERRA-2 M2T1NXSLV hourly at (-60.332, -23.968), bilinear from grid points lat -24.0/-23.5, lon -60.625/-60.0; 168 hours"
+ ],
+ "credits": [
+  {
+   "id": "merra2",
+   "short": "MERRA-2 (NASA GMAO, GES DISC)",
+   "use": "hourly 10 m wind (U10M, V10M), T2M, QV2M at the fire",
+   "citation": "Global Modeling and Assimilation Office (GMAO) (2015), MERRA-2 tavg1_2d_slv_Nx: 2d,1-Hourly,Time-Averaged,Single-Level,Assimilation,Single-Level Diagnostics V5.12.4, Greenbelt, MD, USA, Goddard Earth Sciences Data and Information Services Center (GES DISC), Accessed: 2026-11-15, 10.5067/VJAFPLI1CSIV",
+   "doi": "10.5067/VJAFPLI1CSIV",
+   "url": "https://doi.org/10.5067/VJAFPLI1CSIV"
+  },
+  {
+   "id": "mcd12q1",
+   "short": "MODIS MCD12Q1 v061 land cover (NASA LP DAAC)",
+   "use": "IGBP land cover \u2192 Anderson fuel models",
+   "citation": "Friedl, Mark, & Sulla-Menashe, Damien. (2022). MODIS/Terra+Aqua Land Cover Type Yearly L3 Global 500m SIN Grid V061 [Data set]. NASA Land Processes Distributed Active Archive Center. https://doi.org/10.5067/MODIS/MCD12Q1.061. Date Accessed: 2026-11-15",
+   "doi": "10.5067/MODIS/MCD12Q1.061",
+   "url": "https://doi.org/10.5067/MODIS/MCD12Q1.061"
+  },
+  {
+   "id": "mod44w",
+   "short": "MODIS MOD44W v061 water mask (NASA LP DAAC)",
+   "use": "water cells (non-burnable)",
+   "citation": "Carroll, Mark, DiMiceli, Charlene, Townshend, John, Sohlberg, Robert, Hubbard, Alfred, Wooten, Margaret, Spradlin, Caleb, Gill, Roger, Strong, Savannah, Burke, Amanda, Blanco-Rojas, Mariana, & Frost, Melanie. (2024). MODIS/Terra Land Water Mask Derived from MODIS and SRTM L3 Global 250m SIN Grid V061 [Data set]. NASA Land Processes Distributed Active Archive Center. https://doi.org/10.5067/MODIS/MOD44W.061. Date Accessed: 2026-11-15",
+   "doi": "10.5067/MODIS/MOD44W.061",
+   "url": "https://doi.org/10.5067/MODIS/MOD44W.061"
+  },
+  {
+   "id": "mod44b",
+   "short": "MODIS MOD44B v061 Vegetation Continuous Fields (NASA LP DAAC)",
+   "use": "fractional cover: non-burnable where non-vegetated > 50 % (S6b)",
+   "citation": "DiMiceli, C., Sohlberg, R., & Townshend, J. (2022). MODIS/Terra Vegetation Continuous Fields Yearly L3 Global 250m SIN Grid V061 [Data set]. NASA Land Processes Distributed Active Archive Center. https://doi.org/10.5067/MODIS/MOD44B.061. Date Accessed: 2026-11-15",
+   "doi": "10.5067/MODIS/MOD44B.061",
+   "url": "https://doi.org/10.5067/MODIS/MOD44B.061"
+  },
+  {
+   "id": "copdem",
+   "short": "Copernicus DEM GLO-30",
+   "use": "elevation \u2192 slope and aspect (reprojected to 90 m UTM)",
+   "citation": "produced using Copernicus WorldDEM-30 \u00a9 DLR e.V. 2010-2014 and \u00a9 Airbus Defence and Space GmbH 2014-2018 provided under COPERNICUS by the European Union and ESA; all rights reserved",
+   "doi": "10.5270/ESA-c5d3d65",
+   "url": "https://registry.opendata.aws/copernicus-dem/",
+   "access": "Copernicus Digital Elevation Model (DEM) was accessed on 2026-11-15 from https://registry.opendata.aws/copernicus-dem."
+  },
+  {
+   "id": "firms",
+   "short": "NASA FIRMS active fire detections (VIIRS 375 m, MODIS)",
+   "use": "ignition (first overpass) and the observed arrival times used for validation",
+   "citation": "We acknowledge the use of imagery from the NASA LANCE FIRMS (https://earthdata.nasa.gov/firms), part of the NASA Earth Science Data and Information System (ESDIS).",
+   "url": "https://earthdata.nasa.gov/firms"
+  }
+ ]
+}

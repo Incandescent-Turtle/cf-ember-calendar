@@ -26,6 +26,9 @@ const ROWS: Row[] = [
   { fire: 'Chilecito 2026', variant: 'A+B restarted every 24 h from the detected extent', mult: '2.0', medAbs: 8.13, gate: 3.2, label: 'exploratory' },
   { fire: 'Córdoba 2024', variant: 'A+B restarted every 24 h from the detected extent', mult: '0.5', medAbs: 9.13, gate: 2.9, label: 'exploratory' },
   { fire: 'N. Saskatchewan 2023', variant: 'A+B restarted every 24 h from the detected extent', mult: '4.0 (sweep edge)', medAbs: 12.14, gate: 1.7, label: 'exploratory' },
+  { fire: 'C. British Columbia 2024', variant: 'A+B frozen; demo fire from the screen (fails only the plateau rule)', mult: '2.0', medAbs: 41.7, gate: 1.8 },
+  { fire: 'La Rioja / San Juan 2025', variant: 'A+B frozen; demo fire, passes every screen rule', mult: '0.25 (sweep edge)', medAbs: 17.1, gate: 3.3 },
+  { fire: 'Gran Chaco 2024', variant: 'A+B frozen; demo fire from the screen (sparse detections)', mult: '0.25 (sweep edge)', medAbs: 61.1, gate: 4.9 },
 ];
 
 // S6c: every 24 h window at its own best multiplier (docs/report/rekindle/<fire>_burst.json).
@@ -34,6 +37,8 @@ const WINDOWS = [
   { fire: 'Córdoba 2024', day: 'Day 1', mult: '0.35', medAbs: 3.2, gate: 2.9, sor: 0.53, verdict: 'near miss (timing)' },
   { fire: 'N. Saskatchewan 2023', day: 'Day 3', mult: '4.0', medAbs: 1.75, gate: 1.67, sor: 0.82, verdict: 'near miss (timing)' },
   { fire: 'N. Saskatchewan 2023', day: 'Day 6', mult: '2.83', medAbs: 0.1, gate: 1.67, sor: 0.91, verdict: 'excluded: only 2 h long' },
+  { fire: 'C. British Columbia 2024', day: 'Day 3', mult: '1.0', medAbs: 8.57, gate: 1.76, sor: 0.67, verdict: 'shape only: what-ifs shown (post-hoc rule)' },
+  { fire: 'Córdoba 2024', day: 'Day 5', mult: '0.5', medAbs: 10.4, gate: 2.9, sor: 0.65, verdict: 'shape only: what-ifs shown (post-hoc rule)' },
 ];
 
 const REFERENCES = [
@@ -52,7 +57,8 @@ export function RekindleFindings({ headingLevel = 3 }: { headingLevel?: 2 | 3 | 
     <div className="rk-findings">
       <p className="rk-status hindcast" role="note">
         <strong>Status: hindcasts of real fires, calibrated to their detections. None passed the whole-fire quality gate</strong>, so no whole-fire what-ifs are shown. One 24 h
-        window (Chilecito, day 2) matched the detections and carries <strong>exploratory, post-hoc</strong> what-ifs (below).
+        window (Chilecito, day 2) matched the detections in timing and carries <strong>exploratory, post-hoc</strong> what-ifs. Three more views are shape only: Saskatchewan (whole
+        fire), British Columbia (day 3) and Córdoba (day 5) match the detected footprint but not the timing. La Rioja and Gran Chaco match neither and ship as hindcasts only.
       </p>
       <H>What validation showed</H>
       <p>
@@ -160,6 +166,13 @@ export function RekindleFindings({ headingLevel = 3 }: { headingLevel?: 2 | 3 | 
         <strong>Footprint what-ifs for Saskatchewan (exploratory, shape only).</strong> Saskatchewan has no qualifying window, but its whole-fire footprint matches the detections well (Sørensen 0.72),
         so on the Rekindle tab it also has whole-fire what-ifs for wind and fuel dryness. Its timing failed the gate by a wide margin (22.4 h vs 1.7 h), so they show where this kind of fire
         could go under other weather, not when. This view was added at the developer’s request, outside the pre-registered rule, and is labelled that way.
+      </p>
+      <p>
+        <strong>Three more demo fires, and shape-only windows.</strong> We ran the frozen model on three more fires from the screen (British Columbia 2024, La Rioja 2025, Gran Chaco 2024).
+        None passed the gate, a timing window or the footprint rule. Restarting each day from the detected extent improves the shape much more than the timing: British Columbia goes
+        from Sørensen 0.47 over the whole fire to 0.67 on day 3, but stays 6–9 h off in time. So a fire with no other what-if view gets one <em>shape-only window</em>: the full 24 h window
+        with the best footprint match (Sørensen ≥ 0.6, ≥ 50 pixels). This rule was written after the timing rules had failed, so treat these views as demonstrations of the tool, not as
+        evidence that it works. La Rioja floods its domain (11× the detected area) and Gran Chaco has too few detections per day, so neither has a usable window.
       </p>
       <Hs>What the literature says</Hs>
       <ul>

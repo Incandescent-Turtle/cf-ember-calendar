@@ -1,0 +1,8 @@
+Grid: EPSG:32720, 444×444 at 90 m, lon/lat bounds [-60.5518, -24.172, -60.112, -23.7646]
+Ignition: 2 VIIRS_NOAA20 pixels at 2024-06-03T05:09:00Z (first overpass); 129 detections to 2024-06-08T17:43:00Z
+Fuels: MCD12Q1 v061 IGBP 2023 (h12v11), nearest to 90 m
+Water: MOD44W v061 2023 ∪ IGBP 17 (0 cells)
+Fuel cover: MOD44B v061 Percent_NonVegetated 2023, nearest to the grid (non-vegetated median 17 %)
+IGBP classes (cells): 8:163336, 9:16884, 10:16396, 12:157, 13:363
+Wind: MERRA-2 M2T1NXSLV hourly at (-60.332, -23.968), bilinear from grid points lat -24.0/-23.5, lon -60.625/-60.0; 168 hours
+wrote data\rekindle\chaco-2024/domain.npz + meta.json; burnable 100%, elev 127–151 m, slope p50/p95 0.2/0.8°
