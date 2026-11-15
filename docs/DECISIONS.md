@@ -666,9 +666,11 @@ Screen (`rekindle.candidates --screen`), applied to each `rekindle.candidates` w
 - `export.py` writes `model_settings`, `moisture` (hourly 1-/10-/100-h series) and `spread_profile` to meta.json (CONTRACTS.md updated). New `rekindle.spread_profile` (burst-and-stall figure: farthest detection per overpass vs model head run) → `docs/report/rekindle/*_spread_profile.*`, and a chart on the Rekindle tab.
 - Rekindle tab: fire selector (labelled), "Distance from ignition vs time" chart, "Limits / what validation showed" (gate, all variants incl. exploratory and blind rows, diagnosis, 4 citations); the same summary is a section on /methodology. Checked at 1920/1280-class and 390 px: no horizontal overflow.
 
-**In progress:** task 2 (exploratory 24 h windows, pre-registered above). No Fir jobs running.
+**In progress (15:25)**
+- Task 2 windows on Fir (tags `x_win24_AB` = restart, `x_win24own_AB` = own-time sensitivity): Córdoba done (restart 9.13 h at ×0.5; own 37.85 h; both fail 2.93 h). Chilecito jobs 4240228 (restart) and 4240230 (own) running → `data/rekindle/chilecito-2026/variants/x_win24*_AB/windows.json` and `docs/report/rekindle/chilecito-2026_x_win24*_AB_windows.json` on Fir. Copy back: `rb run 'cd ~/scratch/cf-ember-calendar && tar czf ~/scratch/win.tgz docs/report/rekindle/*_x_win24*'`, `rb get`, extract in the repo root, commit.
+- Task 3: `sask-2023` picked by the screen; `rekindle.prep --fire sask-2023 --size-km 50 --points D:/ember/processed/points` running on the desktop (log `data/rekindle/prep_sask.log`). Next: upload `domain.npz`, `meta.json`, `raw/merra2_point.json` to Fir `data/rekindle/sask-2023/` and run `sbatch ... rekindle_hindcast.sh sask-2023 "" --nonveg-max 50 --diurnal` (blind; no tag, so a pass becomes the fire's baseline).
 
-**Next:** task 2 → task 3 (pre-screen, new blind fire) → optional task 4. See "Plan from 13:50".
+**Next:** finish task 2 logging; sask-2023 blind sweep; if it passes, grid array + export (what-if turns on automatically); if not, export it baseline-only. Then optional task 4.
 
 **Deploy (user only):** `git push origin s6b:main` (s6b contains main).
 
