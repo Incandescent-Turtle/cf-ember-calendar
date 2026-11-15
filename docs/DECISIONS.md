@@ -393,6 +393,10 @@ Constants and values checked against the primary sources (sub-agent lookups: And
   - an IGBP 7 override for sparse desert shrub;
   - a downscaled or terrain-adjusted wind.
 
+## Global build report (2026-11-15, ~11:45)
+
+- 2026-11-15 — **The global build is done, uploaded and live: full report in `docs/GLOBAL_BUILD.md`** (timeline, row counts per cleaning stage, sizes, global k / LOYO / seam numbers vs the fixture, local and deployed smoke tests). In short: `D:\ember` holds 2000-11-01 → 2026-11-20 for 433 10° tiles (the two missing years and 2026 were added with `--add`); cubes 132 MB, points 6.6 GB; the L10 cube is 12.6 MiB. Global k 2.45 (Jul) … 3.30 (Feb); LOYO MdAPE 2.5 % calibrated vs 65 % with k = 1; seam 1.01 → −0.03. The HF dataset at the same URL now serves the global files, so the S3 "Next" steps (`--add`, 2026, global upload) are done. No pipeline code changed.
+
 ## Addendum — S6 → S6b scope: fix the Chilecito hindcast (2026-11-15, ~12:30)
 
 User decisions: **Chilecito is the priority.** Try to make its baseline pass the gate with physically motivated fixes. If that fails, fall back to other fires. `D:\ember` is now a **read-only** source: the global build is done (`docs/GLOBAL_BUILD.md`), points are at `D:\ember\processed\points\<tile>\<year>.parquet`, and data is live on Hugging Face. Still never write, move or delete anything there.
