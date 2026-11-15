@@ -41,6 +41,7 @@ Values are **fire-cell-days (FCD)**: the number of distinct (0.01° cell, UTC da
 - **L01:** 0.1° cells. Tile = 10° × 10°, id `{N|S}{lat:02d}{E|W}{lon:03d}` of the **south-west corner**, e.g. `S30W070` covers lat −30…−20, lon −70…−60. Cell id inside the tile: `c = row × 100 + col`, `row = floor((lat − tile_south) / 0.1)`, `col = floor((lon − tile_west) / 0.1)`, `0 ≤ c < 10000`.
 - **L10:** 1° cells, global. `c = row × 360 + col`, `row = floor(lat + 90)`, `col = floor(lon + 180)`, `0 ≤ c < 64800` (fits `u16`).
 - Cell centres, not corners, are used for AOI membership. Edge cases (lon = 180, lat = 90) clamp inward.
+- **Implementation rule (pipeline):** every id is derived from the integer 0.01° indices `r01 = floor((lat + 90) × 100 + 1e-9)`, `q01 = floor((lon + 180) × 100 + 1e-9)` (clamped to 0…17999 / 0…35999): `cell01 = r01 × 36000 + q01`; tile = `(r01 ÷ 1000, q01 ÷ 1000)`; L01 `c = (r01 ÷ 10 mod 100) × 100 + (q01 ÷ 10 mod 100)`; L10 `c = (r01 ÷ 100) × 360 + q01 ÷ 100` (integer division). The `1e-9` stops coordinates on a grid line (e.g. −29.51) falling into the cell below through float error. A TS port that bins points must use the same rule (`pipeline/grid.py`).
 
 ## Cube file (`.bin.gz`)
 

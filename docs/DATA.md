@@ -83,13 +83,13 @@ One row per cleaned detection. Common fields first; sensor-specific fields kept 
 | `tile10` | VARCHAR | 10° tile id (partition key), e.g. `S30W070` |
 | `year`, `month` | SMALLINT | partition / convenience |
 
-Partitioned Parquet: `data/processed/hotspots/instrument=*/year=*/tile10=*/part-*.parquet` (hive style, so DuckDB prunes on AOI bbox + years).
+Partitioned Parquet: `$DATA_DIR/interim/hotspots/instrument=*/year=*/tile10=*/<SENSOR>_<i>.parquet` (hive style, so DuckDB prunes on AOI bbox + years). `instrument`, `year` and `tile10` are partition keys (in the path, not in the files; read with `hive_partitioning=true`). Before it sits `interim/staging/sensor=*/year=*/` (normalized but uncleaned rows, plus a `source` column).
 
 ## Pipeline intermediates vs. web-facing artifacts
 
 **Intermediates (cluster disk only, never hosted):**
 - `hotspots/` — the unified table above (hive-partitioned Parquet).
-- `fcd_daily/` — `cell01 (0.01° id), date, sensor_group (MODIS | VIIRS_SNPP | VIIRS_NOAA20), fcd (0/1), n_det, frp_sum`, i.e. one row per active (cell, day, sensor group). Summed into dekad cubes.
+- `fcd_daily/sensor_group=*/year=*/` — `cell01 (0.01° id), acq_date, sensor_group (MODIS | VIIRS_SNPP | VIIRS_NOAA20 | VIIRS_NOAA21), fcd (always 1), n_det, frp_sum`, i.e. one row per active (cell, day, sensor group). Summed into dekad cubes.
 
 **Web-facing artifacts (hosted; formats in `CONTRACTS.md`):** `cube/l01/<tile>.bin.gz`, `cube/l10/global.bin.gz`, `points/<tile>/<year>.parquet`, `manifest.json`, `calibration.json`, `validation.json`. The calibration/validation files are small; the cubes are expected to be hundreds of MB at most (the manifest reports the real size); points may be several GB — see `ARCHITECTURE.md` → "Points & export".
 
