@@ -80,3 +80,15 @@ Format: date — what — why — who is affected.
 - MapLibre's CSS sets `.maplibregl-map { position: relative }`, which overrode the map container's absolute fill (the map was 0 px tall).
 - ECharts: every cartesian heatmap series needs a visualMap, and a continuous visualMap **clamps** out-of-range values rather than using `outOfRange`. So zeros get their own series with a single-colour piecewise visualMap.
 - The cell-centre point-in-polygon for country polygons (~120k cells × ~1k vertices) costs ~0.5–1 s of the Argentina time. That's fine for the < 6 s target. If it isn't on slower machines, rasterize the polygon per tile or pre-filter by part bbox.
+
+## Addendum — S2 map layers (2026-11-15)
+
+The S2 header (Track B item 4) included map layers, but the first S2 pass left them out. They're done now. At-a-glance and export are tracked in the S4 checklist in BUILD_PLAN.md; satellite basemap / bundle split are S7 optional.
+
+- 2026-11-15 — **Shared time window.** The store has `window = {year|null, month|null}`. A calendar cell click sets `{year, month}` and clicking it again resets. The map's Year/Month selects edit the same state. `{null, 6}` = every July (seasonality).
+- 2026-11-15 — **Density layer = per-cell harmonized FCD in the window**, with the calendar's eras applied cell by cell (`web/src/data/density.ts`). Inside an AOI it uses **the calendar's own k**, so map and calendar agree, and only the AOI's cells (same mask). With no AOI it shows the world at 1° with `calibration.json` global k; if the file is missing, the Worker fits a global ratio-of-sums k from the 1° cube (same definition as the global stratum). Cells are GeoJSON squares (exact on the grid; an image source would be off by ~1 row at mid-latitudes in Mercator). Colour = calendar ramp over P2…max of log10(1+FCD) per window.
+- 2026-11-15 — **Points:** `hyparquet` + `hyparquet-compressors` (the files are zstd, which core hyparquet can't read). Only row groups whose `lat` statistics overlap the AOI bbox are read (byte ranges via `Range`). Membership = the same cell-centre mask as the calendar, so the dots are exactly the detections in the counted cells. Shown only with an AOI and a window ≤ 1 year (F4). Capped at 150k drawn (even subsample, with the total stated). Above 30k, the dots appear from zoom 5.5, because tiling 150k points takes MapLibre 2–4 s in headless Chrome and at country zoom the dots form a solid mass that hides the density. Colours are Okabe–Ito by sensor group; click a dot for sensor, UTC time, FRP and confidence.
+- 2026-11-15 — **Dev middleware now supports `HEAD` and `Range` (206/416)**, like a real host; hyparquet needs both.
+- 2026-11-15 — **Fixture facts:** points row groups are 100,352 rows (pyarrow's choice), not exactly 100k; hyparquet returns `num_rows` as BigInt. Argentina 2025 = 338,761 cleaned detections in the AOI; Chilecito Jul 2026 = 622.
+- 2026-11-15 — **Narrow screens:** the map is 58vh and the overlays are compacted (legend notes and sensor key hidden), so the map isn't covered.
+- Bundle: the Worker grew to 192 kB (hyparquet + zstd); the main chunk is unchanged at ~2.0 MB.

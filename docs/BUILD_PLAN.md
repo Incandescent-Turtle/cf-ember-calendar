@@ -24,6 +24,7 @@ Done: pytest passes; fixture data dir exists; global jobs submitted.
 ## S2 — Web scaffold, data layer, calendar (Track B items 1–4; Sun 00:00–04:00)
 Read: PRODUCT.md Tier 1, ARCHITECTURE.md (browser data layer), CONTRACTS.md. Mock-data generator first; switch to the fixture output when available. Calendar renders from cubes in the Worker.
 Done: calendar for a drawn area on fixture data; `npm run build` passes.
+Status (2026-11-15): done, including the F4 map layers (per-cell density in the selected window, linked to calendar clicks; hotspot points from Parquet for windows ≤ 1 year). The At-a-glance panel and export from Track B item 4 moved to S4 (they need S3's golden files and points-hosting decision).
 *Sleep window ~04:00–06:00 while cluster jobs run.*
 
 ## S3 — Calibration, validation, upload (Track A item 5 + upload; Sun 06:00–08:00)
@@ -32,6 +33,12 @@ Done: `calibration.json`, `validation.json` with LOYO table and seam series exis
 
 ## S4 — Real data, analytics, deploy v0 (Track B items 3–5; Sun 08:00–11:00) — **checkpoint**
 Harmonize + analytics in TS against golden files; At-a-glance panel; export; methodology page; deploy with the real `VITE_DATA_BASE_URL`. Check the deployed URL from a fresh profile.
+Checklist (carried over from S2 — Track B item 4; see the S2 handoff in DECISIONS.md):
+- [ ] TS harmonize/analytics vs `tests/golden/*.json`: k exact; reconcile the k-band bootstrap and percentile rule (S2 choices) with Python.
+- [ ] **At-a-glance panel (F3):** current month-to-date vs the same dekads in baseline years (ratio, percentile, label), top 3 years / months, busiest month, critical period, Theil–Sen + Mann–Kendall trend.
+- [ ] **Export (F5):** calendar CSV (columns in PRODUCT F5; all fields are in `MonthRow`), summary JSON, calendar PNG (ECharts `getDataURL`). Hotspot CSV can reuse `web/src/data/points.ts` (it already reads/filters the Parquet points) — caps + FIRMS link; may slip to S7 as planned.
+- [ ] Methodology page (renders `validation.json`).
+- [ ] Deploy; on the **deployed** URL check: MapLibre worker asset loads (`.mjs` served as JS), cubes load from the data host, and points either load (host must allow CORS + `Range`) or are hidden. If points aren't hosted for some years/tiles, `manifest.points` must say so — the map reads it.
 Done: checkpoint met (if not, stop adding features and fix this first).
 
 ## S5 — Rekindle engine (Track C items 1–2; Sun 11:00–13:30)
@@ -44,7 +51,8 @@ Done: Chilecito baseline metrics reported; grid exported; panel loads a run in <
 
 ## S7 — Polish and freeze (Sun 18:00–20:00)
 - [ ] Hotspot CSV export with caps and the FIRMS fallback link.
-- [ ] 1280 px layout; CVD check; captions on every chart; Rekindle wording check (CLAUDE.md).
+- [ ] 1280 px layout; CVD check (calendar ramp, map density ramp, sensor colours); captions on every chart; Rekindle wording check (CLAUDE.md).
+- [ ] Optional (priority 6): satellite basemap toggle (light stays default; EOX Sentinel-2 cloudless 2016 = CC-BY, or Esri World Imagery — check terms, add the host to the allowed network calls); bundle split (main chunk ~2 MB); dekad-of-year calendar sub-view.
 - [ ] Re-test on the **deployed** URL in a fresh profile. **20:00 feature freeze.**
 
 ## S8 — Ship (you + agent; Sun 20:00–22:30)
