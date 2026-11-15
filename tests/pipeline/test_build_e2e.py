@@ -3,6 +3,7 @@ and both FIRMS delivery formats (Archive Download zip, yearly country zip, loose
 
 import datetime as dt
 import json
+import shutil
 import zipfile
 from dataclasses import replace
 
@@ -144,3 +145,30 @@ def test_manifest(built):
     assert m["points"] == {"years": [2020, 2020], "tiles": ["S30W070"]}
     assert m["sizes_mb"]["cubes"] > 0 and m["sizes_mb"]["points"] > 0
     assert m["series"] == ["MODIS", "VIIRS_SNPP", "VIIRS_NOAA20", "VIIRS_NOAA21"]
+
+
+def test_add_sources_matches_full_build(built, tmp_path):
+    """build without the MODIS zip, then --add it: same cubes and counts as one full build."""
+    full_cfg, _ = built
+    raw_all = full_cfg.data_dir.parent / "raw"
+    raw = tmp_path / "raw"
+    raw.mkdir()
+    (raw / "viirs-jpss1_2020_x.csv").write_text((raw_all / "viirs-jpss1_2020_x.csv").read_text())
+    shutil.copy(raw_all / "DL_FIRE_SV-C2_1.zip", raw / "DL_FIRE_SV-C2_1.zip")
+    cfg = replace(full_cfg, data_dir=tmp_path / "data")
+    build_all.build(cfg, [raw], build_all.STEPS)
+    build_all.main(["--data-dir", str(cfg.data_dir), "--add",
+                    "--inputs", str(raw_all / "modis_2020_all_countries.zip")])
+    for rel in ("cube/l10/global.bin.gz", "cube/l01/S30W070.bin.gz"):
+        a, b = cubes.read_cube(full_cfg.processed / rel), cubes.read_cube(cfg.processed / rel)
+        for col in "stcv":
+            assert np.array_equal(getattr(a, col), getattr(b, col)), (rel, col)
+    m_full = json.loads((full_cfg.processed / "manifest.json").read_text())
+    m_add = json.loads((cfg.processed / "manifest.json").read_text())
+    assert m_add["row_counts"] == m_full["row_counts"]
+    assert (cfg.processed / "calibration.json").exists()
+    # adding the same source again is idempotent
+    build_all.main(["--data-dir", str(cfg.data_dir), "--add",
+                    "--inputs", str(raw_all / "modis_2020_all_countries.zip")])
+    m_again = json.loads((cfg.processed / "manifest.json").read_text())
+    assert m_again["row_counts"] == m_full["row_counts"]

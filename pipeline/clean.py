@@ -178,12 +178,18 @@ def clean_all(con: duckdb.DuckDBPyConnection, cfg: Config, fresh: bool = True,
         log.info("clean %-12s %d  %s", sensor, year,
                  " > ".join(f"{k}={c[k]:,}" for k in RULES))
         assert all(c[a] >= c[b] for a, b in itertools.pairwise(RULES)), "counts must not grow"
-    write_counts(cfg, report)
+    write_counts(cfg, report, merge=not fresh)
     return report
 
 
-def write_counts(cfg: Config, report: list[dict]) -> Path:
+def write_counts(cfg: Config, report: list[dict], merge: bool = False) -> Path:
+    """Per-rule counts per sensor-year. merge=True keeps rows for partitions not in report."""
     path = cfg.logs_dir / "clean_counts.csv"
+    if merge and path.exists():
+        new = {(r["sensor"], int(r["year"])) for r in report}
+        with open(path, newline="", encoding="utf-8") as fh:
+            old = [r for r in csv.DictReader(fh) if (r["sensor"], int(r["year"])) not in new]
+        report = sorted(old + report, key=lambda r: (r["sensor"], int(r["year"])))
     with open(path, "w", newline="", encoding="utf-8") as fh:
         w = csv.DictWriter(fh, fieldnames=["sensor", "year", *RULES])
         w.writeheader()

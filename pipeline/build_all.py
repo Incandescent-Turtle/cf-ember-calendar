@@ -8,6 +8,10 @@ Writes only under DATA_DIR: interim/ (staging, hotspots, fcd_daily, tile_dekad, 
 processed/ (cube/, points/, manifest.json, calibration.json, validation.json).
 calibrate and validate need fcd_daily and manifest.json, so on an existing build:
     --data-dir D:/ember --steps calibrate,validate
+Add sources to an existing build without redoing it (ingest only them, clean only the
+sensor-years they touch, redo fire-cell-days for those years, then rebuild the outputs):
+    --data-dir D:/ember --add --inputs data/raw/VIIRS_SNPP/viirs-snpp_2022_all_countries.zip ...
+The static-source mask is kept as is (it only filters NRT rows, which have no `type`).
 """
 
 from __future__ import annotations
@@ -93,6 +97,41 @@ def write_manifest(con, cfg: Config, cube_stats: dict | None = None) -> dict:
     return manifest
 
 
+def add_sources(cfg: Config, inputs: list[Path]) -> dict:
+    """Incremental build: new sources into an existing data dir."""
+    _setup_logging(cfg)
+    con = connect(cfg)
+    from pipeline.sources import discover
+
+    sources = [src for root in inputs for src in discover(root)]
+    report: dict = {"add": [str(src.path) for src in sources], "timings_s": {}}
+    t0 = time.perf_counter()
+    touched: set[tuple[str, int]] = set()
+    for src in sources:
+        prefix = ingest._safe(src.name)
+        for old in cfg.staging_dir.glob(f"sensor=*/year=*/{prefix}_g*.parquet"):
+            old.unlink()  # re-adding a source replaces it
+        ingest.ingest_source(con, src, cfg.staging_dir, cfg.tmp_dir)
+        for f in cfg.staging_dir.glob(f"sensor=*/year=*/{prefix}_g*.parquet"):
+            touched.add((f.parent.parent.name.split("=", 1)[1], int(f.parent.name.split("=", 1)[1])))
+    touched = {p for p in touched if p[0] != "UNKNOWN" and p[1] != 0}
+    log.info("add: %d sources touch %s", len(sources), sorted(touched))
+    report["clean"] = clean.clean_all(con, cfg, fresh=False, only=sorted(touched))
+    years = sorted({y for _, y in touched})
+    report["fcd"] = []
+    for y in years:
+        counts = fcd.fcd_year(con, cfg, y)
+        log.info("fcd %d  %s", y, "  ".join(f"{k}={v:,}" for k, v in counts.items()))
+        report["fcd"].append({"year": y, **counts})
+    report["timings_s"]["add"] = round(time.perf_counter() - t0, 1)
+    con.close()
+    report["rebuild"] = build(cfg, inputs, ["cubes", "points", "manifest", "calibrate",
+                                            "validate"])
+    path = cfg.logs_dir / "build_report_add.json"
+    path.write_text(json.dumps(report, indent=2, default=str), encoding="utf-8")
+    return report
+
+
 def _read_manifest(cfg: Config) -> dict:
     return json.loads((cfg.processed / "manifest.json").read_text(encoding="utf-8"))
 
@@ -162,7 +201,11 @@ def main(argv: list[str] | None = None) -> None:
     mode.add_argument("--data-dir", type=Path, help="DATA_DIR; inputs = <dir>/raw")
     ap.add_argument("--inputs", type=Path, nargs="+", help="override input files/dirs")
     ap.add_argument("--steps", default=",".join(STEPS))
+    ap.add_argument("--add", action="store_true",
+                    help="add --inputs to an existing build (incremental; ignores --steps)")
     args = ap.parse_args(argv)
+    if args.add and not args.inputs:
+        ap.error("--add needs --inputs")
 
     cfg = Config()
     if args.data_dir:
@@ -170,6 +213,9 @@ def main(argv: list[str] | None = None) -> None:
         inputs = args.inputs or [args.data_dir / "raw"]
     else:
         inputs = args.inputs or [FIXTURE_DIR]
+    if args.add:
+        add_sources(cfg, inputs)
+        return
     steps = [s.strip() for s in args.steps.split(",") if s.strip()]
     build(cfg, inputs, steps)
 
