@@ -19,10 +19,9 @@ interface Props {
   pointsLoading: boolean;
   pointsWhy: string | null;
   pointsError: Error | null;
-  zoomInHint: boolean;
 }
 
-export function TimeControl({ density, densityLoading, level, points, pointsLoading, pointsWhy, pointsError, zoomInHint }: Props) {
+export function TimeControl({ density, densityLoading, level, points, pointsLoading, pointsWhy, pointsError }: Props) {
   const { window: w, setWindow, showPoints, setShowPoints, aoi } = useStore();
   const manifest = useManifest();
   const [t0, t1] = manifest.data?.dekad_range ?? [0, 0];
@@ -36,10 +35,9 @@ export function TimeControl({ density, densityLoading, level, points, pointsLoad
   else if (points)
     pointsLine =
       points.total > MAX_MAP_POINTS
-        ? `Showing ${MAX_MAP_POINTS.toLocaleString('en-US')} of ${points.total.toLocaleString('en-US')} hotspots (even sample).`
+        ? `Showing a sample of ${MAX_MAP_POINTS.toLocaleString('en-US')} of ${points.total.toLocaleString('en-US')} hotspots ${aoi ? 'in this area' : 'in view'}.`
         : `${points.total.toLocaleString('en-US')} hotspots ${aoi ? 'in this area' : 'in view'} for ${windowLabel(w)}.`;
   else pointsLine = '';
-  if (points && !pointsWhy && !pointsLoading && zoomInHint) pointsLine += ' Zoom in to see them.';
 
   return (
     <div className="time-control" aria-label="Map time window and legend">
@@ -84,7 +82,8 @@ export function TimeControl({ density, densityLoading, level, points, pointsLoad
             <span>{fmtTick(density.vmax)}</span>
           </div>
           <div className="tc-note">
-            Hotspot activity per {level === 1 ? '0.1°' : '1°'} cell, {windowLabel(w)} (VIIRS-equivalent FCD, log)
+            Hotspot activity per {level === 1 ? '0.1°' : '1°'} cell, {windowLabel(w)} (VIIRS-equivalent FCD, log).{' '}
+            <strong>Scale: current view</strong> — colours aren’t comparable across views.
             {densityLoading ? ' · updating…' : ''}
           </div>
         </div>

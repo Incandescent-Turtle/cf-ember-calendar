@@ -23,9 +23,6 @@ const STYLE_URL =
 
 maplibregl.setWorkerUrl(maplibreWorkerUrl);
 
-/** above this many points, the points layer starts at zoom 5.5 */
-const POINTS_ZOOM_GATE = 30_000;
-
 const EMPTY: FeatureCollection = { type: 'FeatureCollection', features: [] };
 
 export function MapView() {
@@ -35,7 +32,6 @@ export function MapView() {
   const loadedRef = useRef(false);
   const [loaded, setLoaded] = useState(false);
   const [view, setView] = useState<MapViewport>({ zoom: 1.4, bbox: [-180, -85, 180, 85] });
-  const zoom = view.zoom;
   const aoi = useStore((s) => s.aoi);
   const drawMode = useStore((s) => s.drawMode);
   const win = useStore((s) => s.window);
@@ -73,11 +69,39 @@ export function MapView() {
       map.addSource('aoi', { type: 'geojson', data: EMPTY });
       map.addLayer({ id: 'aoi-fill', type: 'fill', source: 'aoi', paint: { 'fill-color': '#1f6fb2', 'fill-opacity': 0.08 } });
       map.addLayer({ id: 'aoi-line', type: 'line', source: 'aoi', paint: { 'line-color': '#1f6fb2', 'line-width': 2 } });
-      map.addSource('points', { type: 'geojson', data: EMPTY });
+      // Clustered up to zoom 8 (count bubbles), individual dots from zoom 9.
+      map.addSource('points', { type: 'geojson', data: EMPTY, cluster: true, clusterMaxZoom: 8, clusterRadius: 40, clusterMinPoints: 3 });
+      map.addLayer({
+        id: 'points-cluster',
+        type: 'circle',
+        source: 'points',
+        filter: ['has', 'point_count'],
+        paint: {
+          'circle-color': '#2b2b2b',
+          'circle-opacity': 0.72,
+          'circle-stroke-color': '#ffffff',
+          'circle-stroke-width': 1.2,
+          'circle-radius': ['step', ['get', 'point_count'], 9, 25, 12, 200, 16, 1000, 21],
+        },
+      });
+      map.addLayer({
+        id: 'points-count',
+        type: 'symbol',
+        source: 'points',
+        filter: ['has', 'point_count'],
+        layout: {
+          'text-field': ['get', 'point_count_abbreviated'],
+          'text-font': ['Montserrat SemiBold', 'Open Sans Bold', 'Noto Sans Regular'],
+          'text-size': 11,
+          'text-allow-overlap': true,
+        },
+        paint: { 'text-color': '#ffffff' },
+      });
       map.addLayer({
         id: 'points',
         type: 'circle',
         source: 'points',
+        filter: ['!', ['has', 'point_count']],
         paint: {
           'circle-color': sensorColorExpression,
           'circle-radius': ['interpolate', ['linear'], ['zoom'], 3, 1.2, 7, 2.5, 11, 5],
@@ -99,9 +123,15 @@ export function MapView() {
           )
           .addTo(map);
       });
+      map.on('click', 'points-cluster', async (e) => {
+        const f = e.features?.[0];
+        if (!f || useStore.getState().drawMode !== 'none') return;
+        const z = await (map.getSource('points') as GeoJSONSource).getClusterExpansionZoom(f.properties.cluster_id as number);
+        map.easeTo({ center: (f.geometry as GeoJSON.Point).coordinates as [number, number], zoom: z + 0.2 });
+      });
       map.on('click', 'density-fill', (e) => {
         if (useStore.getState().drawMode !== 'none') return;
-        if (map.queryRenderedFeatures(e.point, { layers: ['points'] }).length) return;
+        if (map.queryRenderedFeatures(e.point, { layers: ['points', 'points-cluster'] }).length) return;
         const f = e.features?.[0];
         if (!f) return;
         const v = Number((f.properties as { v: number }).v);
@@ -112,7 +142,7 @@ export function MapView() {
           )
           .addTo(map);
       });
-      for (const id of ['points', 'density-fill']) {
+      for (const id of ['points', 'points-cluster', 'density-fill']) {
         map.on('mouseenter', id, () => (map.getCanvas().style.cursor = 'pointer'));
         map.on('mouseleave', id, () => (map.getCanvas().style.cursor = ''));
       }
@@ -172,21 +202,13 @@ export function MapView() {
   }, [densityLayer, loaded]);
 
   const pointsOn = showPoints && !pointsWhy && !!pointsFc;
-  // Large point sets (country-size areas) only draw once zoomed in; below that the density layer shows.
-  const pointsMinZoom = pointsOn && aoi && pointsFc!.features.length > POINTS_ZOOM_GATE ? 5.5 : 0;
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !loaded) return;
     (map.getSource('points') as GeoJSONSource | undefined)?.setData(pointsOn ? pointsFc! : EMPTY);
-    map.setLayerZoomRange('points', pointsMinZoom, 24);
     // fade the cells under visible points so the dots read
-    const faded = pointsOn && pointsFc!.features.length > 0;
-    map.setPaintProperty(
-      'density-fill',
-      'fill-opacity',
-      faded ? (['step', ['zoom'], 0.78, Math.max(pointsMinZoom, 0.01), 0.35] as unknown as number) : 0.78,
-    );
-  }, [pointsFc, pointsOn, pointsMinZoom, loaded]);
+    map.setPaintProperty('density-fill', 'fill-opacity', pointsOn && pointsFc!.features.length > 0 ? 0.35 : 0.78);
+  }, [pointsFc, pointsOn, loaded]);
 
   useEffect(() => {
     const draw = drawRef.current;
@@ -207,7 +229,6 @@ export function MapView() {
         pointsLoading={points.isFetching}
         pointsWhy={pointsWhy}
         pointsError={points.error as Error | null}
-        zoomInHint={pointsMinZoom > 0 && zoom < pointsMinZoom}
       />
     </div>
   );

@@ -7,7 +7,7 @@ import type { Bbox } from '../lib/grid';
 
 export const POINT_COLUMNS = ['lat', 'lon', 't_utc', 'sensor', 'frp', 'conf'] as const;
 /** Max points sent to the map; above this we keep an even subsample and say so. */
-export const MAX_MAP_POINTS = 150_000;
+export const MAX_MAP_POINTS = 50_000;
 
 export interface PointsResult {
   lon: Float32Array;

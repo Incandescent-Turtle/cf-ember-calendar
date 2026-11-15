@@ -73,8 +73,10 @@ export interface MapViewport {
 /** World view switches from the 1° cube to 0.1° tiles at this zoom, if ≤ MAX_VIEW_TILES tiles with data are in view. */
 export const L01_MIN_ZOOM = 4;
 export const MAX_VIEW_TILES = 16;
-/** Without an AOI, hotspot points load for the viewport from this zoom. */
-export const POINTS_MIN_ZOOM = 6;
+/** Individual hotspots: shown for a single-month window at any zoom, or for a year window from this zoom. */
+export const POINTS_MIN_ZOOM = 8;
+/** Without an AOI, at most this many point tiles are read for the viewport. */
+export const MAX_POINT_TILES = 9;
 
 /** Tiles in the viewport that exist in `have` (bbox clamped to the world). */
 export function tilesInView(b: Bbox, have: string[]): string[] {
@@ -147,13 +149,19 @@ export function useDensity(aoi: Aoi | null, window: TimeWindow, view: MapViewpor
   });
 }
 
-/** Points need a window of at most one year (PRODUCT.md F4) and either an AOI or a zoomed-in map. */
+/**
+ * Individual hotspots only for short windows or high zoom (PRODUCT.md F4): a single month at any zoom,
+ * or a single year from zoom 8. Point files are per year, so a year must be picked. Without an AOI the
+ * viewport must also cover ≤ MAX_POINT_TILES tiles.
+ */
 export function pointsEligible(aoi: Aoi | null, w: TimeWindow, manifest: Manifest | undefined, view: MapViewport): string | null {
-  if (w.year === null) return 'Pick a year (or click a calendar month) to see individual hotspots.';
+  if (w.year === null) return 'Pick a year or month (or click a calendar month) to see individual hotspots.';
   const p = manifest?.points;
   if (!p || !p.tiles.length) return 'No hotspot point files on this data host.';
   if (w.year < p.years[0] || w.year > p.years[1]) return `Hotspot points cover ${p.years[0]}–${p.years[1]}.`;
-  if (!aoi && view.zoom < POINTS_MIN_ZOOM) return 'Zoom in (or select an area) to see individual hotspots.';
+  if (w.month === null && view.zoom < POINTS_MIN_ZOOM) return 'Zoom in further, or pick a single month, to see individual hotspots.';
+  if (!aoi && tilesInView(paddedViewBbox(view.bbox), p.tiles).length > MAX_POINT_TILES)
+    return 'Zoom in (or select an area) to see individual hotspots.';
   return null;
 }
 

@@ -119,7 +119,7 @@ function Legend({ vmin, vmax }: { vmin: number; vmax: number }) {
           ))}
         </div>
       </div>
-      <span className="legend-note">FCD / month (log{vmin > 0 ? '; lighter = at or below the left end' : ''}) · dashed = partial month</span>
+      <span className="legend-note">FCD / month (log{vmin > 0 ? '; lighter = at or below the left end' : ''}) · scale: this area · dashed = partial month</span>
     </div>
   );
 }
