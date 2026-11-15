@@ -618,7 +618,7 @@ All runs on Fir. Sweep JSON and figures are in `docs/report/rekindle/<fire>_<var
   - If it dies, the user approves a new Duo push.
 - Data moves with SFTP put/get of the small inputs and a tar of the outputs. Results also live in the repo (`docs/report/rekindle/`); `data/` is gitignored.
 
-## Pre-registration — EXPLORATORY 24 h re-initialised windows (2026-11-15, 15:30, before any run)
+## Pre-registration — EXPLORATORY 24 h re-initialised windows (2026-11-15, 15:14, before any run)
 
 Labelled **EXPLORATORY** everywhere (proposed after Chilecito failed). Gate, metric definitions (`metrics.score`), A+B settings and the ROS sweep `[0.25 … 4]` are unchanged; one multiplier per fire, chosen by the same rule (lowest pooled median |Δ|, then hit rate).
 
@@ -629,7 +629,7 @@ Labelled **EXPLORATORY** everywhere (proposed after Chilecito failed). Gate, met
 - **Pooled metric:** the per-pixel Δ of all windows are pooled for the median |Δ| (the gated number); per-window medians are reported too. Gate threshold = the whole fire's mean overpass interval (3.21 h Chilecito, 2.93 h Córdoba).
 - If a fire passes, it stays not-validated and ships no counterfactuals until the user decides.
 
-## Pre-registration — free-spread pre-screen and the next blind fire (2026-11-15, 15:50, before running the screen)
+## Pre-registration — free-spread pre-screen and the next blind fire (2026-11-15, 15:16, before running the screen)
 
 Screen (`rekindle.candidates --screen`), applied to each `rekindle.candidates` window (0.2° cell × 10 days, ranked by distinct VIIRS overpasses). Fire box = ±0.2° around the cell's mean detection; run window = first day + 6 days (as Chilecito/Córdoba); all FIRMS sensors (as `prep`). Ignition = the detections of the first overpass; R(t) = running max over passes of the farthest detection's distance from the nearest ignition (km, equirectangular).
 
@@ -643,6 +643,20 @@ Screen (`rekindle.candidates --screen`), applied to each `rekindle.candidates` w
 
 - **Pick:** among windows passing all rules, the most distinct VIIRS overpasses (then most days). The top 3 with reasons are logged before any simulation; the pick goes through `prep` and the frozen A+B sweep (blind, same gate and metrics).
 - Chilecito and Córdoba would fail P2/P3 (sanity check, reported with the screen output).
+
+## S6b free-spread pre-screen results (15:22; before any simulation of a candidate)
+
+`uv run python -m rekindle.candidates --region {argentina,canada} --screen --top 300 --out docs/report/rekindle/candidates_<region>_screen.json` (thresholds exactly as pre-registered; seconds per region).
+
+- **Sanity check:** Chilecito fails P1 (first pass spans 5.4 km), P2 (5.8 km by 3 h) and P3 (35→83 h grows 1.4 km); Córdoba fails P3 (no growth 46→94 h).
+- **Argentina 2023–2026:** 1 of 300 windows passes. Fail counts: P3 plateau 287, P4 recurrence 208, P1 138, P2 136, P0 7.
+- **Canada < 60°N 2023–2026:** 1 of 300 passes. Fail counts: P3 296, P1 200, P2 58, P0 7, P4 3.
+- Multi-day plateaus are the norm, not the exception: free spread over 6 days is rare in FIRMS. That is itself a finding for REKINDLE.md.
+
+**Top 3 (pick rule: passes all rules, then most distinct VIIRS overpasses; both regions screened before any simulation, so the rule is applied to the pooled set):**
+1. **−105.882, 56.102, from 2023-05-11 (northern Saskatchewan)** — passes all; 58 VIIRS overpasses in the window, 74 passes in the 6-day run, R_final 16.5 km (inside the ±0.2° box), first pass 0.6 km across, 0.4 km by 3 h, steady growth (6 → 10.6 → 11.2 → 16.5 km), no activity in that box in other years. **Picked → `sask-2023`.** Caveat: another large fire burns ~50 km to the west; the bbox is the screen's ±0.2° box, so its detections are excluded.
+2. −66.614, −30.618, from 2025-11-17 (La Rioja/San Juan) — passes all, but only 31 overpasses and R_final 6.2 km, barely above P0. Second blind test if time allows.
+3. No third window passes. Nearest misses fail only P3 (e.g. −60.332, −23.968, 2024-06-03; −125.908, 53.352, 2024-08-02); they are not used.
 
 ## Handoff — S6b (running; updated 2026-11-15 15:30)
 

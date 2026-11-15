@@ -260,7 +260,7 @@ def windows_main(a, settings: dict, hours: float, d1: float, gate_h: float, out_
               f"n {m['n_pixels']}  per-window med|Δ| [{per}]")
     res = {"fire": a.fire, "variant": a.tag, "EXPLORATORY": True,
            "exploratory": "24 h re-initialised windows, proposed after the S6b failures "
-                          "(DECISIONS.md pre-registration 15:30); not a validation",
+                          "(DECISIONS.md pre-registration 15:14); not a validation",
            "model_settings": settings, "window_h": a.windows, "window_ignite": a.window_ignite,
            "hours": hours, "dead_moisture_pct": d1,
            "gate": {"rule": "pooled median |Δ| ≤ mean interval between overpasses",
