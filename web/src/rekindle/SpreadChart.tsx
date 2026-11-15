@@ -18,7 +18,7 @@ export function SpreadChart({ profile, mult }: { profile: SpreadProfile; mult: n
     const hours = profile.model_km_by_hour.length - 1;
     c.setOption({
       animation: false,
-      grid: { left: 40, right: 12, top: 44, bottom: 32 },
+      grid: { left: 40, right: 12, top: 64, bottom: 32 },
       legend: { top: 0, textStyle: { fontSize: 11 } },
       tooltip: { trigger: 'item', valueFormatter: (v: unknown) => `${Number(v).toFixed(1)} km` },
       xAxis: { type: 'value', min: 0, max: hours, name: 'hours after first detection', nameLocation: 'middle', nameGap: 20, axisLabel: { fontSize: 10 } },

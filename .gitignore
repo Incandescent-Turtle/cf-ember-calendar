@@ -9,3 +9,7 @@ tests/fixtures/
 
 # Claude Code agent worktrees
 .claude/worktrees/
+
+# Fir bridge runtime files
+scripts/bridge_token.txt
+scripts/bridge_port.txt

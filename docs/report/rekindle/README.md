@@ -14,8 +14,10 @@ Detections: `uv run python -m rekindle.hotspots --fire chilecito-2026` (reads da
 | `figures/test5_convergence.*` | Mean relative arrival-time error vs dx, circle and wind case | |
 | `figures/test6_7_slope_windshift.*` | Test 6 slope (head upslope at Rothermel R_head, −0.1 %); test 7 wind turning 270°→180° mid-run | rothermel1972 |
 | `figures/benchmark_400_{moderate,large}.*` | 24 h on 400 × 400 at 90 m, synthetic hill + mixed fuels | |
-| `figures/chilecito-2026_calibration.*` | Baseline ROS-multiplier sweep ×0.25–4: median Δ and |Δ|, hit rate, Sørensen, the gate | rothermel1972, merra2_m2t1nxslv, firms |
+| `figures/chilecito-2026_calibration.*` | Shipped baseline (frozen S6b model A+B, since S6b; the S6 version is `*_s6_*`) ROS-multiplier sweep ×0.25–4: median Δ and |Δ|, hit rate, Sørensen, the gate | rothermel1972, merra2_m2t1nxslv, firms |
 | `figures/chilecito-2026_baseline_map.*` | Baseline ×1.41 arrival time vs FIRMS detections; GLO-30 elevation; fuels | copernicus_dem_glo30, mcd12q1_v061, mod44w_v061, firms |
+| `{chilecito-2026,cordoba-2024}_spread_profile.json`, `figures/*_spread_profile.*` | Burst-and-stall diagnostic: farthest detection per overpass vs the calibrated model's head run (`rekindle.spread_profile`) | firms |
+| `cordoba-2024_calibration.json`, `figures/cordoba-2024_{calibration,baseline_map}.*` | Córdoba shipped baseline (A+B, blind test) | firms |
 | `chilecito-2026_calibration.json` | Every hindcast number: sweep, gate, moisture estimate (Simard EMC), metrics | simard1968 |
 | `chilecito-2026_detections_by_hour.csv` | Hotspots per overpass hour and sensor (FIRMS, fixture) | |
 | `chilecito-2026_first_detections.csv` | First overpass = ignition candidates | |

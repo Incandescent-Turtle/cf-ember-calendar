@@ -617,3 +617,30 @@ All runs on Fir. Sweep JSON and figures are in `docs/report/rekindle/<fire>_<var
   - Instead a local paramiko bridge holds one authenticated connection; commands and SFTP go to 127.0.0.1 only, with a token. It lives in the session scratchpad: `rk_bridge.py` and its `rb` wrapper.
   - If it dies, the user approves a new Duo push.
 - Data moves with SFTP put/get of the small inputs and a tar of the outputs. Results also live in the repo (`docs/report/rekindle/`); `data/` is gitignored.
+
+## Pre-registration — EXPLORATORY 24 h re-initialised windows (2026-11-15, 15:30, before any run)
+
+Labelled **EXPLORATORY** everywhere (proposed after Chilecito failed). Gate, metric definitions (`metrics.score`), A+B settings and the ROS sweep `[0.25 … 4]` are unchanged; one multiplier per fire, chosen by the same rule (lowest pooled median |Δ|, then hit rate).
+
+- **Windows:** t_k = k × 24 h after the first detection, k = 0, 1, … while t_k < the last detection. Window k runs from t_k to t_k + 24 h (capped at the fire's run length).
+- **Restart state (primary, `--windows 24`):** every detection with t ≤ t_k is an ignition **at t_k** (the observed extent at restart, as in Coen & Schroeder 2013, who re-initialise from the VIIRS extent). Implemented by shifting t0 to t_k, so wind and the hourly moisture series follow the real clock.
+  - Deviation from the brief ("at its own time"): igniting day-1 pixels at their own time lets them spread freely for k days before the window, which is the S6b failure mode and not a re-initialisation. The "own time" variant runs too, as a sensitivity (`--window-ignite own`), and is reported alongside.
+- **Scored:** only pixels first detected in (t_k, t_k + 24 h], via `metrics.prepare(..., t_end = t_k + 24 h, seed_s = t_k)`; earlier pixels are excluded exactly as ignition pixels are.
+- **Pooled metric:** the per-pixel Δ of all windows are pooled for the median |Δ| (the gated number); per-window medians are reported too. Gate threshold = the whole fire's mean overpass interval (3.21 h Chilecito, 2.93 h Córdoba).
+- If a fire passes, it stays not-validated and ships no counterfactuals until the user decides.
+
+## Handoff — S6b (running; updated 2026-11-15 15:30)
+
+**Done**
+- `main` (S7) merged into `s6b`; pytest 104 passed, vitest 60 passed, oxlint clean, build OK.
+- **Task 1 shipped.** Chilecito's shipped baseline is the frozen A+B model: `rekindle.hindcast --fire chilecito-2026 --nonveg-max 50 --diurnal` **rerun without `--tag` on Fir** (job 4234707), giving ×1.41, median |Δ| 12.04 h vs gate 3.21 h → `poor_agreement` (identical to the s6b_AB variant). Córdoba the same way (job 4234708): ×0.25 (sweep edge), 15.16 h vs 2.93 h → `poor_agreement`, exported as a second baseline-only fire. The S6 Chilecito report files are renamed `chilecito-2026_s6_*`.
+- `export.py` writes `model_settings`, `moisture` (hourly 1-/10-/100-h series) and `spread_profile` to meta.json (CONTRACTS.md updated). New `rekindle.spread_profile` (burst-and-stall figure: farthest detection per overpass vs model head run) → `docs/report/rekindle/*_spread_profile.*`, and a chart on the Rekindle tab.
+- Rekindle tab: fire selector (labelled), "Distance from ignition vs time" chart, "Limits / what validation showed" (gate, all variants incl. exploratory and blind rows, diagnosis, 4 citations); the same summary is a section on /methodology. Checked at 1920/1280-class and 390 px: no horizontal overflow.
+
+**In progress:** task 2 (exploratory 24 h windows, pre-registered above). No Fir jobs running.
+
+**Next:** task 2 → task 3 (pre-screen, new blind fire) → optional task 4. See "Plan from 13:50".
+
+**Deploy (user only):** `git push origin s6b:main` (s6b contains main).
+
+**Fir access for a new session:** `scripts/fir.sh serve` in the background → approve the Duo push → `scripts/fir.sh run '<cmd>' | put <local-abs-win> <remote> | get <remote> <local>`. Checkout `~/scratch/cf-ember-calendar`, venv `~/scratch/rk-venv`, module `StdEnv/2023 python/3.12`, account `def-hngharti`. Run `git clean -fdq docs/report` there before `git pull`. Jobs: `REKINDLE_VENV=~/scratch/rk-venv sbatch --account=def-hngharti scripts/slurm/rekindle_hindcast.sh <fire> <tag> [opts]`.

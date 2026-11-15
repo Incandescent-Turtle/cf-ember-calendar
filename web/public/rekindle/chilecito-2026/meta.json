@@ -935,77 +935,77 @@
   "metrics": {
    "n_pixels": 640,
    "n_reached": 640,
-   "median_timing_error_h": -10.396,
+   "median_timing_error_h": -11.807,
    "iqr_h": [
-    -31.109,
-    4.687
+    -34.708,
+    0.151
    ],
-   "median_abs_timing_error_h": 13.335,
-   "hit_rate": 0.658,
-   "consistent_rate": 0.044,
-   "sorensen": 0.141,
-   "false_alarm_km2": 1367.345,
-   "missed_km2": 0.0,
-   "area_km2": 1479.181,
+   "median_abs_timing_error_h": 12.042,
+   "hit_rate": 0.795,
+   "consistent_rate": 0.064,
+   "sorensen": 0.174,
+   "false_alarm_km2": 1044.228,
+   "missed_km2": 1.369,
+   "area_km2": 1154.696,
    "observed_footprint_km2": 111.837,
    "ros_multiplier": 1.41,
-   "wall_s": 263.216,
+   "wall_s": 105.293,
    "edge_reached": true
   },
   "sweep": [
    {
     "ros_multiplier": 0.25,
     "median_abs_timing_error_h": null,
-    "hit_rate": 0.071875,
-    "sorensen": 0.20301845450595946
+    "hit_rate": 0.0953125,
+    "sorensen": 0.1950152709173862
    },
    {
     "ros_multiplier": 0.35,
-    "median_abs_timing_error_h": 79.1164151468147,
-    "hit_rate": 0.1015625,
-    "sorensen": 0.2072277614611826
+    "median_abs_timing_error_h": 80.96514931011805,
+    "hit_rate": 0.115625,
+    "sorensen": 0.2066607674362481
    },
    {
     "ros_multiplier": 0.5,
-    "median_abs_timing_error_h": 32.45497999630717,
-    "hit_rate": 0.2515625,
-    "sorensen": 0.2137876595184844
+    "median_abs_timing_error_h": 33.69593392382382,
+    "hit_rate": 0.284375,
+    "sorensen": 0.23531140644947968
    },
    {
     "ros_multiplier": 0.71,
-    "median_abs_timing_error_h": 22.03617663597609,
-    "hit_rate": 0.434375,
-    "sorensen": 0.16337324876940554
+    "median_abs_timing_error_h": 22.462016143926448,
+    "hit_rate": 0.4421875,
+    "sorensen": 0.20258015641362714
    },
    {
     "ros_multiplier": 1.0,
-    "median_abs_timing_error_h": 17.235047225756556,
-    "hit_rate": 0.578125,
-    "sorensen": 0.14248710010319918
+    "median_abs_timing_error_h": 14.57368006625206,
+    "hit_rate": 0.5671875,
+    "sorensen": 0.17808013475487539
    },
    {
     "ros_multiplier": 1.41,
-    "median_abs_timing_error_h": 13.334644405797444,
-    "hit_rate": 0.6578125,
-    "sorensen": 0.14058506684587266
+    "median_abs_timing_error_h": 12.041720604060856,
+    "hit_rate": 0.7953125,
+    "sorensen": 0.17444136043284175
    },
    {
     "ros_multiplier": 2.0,
-    "median_abs_timing_error_h": 13.803913641258074,
-    "hit_rate": 0.90625,
-    "sorensen": 0.1397264571495074
+    "median_abs_timing_error_h": 15.087257723286015,
+    "hit_rate": 0.9125,
+    "sorensen": 0.1744246276626358
    },
    {
     "ros_multiplier": 2.83,
-    "median_abs_timing_error_h": 19.043345257405036,
-    "hit_rate": 0.9375,
-    "sorensen": 0.1397264571495074
+    "median_abs_timing_error_h": 20.53404106168005,
+    "hit_rate": 0.9875,
+    "sorensen": 0.17442016613271433
    },
    {
     "ros_multiplier": 4.0,
-    "median_abs_timing_error_h": 23.28045858754808,
+    "median_abs_timing_error_h": 25.35941927136489,
     "hit_rate": 0.99375,
-    "sorensen": 0.1397264571495074
+    "sorensen": 0.17442016613271433
    }
   ],
   "calibrated_not_blind": "the multiplier is fitted on this fire's own detections",
@@ -1017,7 +1017,1025 @@
    "emc_pct_p90": 10.640235373353587
   }
  },
- "notes": "dead_moisture_pct is the 1-h value; 10-h = +1, 100-h = +2 points; live moisture fixed at baseline. Grid runs use a constant wind; the baseline uses the hourly MERRA-2 wind. Surface fire only: no crowning, spotting, suppression or fire\u2013atmosphere feedback. Fuels from 500 m MODIS land cover through a coarse IGBP\u2192Anderson crosswalk (the largest error source). Single-point MERRA-2 wind (~50 km grid) over steep terrain. Dead fuel moisture is a scenario value, constant in time (no day/night cycle). Hotspot times are upper bounds limited by the overpass frequency. Counterfactuals and absolute timings are illustrative; differences between runs are more reliable than absolute arrival times.",
+ "model_settings": {
+  "nonveg_max_pct": 50.0,
+  "diurnal_moisture": true,
+  "wind": "bilinear",
+  "seed_h": 0.0
+ },
+ "moisture": {
+  "baseline": "hourly",
+  "method": "Simard (1968) EMC from MERRA-2 T2M/QV2M; 1-, 10-, 100-h classes relax toward EMC with their time lags (DECISIONS.md, S6b change B)",
+  "start": "2026-07-27T17:40:00Z",
+  "dead_1h_pct_min": 2.33,
+  "dead_1h_pct_median": 5.38,
+  "dead_1h_pct_max": 15.59,
+  "hourly": {
+   "columns": [
+    "t_h",
+    "d1_pct",
+    "d10_pct",
+    "d100_pct"
+   ],
+   "rows": [
+    [
+     -0.17,
+     2.33,
+     5.38,
+     5.38
+    ],
+    [
+     0.83,
+     2.48,
+     5.11,
+     5.35
+    ],
+    [
+     1.83,
+     2.73,
+     4.9,
+     5.32
+    ],
+    [
+     2.83,
+     2.97,
+     4.73,
+     5.3
+    ],
+    [
+     3.83,
+     3.46,
+     4.63,
+     5.29
+    ],
+    [
+     4.83,
+     4.23,
+     4.64,
+     5.28
+    ],
+    [
+     5.83,
+     4.87,
+     4.69,
+     5.28
+    ],
+    [
+     6.83,
+     5.09,
+     4.75,
+     5.28
+    ],
+    [
+     7.83,
+     5.08,
+     4.78,
+     5.28
+    ],
+    [
+     8.83,
+     5.02,
+     4.8,
+     5.27
+    ],
+    [
+     9.83,
+     4.98,
+     4.81,
+     5.27
+    ],
+    [
+     10.83,
+     4.94,
+     4.82,
+     5.27
+    ],
+    [
+     11.83,
+     4.92,
+     4.83,
+     5.26
+    ],
+    [
+     12.83,
+     4.95,
+     4.84,
+     5.26
+    ],
+    [
+     13.83,
+     5.01,
+     4.86,
+     5.26
+    ],
+    [
+     14.83,
+     5.12,
+     4.89,
+     5.26
+    ],
+    [
+     15.83,
+     5.29,
+     4.94,
+     5.26
+    ],
+    [
+     16.83,
+     5.5,
+     5.0,
+     5.26
+    ],
+    [
+     17.83,
+     5.7,
+     5.08,
+     5.27
+    ],
+    [
+     18.83,
+     5.5,
+     5.11,
+     5.27
+    ],
+    [
+     19.83,
+     4.78,
+     5.04,
+     5.26
+    ],
+    [
+     20.83,
+     4.0,
+     4.9,
+     5.24
+    ],
+    [
+     21.83,
+     3.41,
+     4.72,
+     5.22
+    ],
+    [
+     22.83,
+     2.89,
+     4.52,
+     5.2
+    ],
+    [
+     23.83,
+     2.48,
+     4.3,
+     5.17
+    ],
+    [
+     24.83,
+     2.35,
+     4.11,
+     5.14
+    ],
+    [
+     25.83,
+     2.35,
+     3.94,
+     5.11
+    ],
+    [
+     26.83,
+     2.66,
+     3.84,
+     5.09
+    ],
+    [
+     27.83,
+     3.4,
+     3.84,
+     5.07
+    ],
+    [
+     28.83,
+     4.12,
+     3.91,
+     5.07
+    ],
+    [
+     29.83,
+     4.6,
+     4.0,
+     5.07
+    ],
+    [
+     30.83,
+     5.01,
+     4.12,
+     5.07
+    ],
+    [
+     31.83,
+     5.27,
+     4.24,
+     5.07
+    ],
+    [
+     32.83,
+     5.43,
+     4.36,
+     5.08
+    ],
+    [
+     33.83,
+     5.64,
+     4.5,
+     5.08
+    ],
+    [
+     34.83,
+     5.92,
+     4.65,
+     5.09
+    ],
+    [
+     35.83,
+     6.31,
+     4.83,
+     5.11
+    ],
+    [
+     36.83,
+     6.89,
+     5.05,
+     5.13
+    ],
+    [
+     37.83,
+     7.7,
+     5.35,
+     5.16
+    ],
+    [
+     38.83,
+     8.8,
+     5.74,
+     5.2
+    ],
+    [
+     39.83,
+     9.9,
+     6.2,
+     5.25
+    ],
+    [
+     40.83,
+     10.68,
+     6.67,
+     5.31
+    ],
+    [
+     41.83,
+     10.86,
+     7.08,
+     5.37
+    ],
+    [
+     42.83,
+     9.82,
+     7.28,
+     5.41
+    ],
+    [
+     43.83,
+     8.13,
+     7.27,
+     5.42
+    ],
+    [
+     44.83,
+     6.86,
+     7.16,
+     5.43
+    ],
+    [
+     45.83,
+     6.05,
+     7.01,
+     5.43
+    ],
+    [
+     46.83,
+     5.55,
+     6.84,
+     5.43
+    ],
+    [
+     47.83,
+     5.3,
+     6.68,
+     5.43
+    ],
+    [
+     48.83,
+     5.27,
+     6.55,
+     5.43
+    ],
+    [
+     49.83,
+     5.47,
+     6.45,
+     5.43
+    ],
+    [
+     50.83,
+     5.92,
+     6.43,
+     5.44
+    ],
+    [
+     51.83,
+     7.0,
+     6.54,
+     5.46
+    ],
+    [
+     52.83,
+     8.83,
+     6.86,
+     5.5
+    ],
+    [
+     53.83,
+     10.83,
+     7.35,
+     5.57
+    ],
+    [
+     54.83,
+     12.71,
+     7.96,
+     5.65
+    ],
+    [
+     55.83,
+     14.35,
+     8.66,
+     5.75
+    ],
+    [
+     56.83,
+     15.4,
+     9.36,
+     5.85
+    ],
+    [
+     57.83,
+     15.59,
+     9.97,
+     5.95
+    ],
+    [
+     58.83,
+     14.94,
+     10.4,
+     6.03
+    ],
+    [
+     59.83,
+     13.79,
+     10.66,
+     6.1
+    ],
+    [
+     60.83,
+     12.56,
+     10.77,
+     6.16
+    ],
+    [
+     61.83,
+     11.47,
+     10.78,
+     6.21
+    ],
+    [
+     62.83,
+     10.45,
+     10.69,
+     6.24
+    ],
+    [
+     63.83,
+     9.46,
+     10.52,
+     6.27
+    ],
+    [
+     64.83,
+     8.64,
+     10.29,
+     6.29
+    ],
+    [
+     65.83,
+     7.96,
+     10.04,
+     6.3
+    ],
+    [
+     66.83,
+     7.2,
+     9.72,
+     6.3
+    ],
+    [
+     67.83,
+     6.08,
+     9.31,
+     6.3
+    ],
+    [
+     68.83,
+     4.86,
+     8.82,
+     6.27
+    ],
+    [
+     69.83,
+     3.95,
+     8.31,
+     6.25
+    ],
+    [
+     70.83,
+     3.4,
+     7.81,
+     6.21
+    ],
+    [
+     71.83,
+     3.13,
+     7.35,
+     6.18
+    ],
+    [
+     72.83,
+     3.09,
+     6.94,
+     6.15
+    ],
+    [
+     73.83,
+     3.23,
+     6.6,
+     6.12
+    ],
+    [
+     74.83,
+     3.64,
+     6.34,
+     6.1
+    ],
+    [
+     75.83,
+     4.61,
+     6.23,
+     6.09
+    ],
+    [
+     76.83,
+     5.95,
+     6.28,
+     6.1
+    ],
+    [
+     77.83,
+     7.1,
+     6.42,
+     6.11
+    ],
+    [
+     78.83,
+     7.89,
+     6.6,
+     6.14
+    ],
+    [
+     79.83,
+     8.21,
+     6.77,
+     6.16
+    ],
+    [
+     80.83,
+     8.08,
+     6.89,
+     6.18
+    ],
+    [
+     81.83,
+     7.67,
+     6.94,
+     6.19
+    ],
+    [
+     82.83,
+     7.11,
+     6.93,
+     6.2
+    ],
+    [
+     83.83,
+     6.54,
+     6.86,
+     6.2
+    ],
+    [
+     84.83,
+     6.06,
+     6.76,
+     6.19
+    ],
+    [
+     85.83,
+     5.71,
+     6.64,
+     6.19
+    ],
+    [
+     86.83,
+     5.49,
+     6.52,
+     6.18
+    ],
+    [
+     87.83,
+     5.39,
+     6.4,
+     6.17
+    ],
+    [
+     88.83,
+     5.41,
+     6.31,
+     6.16
+    ],
+    [
+     89.83,
+     5.46,
+     6.23,
+     6.15
+    ],
+    [
+     90.83,
+     5.2,
+     6.12,
+     6.14
+    ],
+    [
+     91.83,
+     4.54,
+     5.93,
+     6.12
+    ],
+    [
+     92.83,
+     3.92,
+     5.71,
+     6.1
+    ],
+    [
+     93.83,
+     3.48,
+     5.47,
+     6.07
+    ],
+    [
+     94.83,
+     3.16,
+     5.23,
+     6.04
+    ],
+    [
+     95.83,
+     2.82,
+     4.98,
+     6.0
+    ],
+    [
+     96.83,
+     2.52,
+     4.73,
+     5.97
+    ],
+    [
+     97.83,
+     2.43,
+     4.51,
+     5.93
+    ],
+    [
+     98.83,
+     2.63,
+     4.34,
+     5.9
+    ],
+    [
+     99.83,
+     3.14,
+     4.25,
+     5.88
+    ],
+    [
+     100.83,
+     3.76,
+     4.24,
+     5.86
+    ],
+    [
+     101.83,
+     4.37,
+     4.29,
+     5.85
+    ],
+    [
+     102.83,
+     4.85,
+     4.37,
+     5.84
+    ],
+    [
+     103.83,
+     5.08,
+     4.45,
+     5.83
+    ],
+    [
+     104.83,
+     5.2,
+     4.53,
+     5.83
+    ],
+    [
+     105.83,
+     5.36,
+     4.61,
+     5.83
+    ],
+    [
+     106.83,
+     5.51,
+     4.71,
+     5.82
+    ],
+    [
+     107.83,
+     5.55,
+     4.79,
+     5.82
+    ],
+    [
+     108.83,
+     5.52,
+     4.86,
+     5.82
+    ],
+    [
+     109.83,
+     5.51,
+     4.92,
+     5.81
+    ],
+    [
+     110.83,
+     5.52,
+     4.98,
+     5.81
+    ]
+   ]
+  }
+ },
+ "spread_profile": {
+  "observed": [
+   {
+    "t_h": 1.367,
+    "max_km": 4.567,
+    "median_km": 1.515,
+    "n": 6
+   },
+   {
+    "t_h": 1.683,
+    "max_km": 5.847,
+    "median_km": 3.296,
+    "n": 13
+   },
+   {
+    "t_h": 8.467,
+    "max_km": 7.033,
+    "median_km": 5.507,
+    "n": 5
+   },
+   {
+    "t_h": 11.283,
+    "max_km": 6.926,
+    "median_km": 3.061,
+    "n": 67
+   },
+   {
+    "t_h": 12.633,
+    "max_km": 7.074,
+    "median_km": 2.627,
+    "n": 37
+   },
+   {
+    "t_h": 12.95,
+    "max_km": 8.477,
+    "median_km": 3.928,
+    "n": 16
+   },
+   {
+    "t_h": 12.967,
+    "max_km": 7.068,
+    "median_km": 5.52,
+    "n": 10
+   },
+   {
+    "t_h": 19.417,
+    "max_km": 7.527,
+    "median_km": 5.174,
+    "n": 11
+   },
+   {
+    "t_h": 23.7,
+    "max_km": 9.028,
+    "median_km": 6.717,
+    "n": 50
+   },
+   {
+    "t_h": 25.05,
+    "max_km": 8.862,
+    "median_km": 7.141,
+    "n": 41
+   },
+   {
+    "t_h": 25.367,
+    "max_km": 9.109,
+    "median_km": 8.172,
+    "n": 22
+   },
+   {
+    "t_h": 26.7,
+    "max_km": 9.598,
+    "median_km": 3.367,
+    "n": 3
+   },
+   {
+    "t_h": 31.483,
+    "max_km": 10.113,
+    "median_km": 8.664,
+    "n": 4
+   },
+   {
+    "t_h": 34.967,
+    "max_km": 11.245,
+    "median_km": 9.942,
+    "n": 19
+   },
+   {
+    "t_h": 36.333,
+    "max_km": 11.591,
+    "median_km": 9.931,
+    "n": 41
+   },
+   {
+    "t_h": 36.65,
+    "max_km": 10.785,
+    "median_km": 9.484,
+    "n": 26
+   },
+   {
+    "t_h": 37.65,
+    "max_km": 9.671,
+    "median_km": 9.671,
+    "n": 1
+   },
+   {
+    "t_h": 48.733,
+    "max_km": 11.418,
+    "median_km": 10.43,
+    "n": 19
+   },
+   {
+    "t_h": 49.05,
+    "max_km": 11.389,
+    "median_km": 10.498,
+    "n": 15
+   },
+   {
+    "t_h": 60.017,
+    "max_km": 12.547,
+    "median_km": 11.534,
+    "n": 31
+   },
+   {
+    "t_h": 60.333,
+    "max_km": 12.663,
+    "median_km": 11.596,
+    "n": 21
+   },
+   {
+    "t_h": 62.283,
+    "max_km": 11.826,
+    "median_km": 11.505,
+    "n": 3
+   },
+   {
+    "t_h": 67.083,
+    "max_km": 11.41,
+    "median_km": 10.687,
+    "n": 2
+   },
+   {
+    "t_h": 72.433,
+    "max_km": 12.687,
+    "median_km": 10.851,
+    "n": 20
+   },
+   {
+    "t_h": 72.75,
+    "max_km": 12.682,
+    "median_km": 11.796,
+    "n": 13
+   },
+   {
+    "t_h": 79.15,
+    "max_km": 12.49,
+    "median_km": 11.194,
+    "n": 5
+   },
+   {
+    "t_h": 83.7,
+    "max_km": 13.997,
+    "median_km": 12.369,
+    "n": 32
+   },
+   {
+    "t_h": 84.017,
+    "max_km": 13.705,
+    "median_km": 12.341,
+    "n": 38
+   },
+   {
+    "t_h": 96.117,
+    "max_km": 10.781,
+    "median_km": 9.708,
+    "n": 11
+   },
+   {
+    "t_h": 96.433,
+    "max_km": 14.311,
+    "median_km": 12.451,
+    "n": 25
+   },
+   {
+    "t_h": 103.8,
+    "max_km": 12.242,
+    "median_km": 11.623,
+    "n": 4
+   },
+   {
+    "t_h": 107.4,
+    "max_km": 11.872,
+    "median_km": 11.68,
+    "n": 8
+   },
+   {
+    "t_h": 107.717,
+    "max_km": 12.559,
+    "median_km": 11.672,
+    "n": 20
+   },
+   {
+    "t_h": 109.067,
+    "max_km": 11.094,
+    "median_km": 11.094,
+    "n": 1
+   }
+  ],
+  "model_km_by_hour": [
+   0.135,
+   7.057,
+   11.451,
+   15.519,
+   15.947,
+   15.947,
+   15.947,
+   15.947,
+   15.947,
+   15.947,
+   15.947,
+   15.947,
+   15.947,
+   15.947,
+   16.115,
+   17.04,
+   17.965,
+   18.437,
+   18.853,
+   19.299,
+   20.245,
+   21.042,
+   21.759,
+   22.191,
+   22.696,
+   22.889,
+   23.282,
+   23.679,
+   23.873,
+   24.007,
+   24.075,
+   24.142,
+   24.209,
+   24.218,
+   24.277,
+   24.345,
+   24.354,
+   24.413,
+   24.481,
+   24.549,
+   24.617,
+   24.686,
+   24.765,
+   24.961,
+   25.169,
+   25.378,
+   25.518,
+   25.659,
+   25.729,
+   25.87,
+   26.083,
+   26.297,
+   26.44,
+   26.584,
+   26.656,
+   26.656,
+   26.656,
+   26.656,
+   26.656,
+   26.656,
+   26.656,
+   26.656,
+   26.656,
+   26.656,
+   26.656,
+   26.656,
+   26.656,
+   26.656,
+   26.656,
+   26.656,
+   26.656,
+   26.656,
+   26.656,
+   26.656,
+   26.656,
+   26.656,
+   27.315,
+   27.502,
+   27.637,
+   27.794,
+   28.104,
+   28.301,
+   28.497,
+   29.038,
+   29.379,
+   29.667,
+   29.793,
+   29.793,
+   29.835,
+   30.063,
+   30.328,
+   30.587,
+   30.895,
+   31.087,
+   31.087,
+   31.173,
+   31.777,
+   32.016,
+   32.016,
+   32.016,
+   32.016,
+   32.016,
+   32.016,
+   32.016,
+   32.016,
+   32.016,
+   32.016,
+   32.016,
+   32.016,
+   32.016,
+   32.016
+  ],
+  "definition": "observed = max distance from the nearest ignition among each overpass's detections (times are upper bounds); model = max distance from the nearest ignition among cells the calibrated baseline reached by that hour"
+ },
+ "notes": "dead_moisture_pct is the 1-h value; 10-h = +1, 100-h = +2 points; live moisture fixed at baseline. The baseline's dead moisture is hourly (1-h 2.3\u201315.6 %, median 5.4 %; `moisture.hourly`), so the baseline dead_moisture_pct is only the what-if starting value. Grid runs use a constant wind; the baseline uses the hourly MERRA-2 wind. Surface fire only: no crowning, spotting, suppression or fire\u2013atmosphere feedback. Fuels from 500 m MODIS land cover through a coarse IGBP\u2192Anderson crosswalk (the largest error source). Single-point MERRA-2 wind (~50 km grid) over steep terrain. Baseline dead fuel moisture follows MERRA-2 humidity hour by hour (time-lag model); what-if runs use a constant scenario value. Hotspot times are upper bounds limited by the overpass frequency. Counterfactuals and absolute timings are illustrative; differences between runs are more reliable than absolute arrival times.",
  "prep_notes": [
   "Grid: EPSG:32719, 444\u00d7444 at 90 m, lon/lat bounds [-67.9278, -29.3476, -67.4725, -28.943]",
   "Ignition: 9 VIIRS_NOAA20 pixels at 2026-07-27T17:40:00Z (first overpass); 649 detections to 2026-08-01T06:44:00Z",
@@ -1050,6 +2068,14 @@
    "citation": "Carroll, Mark, DiMiceli, Charlene, Townshend, John, Sohlberg, Robert, Hubbard, Alfred, Wooten, Margaret, Spradlin, Caleb, Gill, Roger, Strong, Savannah, Burke, Amanda, Blanco-Rojas, Mariana, & Frost, Melanie. (2024). MODIS/Terra Land Water Mask Derived from MODIS and SRTM L3 Global 250m SIN Grid V061 [Data set]. NASA Land Processes Distributed Active Archive Center. https://doi.org/10.5067/MODIS/MOD44W.061. Date Accessed: 2026-11-15",
    "doi": "10.5067/MODIS/MOD44W.061",
    "url": "https://doi.org/10.5067/MODIS/MOD44W.061"
+  },
+  {
+   "id": "mod44b",
+   "short": "MODIS MOD44B v061 Vegetation Continuous Fields (NASA LP DAAC)",
+   "use": "fractional cover: non-burnable where non-vegetated > 50 % (S6b)",
+   "citation": "DiMiceli, C., Sohlberg, R., & Townshend, J. (2022). MODIS/Terra Vegetation Continuous Fields Yearly L3 Global 250m SIN Grid V061 [Data set]. NASA Land Processes Distributed Active Archive Center. https://doi.org/10.5067/MODIS/MOD44B.061. Date Accessed: 2026-11-15",
+   "doi": "10.5067/MODIS/MOD44B.061",
+   "url": "https://doi.org/10.5067/MODIS/MOD44B.061"
   },
   {
    "id": "copdem",
