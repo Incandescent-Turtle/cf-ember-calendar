@@ -1,0 +1,42 @@
+{
+ "version": 1,
+ "mock": true,
+ "built_at": "2026-11-15T04:10:13Z",
+ "dekad_range": [
+  30,
+  967
+ ],
+ "series": [
+  "MODIS",
+  "VIIRS_SNPP",
+  "VIIRS_NOAA20",
+  "VIIRS_NOAA21"
+ ],
+ "tiles": [
+  "S30W070",
+  "S40W070"
+ ],
+ "l10": "cube/l10/global.bin.gz",
+ "overlap": {
+  "start": "2013-01-01",
+  "end": "2021-12-31"
+ },
+ "snpp_end": "2026-11-02",
+ "min_modis_fcd": 200,
+ "points": {
+  "years": [
+   2000,
+   2026
+  ],
+  "tiles": []
+ },
+ "row_counts": {
+  "MODIS": 0,
+  "VIIRS_SNPP": 0,
+  "VIIRS_NOAA20": 0
+ },
+ "sizes_mb": {
+  "cubes": 0,
+  "points": 0
+ }
+}
