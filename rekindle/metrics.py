@@ -31,8 +31,13 @@ def _footprint(o: dict, dx: float, ny: int, nx: int) -> tuple[slice, slice]:
     return slice(max(i0, 0), min(i1, ny)), slice(max(j0, 0), min(j1, nx))
 
 
-def prepare(meta: dict, shape: tuple[int, int], dx: float, t_end_s: float) -> dict:
-    """Observation geometry, independent of the run (compute once per fire)."""
+def prepare(meta: dict, shape: tuple[int, int], dx: float, t_end_s: float,
+            seed_s: float = 0.0) -> dict:
+    """Observation geometry, independent of the run (compute once per fire).
+
+    seed_s: detections at t <= seed_s were used as ignitions (exploratory seeded start), so they
+    are excluded from scoring like the first-overpass ignition pixels (default 0 = those only).
+    """
     ny, nx = shape
     t0 = parse_t(meta["t0"])
     obs = []
@@ -53,12 +58,13 @@ def prepare(meta: dict, shape: tuple[int, int], dx: float, t_end_s: float) -> di
     return {"obs": obs, "passes": passes, "first": first, "union": union,
             "overpass_median_h": float(np.median(gaps) / 3600) if gaps.size else float("nan"),
             "overpass_mean_h": float(np.mean(gaps) / 3600) if gaps.size else float("nan"),
-            "t_end_s": t_end_s, "dx": dx}
+            "t_end_s": t_end_s, "dx": dx, "seed_s": seed_s}
 
 
 def score(arrival_s: np.ndarray, prep: dict) -> dict:
     passes, dx = prep["passes"], prep["dx"]
     t_end = prep["t_end_s"]
+    seed_s = prep.get("seed_s", 0.0)
 
     def t_sim(key) -> float:
         a = arrival_s[key[0]:key[1], key[2]:key[3]]
@@ -66,7 +72,7 @@ def score(arrival_s: np.ndarray, prep: dict) -> dict:
 
     deltas, consistent = [], []
     for key, t in prep["first"].items():
-        if t <= 0:
+        if t <= seed_s:
             continue  # ignition pixels
         ts = t_sim(key)
         deltas.append(ts - t)
@@ -76,7 +82,7 @@ def score(arrival_s: np.ndarray, prep: dict) -> dict:
     d = np.array(deltas) / 3600.0
     hits = []
     for t, fp, _ in prep["obs"]:
-        if t <= 0:
+        if t <= seed_s:
             continue
         nxt = passes[passes > t]
         horizon = nxt[0] if nxt.size else t_end

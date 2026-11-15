@@ -106,9 +106,26 @@ def ignition_elevation(fire: str, meta: dict, dom) -> float:
 
 
 def model_settings(nonveg_max_pct: float | None = None, diurnal: bool = False,
-                   wind: str = "bilinear") -> dict:
-    """The S6b model options (pre-registered in docs/DECISIONS.md); defaults = the S6 model."""
-    return {"nonveg_max_pct": nonveg_max_pct, "diurnal_moisture": diurnal, "wind": wind}
+                   wind: str = "bilinear", seed_h: float = 0.0) -> dict:
+    """The S6b model options (docs/DECISIONS.md); defaults = the S6 model. seed_h > 0 is the
+    EXPLORATORY seeded start (not pre-registered)."""
+    return {"nonveg_max_pct": nonveg_max_pct, "diurnal_moisture": diurnal, "wind": wind,
+            "seed_h": seed_h}
+
+
+def apply_seed(meta: dict, settings: dict) -> dict:
+    """seed_h > 0: every detection within seed_h hours of the first one is an ignition at its
+    own detection time (exploratory; those pixels are then not scored)."""
+    seed_h = settings.get("seed_h") or 0.0
+    if seed_h <= 0:
+        return meta
+    t0 = dm.parse_t(meta["t0"])
+    ign = []
+    for o in meta["observed"]:
+        t_s = (dm.parse_t(o["t"]) - t0).total_seconds()
+        if t_s <= seed_h * 3600:
+            ign.append(dict(o, t_s=t_s))
+    return dict(meta, ignitions=ign)
 
 
 def apply_wind(fire: str, meta: dict, settings: dict) -> dict:
@@ -123,7 +140,7 @@ def apply_wind(fire: str, meta: dict, settings: dict) -> dict:
 def load_model(fire: str, settings: dict, hours: float):
     """Domain, meta and moisture series for these settings."""
     dom, meta = dm.load(fire, nonveg_max_pct=settings.get("nonveg_max_pct"))
-    meta = apply_wind(fire, meta, settings)
+    meta = apply_seed(apply_wind(fire, meta, settings), settings)
     series: tuple[MoistureSample, ...] = ()
     if settings.get("diurnal_moisture"):
         series = diurnal_moisture(meta, ignition_elevation(fire, meta, dom), hours)
@@ -136,7 +153,8 @@ _G: dict = {}
 def _init(fire: str, hours: float, d1: float, settings: dict) -> None:
     dom, meta, series = load_model(fire, settings, hours)
     _G.update(dom=dom, meta=meta, hours=hours, d1=d1, series=series,
-              prep=metrics.prepare(meta, dom.shape, dom.dx, hours * 3600))
+              prep=metrics.prepare(meta, dom.shape, dom.dx, hours * 3600,
+                                   (settings.get("seed_h") or 0.0) * 3600))
 
 
 def _run(mult: float):
@@ -161,10 +179,12 @@ def main() -> None:
     ap.add_argument("--diurnal", action="store_true", help="S6b B: hourly time-lag moisture")
     ap.add_argument("--wind", choices=["bilinear", "nearest"], default="bilinear",
                     help="S6b C: MERRA-2 nearest grid point")
+    ap.add_argument("--seed-h", type=float, default=0.0,
+                    help="EXPLORATORY: ignite every detection within this many hours")
     ap.add_argument("--tag", default="", help="variant name: writes to variants/<tag>/ and "
                     "<fire>_<tag>_* report files instead of the fire's baseline")
     a = ap.parse_args()
-    settings = model_settings(a.nonveg_max, a.diurnal, a.wind)
+    settings = model_settings(a.nonveg_max, a.diurnal, a.wind, a.seed_h)
     out_dir = dm.DATA / a.fire / ("variants/" + a.tag if a.tag else "")
     name = f"{a.fire}_{a.tag}" if a.tag else a.fire
     if a.figures_only:
@@ -185,7 +205,7 @@ def main() -> None:
     with Pool(a.workers, initializer=_init, initargs=(a.fire, hours, d1, settings)) as pool:
         out = pool.map(_run, MULTIPLIERS)
     sweep = [m for _, m, _, _ in out]
-    prep = metrics.prepare(meta, dom.shape, dom.dx, hours * 3600)
+    prep = metrics.prepare(meta, dom.shape, dom.dx, hours * 3600, a.seed_h * 3600)
 
     def key(m: dict):
         return (m["median_abs_timing_error_h"], -(m["hit_rate"] or 0))
@@ -214,6 +234,9 @@ def main() -> None:
         "status": status, "baseline_metrics": metrics.json_safe(best),
         "sweep": [metrics.json_safe(m) for m in sweep],
         "calibrated_not_blind": "the multiplier is fitted on this fire's own detections",
+        "exploratory": ("seeded start (not pre-registered): detections within "
+                        f"{a.seed_h:g} h are ignitions and are not scored") if a.seed_h else None,
+        "n_ignitions": len(apply_seed(meta, settings)["ignitions"]),
         "wall_s": time.time() - t_wall,
     }
     (out_dir / "calibration.json").write_text(json.dumps(cal, indent=1))

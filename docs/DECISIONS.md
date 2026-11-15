@@ -473,3 +473,18 @@ Run with `rekindle.hindcast --tag <variant>`. Per-variant sweep JSON and figures
 
 - A: median Δ crosses 0 between ×0.71 (+13.1 h) and ×1.0 (−2.5 h), but |Δ| stays > 12 h at every multiplier. The *spatial pattern* is wrong (some pixels far too early, others far too late), not the overall speed. Detections themselves sit on 13–26 % non-vegetated cells, and the domain median is 32 %, so the mask removes little of the fire's path.
 - Infrastructure: the desktop runs were 2–2.5× slower than in S6 because the S7 agent shared the CPU. A′, A+B and the grid moved to the Alliance cluster Fir (`scripts/slurm/rekindle_{hindcast,grid}.sh`, account def-hngharti, venv in `~/scratch/rk-venv`); solver tests pass there (15/15). A′ was started on the desktop and stopped after a few minutes, then rerun on Fir.
+
+## S6b decisions before the next runs (2026-11-15, 13:20; no results from these runs seen yet)
+
+- **Frozen S6b model settings = A+B** (MOD44B non-vegetated > 50 % non-burnable, plus diurnal time-lag dead moisture), because A+B improved Chilecito the most among the pre-registered changes (12.0 h vs 13.3 h).
+  - Fixed before the C / A+B+C results and before any run on another fire.
+- **Córdoba 2024 blind test** (`cordoba-2024`, fires.yaml). A+B frozen; only the ROS multiplier is swept, exactly as for Chilecito. Same gate (mean overpass interval) and same metrics. The S6 model is also run there, for comparison only.
+  - Chosen from the `rekindle.candidates` search (Argentina 2023–2026, ranked by VIIRS overpasses).
+  - Rejected candidates:
+    - Neuquén −68.7/−38.3 recurs at the same spot every year, likely gas flares;
+    - Paraná delta −59.3/−33.6 has many separate island ignitions;
+    - Chaco/Santa Fe clusters look like clearing burns.
+- **EXPLORATORY, not pre-registered: seeded start (`--seed-h 3`).** Every detection within 3 h of the first one becomes an ignition at its own detection time, and those pixels are excluded from scoring, as the first-overpass pixels already are. Rule and gate are otherwise unchanged.
+  - Why: at 1.4–1.7 h after the first overpass, FIRMS already sees fire 5–6 km W/SW of the ignition pixels, upwind of a ~10 m/s westerly. One point ignition can't produce that: either several fires were burning or the fire was already larger than its detected pixels.
+  - This is a general protocol rule ("start from the observed early extent", on the roadmap). But it was proposed *after* seeing Chilecito fail, so any Chilecito result from it is labelled **exploratory**, not a validation.
+  - Whether an exploratory pass may ship counterfactuals is decided after the numbers, and stated explicitly.
