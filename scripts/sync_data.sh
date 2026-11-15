@@ -66,10 +66,12 @@ if [ "$POINTS" = 1 ] && [ -d "$PROC/points" ]; then
   done
 fi
 
-echo "cubes + json"
-hf upload "$REPO" "$PROC" . --repo-type dataset \
-  --include "calibration.json" --include "validation.json" \
-  --include "cube/**" --commit-message "cubes and json $(date -u +%Y-%m-%dT%H:%MZ)" --format quiet
+if [ "$EXPORTS_ONLY" = 0 ]; then
+  echo "cubes + json"
+  hf upload "$REPO" "$PROC" . --repo-type dataset \
+    --include "calibration.json" --include "validation.json" \
+    --include "cube/**" --commit-message "cubes and json $(date -u +%Y-%m-%dT%H:%MZ)" --format quiet
+fi
 
 # manifest last, with manifest.points describing what was actually uploaded
 TMP=$(mktemp -d)
