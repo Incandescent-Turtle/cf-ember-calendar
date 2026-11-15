@@ -2,11 +2,12 @@
 
     uv run python -m pipeline.build_all --fixture             # tests/fixtures -> ./data
     uv run python -m pipeline.build_all --data-dir "$SCRATCH/ember"   # reads <dir>/raw
-    ... [--inputs PATH ...] [--steps ingest,clean,fcd,cubes,points,manifest]
+    ... [--inputs PATH ...] [--steps ingest,clean,fcd,cubes,points,manifest,calibrate,validate]
 
-Writes only under DATA_DIR: interim/ (staging, hotspots, fcd_daily, logs) and
-processed/ (cube/, points/, manifest.json). Calibration and validation are
-separate steps (S3).
+Writes only under DATA_DIR: interim/ (staging, hotspots, fcd_daily, tile_dekad, logs) and
+processed/ (cube/, points/, manifest.json, calibration.json, validation.json).
+calibrate and validate need fcd_daily and manifest.json, so on an existing build:
+    --data-dir D:/ember --steps calibrate,validate
 """
 
 from __future__ import annotations
@@ -20,12 +21,12 @@ import time
 from dataclasses import replace
 from pathlib import Path
 
-from pipeline import clean, cubes, fcd, ingest, points
+from pipeline import calibrate, clean, cubes, fcd, ingest, points, series, validate
 from pipeline.config import REPO_ROOT, Config, connect
 
 log = logging.getLogger("pipeline")
 
-STEPS = ["ingest", "clean", "fcd", "cubes", "points", "manifest"]
+STEPS = ["ingest", "clean", "fcd", "cubes", "points", "manifest", "calibrate", "validate"]
 FIXTURE_DIR = REPO_ROOT / "tests" / "fixtures"
 
 
@@ -92,6 +93,10 @@ def write_manifest(con, cfg: Config, cube_stats: dict | None = None) -> dict:
     return manifest
 
 
+def _read_manifest(cfg: Config) -> dict:
+    return json.loads((cfg.processed / "manifest.json").read_text(encoding="utf-8"))
+
+
 def build(cfg: Config, inputs: list[Path], steps: list[str]) -> dict:
     _setup_logging(cfg)
     con = connect(cfg)
@@ -123,11 +128,28 @@ def build(cfg: Config, inputs: list[Path], steps: list[str]) -> dict:
             log.info("manifest: rows %s | cubes %.2f MB | points %.2f MB | %d tiles | dekads %s",
                      m["row_counts"], m["sizes_mb"]["cubes"], m["sizes_mb"]["points"],
                      len(m["tiles"]), m["dekad_range"])
+        elif step == "calibrate":
+            manifest = _read_manifest(cfg)
+            series.build_tile_series(con, cfg)
+            ts = series.load_tile_series(con, cfg, tuple(manifest["dekad_range"]))
+            report["calibration"] = calibrate.write_calibration(ts, cfg)
+        elif step == "validate":
+            manifest = _read_manifest(cfg)
+            dr = tuple(manifest["dekad_range"])
+            ts = series.load_tile_series(con, cfg, dr)
+            h = validate.HERO
+            hero = series.circle_series(con, cfg, h["lon"], h["lat"], h["radius_km"], dr)
+            cal_path = cfg.processed / "calibration.json"
+            cal = json.loads(cal_path.read_text(encoding="utf-8")) if cal_path.exists() else None
+            v = validate.write_validation(ts, hero, cal, cfg, manifest)
+            report["validation"] = {"loyo": v["loyo"], "seam_test": v["seam"]["test"],
+                                    "seasonality": v["seasonality"]}
         else:
             raise ValueError(f"unknown step {step}")
         report["timings_s"][step] = round(time.perf_counter() - t0, 1)
         log.info("step %s done in %.1f s", step, report["timings_s"][step])
-    path = cfg.logs_dir / "build_report.json"
+    path = cfg.logs_dir / ("build_report.json" if steps[0] == "ingest"
+                           else f"build_report_{'_'.join(steps)}.json")
     path.write_text(json.dumps(report, indent=2, default=str), encoding="utf-8")
     log.info("report: %s", path)
     return report
