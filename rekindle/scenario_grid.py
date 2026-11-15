@@ -6,6 +6,11 @@ Each grid run = the baseline (ignitions, fuels, terrain, ROS multiplier, duratio
 constant 10 m wind (speed, from-direction) and a dead fuel moisture from the axes. Writes
 data/rekindle/<fire>/runs/<key>.npy (float32 arrival seconds, inf = unburned); existing files
 are skipped, so the run can be resumed. Counterfactuals only if the baseline passed the gate.
+
+The domain uses the baseline's model settings (calibration.json `model_settings`, e.g. the S6b
+MOD44B fuel-cover mask). Counterfactual moisture is a constant scenario value (like the constant
+wind), even when the baseline used the hourly diurnal series. `--shard K/N` runs every N-th key
+from K (0-based), for a Slurm job array (scripts/slurm/rekindle_grid.sh).
 """
 
 from __future__ import annotations
@@ -46,7 +51,8 @@ _G: dict = {}
 
 
 def _init(fire: str, cal: dict, out: str) -> None:
-    dom, meta = dm.load(fire)
+    settings = cal.get("model_settings") or {}
+    dom, meta = dm.load(fire, nonveg_max_pct=settings.get("nonveg_max_pct"))
     _G.update(dom=dom, meta=meta, cal=cal, out=Path(out))
 
 
@@ -73,16 +79,25 @@ def main() -> None:
     ap.add_argument("--workers", type=int, default=3)
     ap.add_argument("--keys", default=None, help="comma list of run keys (default: whole grid)")
     ap.add_argument("--force", action="store_true", help="run counterfactuals even if gate failed")
+    ap.add_argument("--shard", default=None, help="K/N: every N-th run from K (job arrays)")
+    ap.add_argument("--moisture-axis", default=None,
+                    help="comma list of dead 1-h %% (default: hindcast.MOISTURE_AXIS)")
     a = ap.parse_args()
     base = dm.DATA / a.fire
     cal = json.loads((base / "calibration.json").read_text())
     out = base / "runs"
     out.mkdir(exist_ok=True)
-    shutil.copyfile(base / "baseline.npy", out / "baseline.npy")
+    tmp = out / f"baseline.{a.shard.replace('/', '-') if a.shard else 'x'}.tmp"
+    shutil.copyfile(base / "baseline.npy", tmp)  # atomic: array tasks start together
+    tmp.replace(out / "baseline.npy")
     if cal["status"] != "validated" and not a.force:
         print(f"status {cal['status']}: baseline only, no counterfactuals (REKINDLE.md §5)")
         return
-    runs = grid_runs()
+    axis = [int(x) for x in a.moisture_axis.split(",")] if a.moisture_axis else MOISTURE_AXIS
+    runs = grid_runs(axis)
+    if a.shard:
+        k, n = (int(x) for x in a.shard.split("/"))
+        runs = runs[k::n]
     if a.keys:
         want = set(a.keys.split(","))
         runs = [r for r in runs if run_key(*r) in want]
