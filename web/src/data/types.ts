@@ -14,6 +14,17 @@ export interface Manifest {
   points?: { years: [number, number]; tiles: string[] };
   row_counts?: Record<string, number>;
   sizes_mb?: Record<string, number>;
+  /** downloadable files on the data host (CONTRACTS.md → Global harmonized table); added by sync_data.sh --exports */
+  exports?: { global_table?: GlobalTableRef };
+}
+
+export interface GlobalTableRef {
+  parquet: string;
+  csv_gz: string;
+  readme: string;
+  rows?: number;
+  cells?: number;
+  bytes?: { parquet?: number; csv_gz?: number };
 }
 
 export interface KBlock {

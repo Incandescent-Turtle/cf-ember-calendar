@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { harmonize } from './harmonize';
-import { calendarCsv, CALENDAR_COLUMNS, csvField, dataScope } from './export';
+import { calendarCsv, CALENDAR_COLUMNS, csvField, dataScope, globalTableLinks } from './export';
 import { summarize, quantile } from './analytics';
 import { hotspotLine, HOTSPOT_CSV_COLUMNS, type FullRow } from '../data/points';
 import type { AoiSeries, Manifest } from '../data/types';
@@ -53,5 +53,18 @@ describe('data scope', () => {
   it('describes a regional build by its tile extent', () => {
     const m = { tiles: ['S30W070', 'S60W080', 'S30W060'] } as Manifest;
     expect(dataScope(m)).toEqual({ global: false, text: 'regional subset: 3 10° tiles within 60° S–20° S, 80° W–50° W' });
+  });
+});
+
+describe('global table link', () => {
+  const m = {} as Manifest;
+  it('is hidden until the manifest lists the table or the flag is set', () => {
+    expect(globalTableLinks(m, 'https://host/x/', undefined)).toBeNull();
+    expect(globalTableLinks(m, 'https://host/x/', '0')).toBeNull();
+    const g = globalTableLinks(m, 'https://host/x/', '1')!;
+    expect(g.href(g.parquet)).toBe('https://host/x/exports/global_harmonized_monthly_1deg.parquet');
+    const listed = { exports: { global_table: { parquet: 'e/t.parquet', csv_gz: 'e/t.csv.gz', readme: 'e/R.md', rows: 5 } } } as unknown as Manifest;
+    const h = globalTableLinks(listed, '/dev-data', undefined)!;
+    expect([h.href(h.csv_gz), h.rows]).toEqual(['/dev-data/e/t.csv.gz', 5]);
   });
 });
