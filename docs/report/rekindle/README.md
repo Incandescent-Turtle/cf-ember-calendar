@@ -12,6 +12,7 @@ Detections: `uv run python -m rekindle.hotspots --fire chilecito-2026` (reads da
 | `figures/test2_ellipse.*` | U10 = 9 m/s: solver vs exact ellipse (rear focus) | richards1990, finney1998 |
 | `figures/test3_4_merge_barrier.*` | Two ignitions merge; 1-cell non-burnable strip holds | |
 | `figures/test5_convergence.*` | Mean relative arrival-time error vs dx, circle and wind case | |
+| `figures/test6_7_slope_windshift.*` | Test 6 slope (head upslope at Rothermel R_head, −0.1 %); test 7 wind turning 270°→180° mid-run | rothermel1972 |
 | `figures/benchmark_400_{moderate,large}.*` | 24 h on 400 × 400 at 90 m, synthetic hill + mixed fuels | |
 | `chilecito-2026_detections_by_hour.csv` | Hotspots per overpass hour and sensor (FIRMS, fixture) | |
 | `chilecito-2026_first_detections.csv` | First overpass = ignition candidates | |

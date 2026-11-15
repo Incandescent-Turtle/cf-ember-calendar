@@ -130,3 +130,53 @@ def test_5_convergence():
     orders = [math.log2(errs[i] / errs[i + 1]) for i in range(2)]
     assert errs[0] > errs[1] > errs[2]
     assert min(orders) > 0.5, (errs, orders)
+
+
+# ---- S6: slope, wind shift, ROS multiplier, fuel interface, determinism ------------------
+
+
+def test_6_slope_upslope_head():
+    from rekindle.verify import slope_case
+
+    r = slope_case()
+    assert not r["edge_reached"]
+    assert abs(r["head_err"]) <= 0.05
+    assert r["back_ms"] < 0.5 * r["head_ms"]
+
+
+def test_7_wind_shift_turns_head():
+    from rekindle.verify import wind_shift_case
+
+    r = wind_shift_case()
+    rh = r["expected_head_ms"]
+    assert not r["edge_reached"]
+    assert r["early_E_ms"] == pytest.approx(rh, rel=0.10)
+    assert r["early_N_ms"] < 0.5 * rh
+    assert r["late_N_ms"] == pytest.approx(rh, rel=0.10)
+    assert r["late_E_ms"] < 0.5 * rh
+
+
+def test_8_ros_multiplier_scales_time():
+    from rekindle.verify import multiplier_case
+
+    r = multiplier_case(2.0)
+    assert r["median_rel"] < 0.01
+    assert r["frac_within_cell"] > 0.99
+    assert r["burned_cells_2"] == pytest.approx(r["burned_cells_1"], rel=0.02)
+
+
+def test_9_fuel_interface():
+    from rekindle.verify import fuel_interface_case
+
+    r = fuel_interface_case()
+    assert r["rate_a_ms"] == pytest.approx(r["expected_a_ms"], rel=0.05)
+    assert r["rate_b_ms"] == pytest.approx(r["expected_b_ms"], rel=0.10)
+    assert r["monotone"]
+
+
+def test_10_determinism():
+    dom = Domain.uniform(80, 80, 20.0, fuel=1)
+    sc = Scenario((Ignition(800, 800),), duration_s=3600.0, wind=(WindSample(0, 6.0, 250.0),))
+    a, b = run_levelset(dom, sc), run_levelset(dom, sc)
+    assert np.array_equal(a.arrival_time_s, b.arrival_time_s)
+    assert a.params_hash == b.params_hash

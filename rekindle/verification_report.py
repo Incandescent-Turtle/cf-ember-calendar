@@ -342,6 +342,41 @@ def timing_section(out: Path, case: str = "moderate") -> dict:
             "machine": f"{platform.processor()} / {platform.python_version()}"}
 
 
+
+
+# ---- 6–10. S6 solver checks (shared with tests/rekindle/test_levelset.py) ---------------
+
+
+def _public(d: dict) -> dict:
+    return {k: v for k, v in d.items() if not k.startswith("_")}
+
+
+def s6_section(out: Path) -> dict:
+    from rekindle import verify
+
+    sl = verify.slope_case()
+    ws = verify.wind_shift_case()
+    mu = verify.multiplier_case(2.0)
+    fi = verify.fuel_interface_case()
+    fig, axs = plt.subplots(1, 2, figsize=(8, 4))
+    for ax, r, title in ((axs[0], sl, "Test 6: 20° incline rising east, no wind, FM 1"),
+                         (axs[1], ws, "Test 7: wind from 270° then 180° (U10 6 m/s, FM 1)")):
+        dom, arr = r["_domain"], r["_arrival"]
+        x, y = dom.xy()
+        x0, y0 = r["_xy0"]
+        fin = arr[np.isfinite(arr)]
+        lv = np.linspace(0, fin.max(), 11)[1:]
+        cs = ax.contour(x - x0, y - y0, arr / 60, levels=lv / 60, cmap="viridis", linewidths=0.8)
+        ax.clabel(cs, fmt="%.0f min", fontsize=6)
+        ax.plot(0, 0, "r+")
+        ax.set(aspect="equal", xlabel="x (m)", ylabel="y (m)", title=title)
+        ax.title.set_fontsize(8)
+    save(fig, out, "test6_7_slope_windshift")
+    return {"test6_slope": _public(sl), "test7_wind_shift": _public(ws),
+            "test8_multiplier": mu, "test9_fuel_interface": {k: float(v) if not isinstance(v, bool)
+                                                              else v for k, v in fi.items()}}
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", type=Path, default=Path("docs/report/rekindle"))
@@ -356,8 +391,13 @@ def main() -> None:
     results["test2_ellipse"] = ellipse_section(figs)
     results["test3_4"] = merge_barrier_figures(figs)
     results["test5_convergence"] = convergence_section(figs)
+    results.update(s6_section(figs))
     if not args.skip_timing:
         results["benchmark_400"] = [timing_section(figs, c) for c in ("moderate", "large")]
+    elif (args.out / "results.json").exists():  # keep the last measured benchmark
+        old = json.loads((args.out / "results.json").read_text())
+        if "benchmark_400" in old:
+            results["benchmark_400"] = old["benchmark_400"]
     (args.out / "results.json").write_text(json.dumps(results, indent=2, default=float))
     print(f"wrote {args.out / 'results.json'}")
 
