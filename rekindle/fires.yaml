@@ -1,4 +1,4 @@
-# Curated Rekindle fires (REKINDLE.md "Scope this weekend"). Stop at three.
+# Curated Rekindle fires (REKINDLE.md "Scope this weekend"). Three originally; S6e adds candidates from the S6b screen.
 # bbox = west,south,east,north (WGS84); dates UTC, inclusive.
 fires:
   - id: chilecito-2026
@@ -34,3 +34,34 @@ fires:
       Blind test of the frozen A+B model. Only window (of 300 Canada and 300 Argentina) passing
       every pre-registered screen rule with the most VIIRS overpasses. bbox = the screen's
       ±0.2° box; run = first day + 6 days. A separate large fire burns ~50 km to the west.
+  - id: bc-2024
+    name: Central British Columbia, Canada (August 2024)
+    bbox: [-126.108, 53.152, -125.708, 53.552]
+    start: 2024-08-02
+    end: 2024-08-07
+    crs: EPSG:32610
+    points_tiles: [N50W130]
+    source: docs/DECISIONS.md S6b pre-screen near miss (fails only P3 plateau); S6e
+    notes: >-
+      1815 detections, 79 overpasses, R_final 25 km. Picked for the footprint what-if (S6e),
+      not as a blind timing test; the plateau rule says it stalls for 48 h (39-87 h).
+  - id: larioja-2025
+    name: La Rioja / San Juan, Argentina (November 2025)
+    bbox: [-66.814, -30.818, -66.414, -30.418]
+    start: 2025-11-17
+    end: 2025-11-22
+    crs: EPSG:32719
+    points_tiles: [S40W070]
+    source: docs/DECISIONS.md S6b pre-screen, second window passing every rule; S6e
+    notes: >-
+      507 detections, 42 overpasses, R_final 6.2 km (small, barely above P0).
+  - id: chaco-2024
+    name: Gran Chaco, Argentina–Paraguay border (June 2024)
+    bbox: [-60.532, -24.168, -60.132, -23.768]
+    start: 2024-06-03
+    end: 2024-06-08
+    crs: EPSG:32720
+    points_tiles: [S30W070]
+    source: docs/DECISIONS.md S6b pre-screen near miss (fails only P3 plateau); S6e
+    notes: >-
+      129 detections, 28 overpasses, R_final 18.9 km (sparse observations).
