@@ -66,7 +66,7 @@ Reader and writer each have a round-trip test; the web decoder is tested against
 {
   "version": 1,
   "built_at": "2026-11-15T09:00:00Z",
-  "dekad_range": [31, 971],
+  "dekad_range": [30, 965],
   "series": ["MODIS", "VIIRS_SNPP", "VIIRS_NOAA20", "VIIRS_NOAA21"],
   "tiles": ["S30W070", "S20W060"],
   "l10": "cube/l10/global.bin.gz",
@@ -78,7 +78,7 @@ Reader and writer each have a round-trip test; the web decoder is tested against
   "sizes_mb": {"cubes": 0, "points": 0}
 }
 ```
-(`dekad_range[0] = 31`: Nov 11 2000 → `(2000−2000)×36 + 10×3 + 1`.)
+(`dekad_range` is computed from the data: the FIRMS MODIS record starts 2000-11-01, so `dekad_range[0] = 30` = `(2000−2000)×36 + 10×3 + 0`. Clients must read it, never hard-code it.)
 
 ## `calibration.json`
 
