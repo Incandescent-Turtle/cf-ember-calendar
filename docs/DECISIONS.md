@@ -290,3 +290,14 @@ Constants and values checked against the primary sources (sub-agent lookups: And
 - The polar normal speed that REKINDLE.md planned for v1 fails the doc's own ±10 % LB test badly. The Huygens form fixes it and costs nothing extra.
 - REKINDLE.md's LB units were wrong by a factor of 2.237 in U, and its A attribution was swapped. Both are fixed in the doc.
 - The first version of the stop condition never fired, because burned interior cells keep S > 0. An "active front" check replaced it.
+
+## Addendum — S5 → S6 scope (2026-11-15, ~10:30)
+
+- 2026-11-15 — **S6 starts with three more solver tests** (user decision; add them to `tests/rekindle/test_levelset.py`, reusing `rekindle/verify.py`):
+  1. **Slope:** uniform incline, no wind. The head must run upslope at `head_fire(...).r_head` (±5 %), and the backing side must be slower. This is the only test of the slope-vector path in the solver; now only the benchmark touches it.
+  2. **Wind shift:** wind turns 90° mid-run (a two-sample `Scenario.wind`). The late-time head direction must follow the new wind. Real MERRA-2 wind changes hourly.
+  3. **ROS multiplier:** `ros_multiplier=2` must give arrival times ÷ 2 (to within dx/R tolerance). The S6 calibration sweep depends on it.
+  - Optional: a fuel interface (FM 1 → FM 12 strip; speed changes at the boundary, no artifacts) and determinism (same inputs ⇒ identical arrival field and `params_hash`).
+  - Put any new figure or number in `rekindle/verification_report.py`, so `docs/report/rekindle/` stays the single source for the LaTeX report.
+- 2026-11-15 — **No backend for Rekindle.** The solver is fast (≤ 30 s / 24 h on 400 × 400), but the plan stands. CLAUDE.md forbids servers. Per-fire inputs need offline prep and credentials, uncalibrated runs aren't hindcasts, and free Python hosts cold-start. Spend the speed on a **denser precomputed grid** instead (finer wind/moisture steps, if the export budget allows). A live backend is a post-hackathon roadmap item only.
+- 2026-11-15 — **Credentials check:** `.env` has no `EARTHDATA_USERNAME`/`EARTHDATA_PASSWORD` yet, and there is no `~/.netrc`. MCD12Q1/MOD44W (LP DAAC) and MERRA-2 (GES DISC; authorize the "NASA GESDISC DATA ARCHIVE" app in the Earthdata profile) need them. The DEM can come from Copernicus GLO-30 on AWS (no login) instead of NASADEM (REKINDLE.md §4 named NASADEM; either is fine, so log the choice).

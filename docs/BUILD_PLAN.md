@@ -45,10 +45,10 @@ Status (2026-11-15, ~03:30): done on the Argentina fixture, including the hotspo
 
 ## S5 — Rekindle engine (Track C items 1–2; Sun 11:00–13:30)
 Read: REKINDLE.md §1–3. `rothermel.py` + `fuels.py` (verify constants against sources), `ellipse.py`, `levelset.py` with the five solver tests. Needs no FIRMS data, so it can run earlier if S1–S4 stall on cluster waits.
-Done: all solver tests pass.
+Done: all solver tests pass. **✓ Done 2026-11-15** (handoff in DECISIONS.md; report material in `docs/report/rekindle/`).
 
 ## S6 — Rekindle fires, grid, panel (Track C items 3–5, then Track B item 6; Sun 13:30–18:00)
-Read: REKINDLE.md §4–7, CONTRACTS.md (Rekindle files). Prep Chilecito first: inspect the real hotspots, baseline, multiplier, quality gate; then scenario grid (desktop, background); build the web panel against the exported runs. Add the other two curated fires only if time remains.
+Read: REKINDLE.md §4–7, CONTRACTS.md (Rekindle files), DECISIONS.md S5 handoff + addendum. **First (≈ 15 min): three solver tests S6 relies on** — slope (head runs upslope at Rothermel R_head), wind shift (head follows a 90° turn), ROS multiplier (×2 ⇒ arrival times exactly ÷2); optional fuel-interface and determinism tests. **Needs `EARTHDATA_USERNAME`/`EARTHDATA_PASSWORD` in `.env`** (MCD12Q1, MERRA-2 with the GES DISC app authorized). Prep Chilecito first: inspect the real hotspots, baseline, multiplier, quality gate; then scenario grid (desktop, background); build the web panel against the exported runs. Add the other two curated fires only if time remains.
 Done: Chilecito baseline metrics reported; grid exported; panel loads a run in < 1 s with the correct status caption.
 
 ## S7 — Polish and freeze (Sun 18:00–20:00)
