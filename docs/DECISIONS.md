@@ -392,3 +392,57 @@ Constants and values checked against the primary sources (sub-agent lookups: And
   - hourly dead moisture from the EMC series (solver change: time-varying Moisture);
   - an IGBP 7 override for sparse desert shrub;
   - a downscaled or terrain-adjusted wind.
+
+## Addendum — S6 → S6b scope: fix the Chilecito hindcast (2026-11-15, ~12:30)
+
+User decisions: **Chilecito is the priority.** Try to make its baseline pass the gate with physically motivated fixes. If that fails, fall back to other fires. `D:\ember` is now a **read-only** source: the global build is done (`docs/GLOBAL_BUILD.md`), points are at `D:\ember\processed\points\<tile>\<year>.parquet`, and data is live on Hugging Face. Still never write, move or delete anything there.
+
+**Diagnosis (S6 handoff):**
+- Best ×1.41: median |Δ| 13.3 h vs a 3.2 h gate; 1,479 km² simulated vs 112 km² of detection footprints.
+- The model runs east and downslope into IGBP 7 open shrubland (FM 6) within hours. The real fire crept SW and uphill on the foothills for days.
+- Figure: `docs/report/rekindle/figures/chilecito-2026_baseline_map.png`.
+
+**Rules:**
+- **No goal-post moving:** the gate (median |Δ| ≤ mean overpass interval, 3.2 h) and the metric definitions in `rekindle/metrics.py` stay as they are.
+- **Pre-register:** write the list of changes below (with their physical reason) here *before* running them. Run each change alone, then the combination. Log every attempt's numbers in DECISIONS.md and `docs/report/rekindle/`, failures included.
+- A fix that passes on Chilecito is still *calibrated, not blind*; say so.
+- Each change must be a model input or physics improvement, never a Chilecito-specific hack such as hand-painting fuels or moving ignitions.
+
+**Candidate changes, roughly by expected impact:**
+1. **Fuel cover / bare ground:**
+   - Add MODIS **MOD44B v061** Vegetation Continuous Fields (% non-vegetated, % non-tree vegetation; LP DAAC, same download/HDF path as MCD12Q1).
+   - Mark cells non-burnable where bare ground ≥ a threshold chosen *a priori* (e.g. 80 %, stated with a reason or a source). Optionally scale fuel load by vegetated cover.
+   - The arid Monte lowlands east of the fire are mostly bare, but the crosswalk turns them into continuous FM 6.
+   - Add the MOD44B citation to `rekindle/credits.py`, verified from its own page.
+2. **Diurnal dead fuel moisture:**
+   - Use the hourly 1-h moisture from the MERRA-2 EMC series (Simard 1968, already computed in `hindcast.estimate_dead_moisture`), with a simple 1-h time-lag response.
+   - EMC ranges from p10 3 % to p90 10.6 %, and FM 1 extinction is 12 %, so nights should nearly stop the grass fire.
+   - Needs time-varying moisture in the solver (`Scenario.moisture_series`; rebuild `_Fuels` when the hourly value changes, cached by rounded value). Add a solver test: constant series = constant moisture, bit-identical.
+   - The grid's moisture axis then becomes an offset or a fixed value for counterfactuals; update CONTRACTS.md `notes` and `meta.notes` to match.
+3. **Wind** (lower priority; only if 1 and 2 aren't enough): MERRA-2 is a 50 km grid-cell mean over 6,000 m relief. Options:
+   - nearest grid point instead of bilinear, as a sensitivity check;
+   - a stated terrain sheltering factor (lower WAF in rough terrain, with a citation for the value).
+
+   Don't invent a wind model.
+
+**Time box** (feature freeze 20:00; a full 247-run grid takes ~3–4 h at 3 workers, less for a smaller grid or a shorter run):
+- **By ~15:00:** if Chilecito passes, start its grid. Shrink it if needed (e.g. 72 h run, moisture axis 4 values) and log that.
+- **If it still fails at ~15:00:** keep Chilecito as the `poor_agreement` baseline. Re-export it with whichever fixes improved it, and report the numbers. Then select another fire from `D:\ember` points (read-only, DuckDB `memory_limit='1GB', threads=2`):
+  - one Argentine fire, and one Canadian fire south of 60°N if time allows;
+  - many overpasses over ≥ 3 days, grass/shrub/savanna fuels, moderate terrain;
+  - show the top ~3 candidates before committing.
+
+  Score any new fire with the S6b model settings fixed (a blind test of the fixes), calibrating only the ROS multiplier as before.
+
+**Resources:**
+- The pipeline is no longer running. Rekindle may use ≤ 4 worker processes and ≤ 6 GB total.
+- Check free RAM before grid runs.
+- Don't run pytest, npm build and the grid at the same time.
+
+**Pipeline commands:**
+- `uv run python -m rekindle.prep --fire <id>`
+- `uv run python -m rekindle.hindcast --fire <id> --workers 3` (sweep, gate, figures; `--figures-only` redraws the map)
+- `uv run python -m rekindle.scenario_grid --fire <id> --workers 3` (resumable)
+- `uv run python -m rekindle.export --fire <id>`
+
+New fires go in `rekindle/fires.yaml` (bbox, dates, `points_tiles`). The web tab needs no changes: what-if mode turns on when `status == "validated"`.
