@@ -112,7 +112,7 @@ caption { text-align: left; font-size: 12px; color: var(--ink-2); padding-bottom
 .glance-grid dd { margin: 1px 0 0; font-size: 13px; }
 .dim { color: var(--ink-3); font-size: 12px; }
 .chip { display: inline-block; padding: 1px 8px; border-radius: 10px; font-size: 12px; font-weight: 600; border: 1px solid transparent; vertical-align: 1px; }
-.chip-below { background: #e3edf7; color: #1d4f7a; border-color: #b8cfe5; }
+.chip-below { background: #bcd6ee; color: #163f63; border-color: #8fb5da; }
 .chip-normal { background: #efede9; color: #3d3d3d; border-color: #d8d3cb; }
 .chip-above { background: #fed976; color: #5c3a00; border-color: #f0b84a; }
 .chip-extreme { background: #bd0026; color: #fff; border-color: #8f001d; }
@@ -120,3 +120,33 @@ caption { text-align: left; font-size: 12px; color: var(--ink-2); padding-bottom
 .export .btn-row { margin-bottom: 8px; }
 .hotspot-export select { padding: 2px 4px; border: 1px solid var(--line); border-radius: 6px; background: #fff; }
 button:disabled { opacity: 0.55; cursor: default; }
+
+.topbar { justify-content: space-between; gap: 12px; }
+.topbar a.home { color: inherit; text-decoration: none; }
+.topnav a { color: var(--accent); font-size: 13.5px; text-decoration: none; padding: 4px 6px; border-radius: 4px; }
+.topnav a:hover, .topnav a[aria-current='page'] { text-decoration: underline; }
+.methodology-wrap { flex: 1; overflow-y: auto; background: var(--bg); }
+.methodology { max-width: 920px; margin: 0 auto; padding: 16px 16px 48px; }
+.methodology h1 { font-size: 24px; margin: 8px 0 4px; }
+.methodology h2 { font-size: 17px; margin: 28px 0 6px; padding-top: 8px; border-top: 1px solid var(--line); }
+.methodology p, .methodology li { max-width: 78ch; }
+.methodology .lede { color: var(--ink-2); font-size: 15px; }
+.methodology code { font-size: 12.5px; background: #f1eee9; padding: 0 3px; border-radius: 3px; }
+.data-scope { padding: 8px 12px; border-radius: 6px; background: #eef4fa; border: 1px solid #c9dbee; font-size: 13px; }
+.data-scope.regional { background: var(--warn-bg); border-color: #ecd9a6; color: var(--warn-ink); }
+.findings li { margin-bottom: 6px; }
+.steps li { margin-bottom: 6px; }
+.seam { margin: 12px 0 4px; }
+.seam figcaption { font-size: 13px; margin-bottom: 2px; }
+.seam .flag { color: var(--warn-ink); background: var(--warn-bg); padding: 0 4px; border-radius: 3px; font-size: 12px; }
+.seam-chart { width: 100%; height: 260px; background: #fff; border: 1px solid var(--line); border-radius: 6px; }
+.seam-key { display: flex; gap: 16px; font-size: 12px; color: var(--ink-2); flex-wrap: wrap; }
+.seam-key i { display: inline-block; width: 22px; vertical-align: middle; margin-right: 4px; }
+table.loyo { font-size: 12.5px; margin: 8px 0; background: #fff; }
+table.loyo th, table.loyo td { padding: 3px 8px; }
+table.loyo thead th { text-align: right; border-bottom: 1px solid var(--line); font-weight: 600; }
+table.loyo th[scope='row'] { text-align: left; font-weight: 500; }
+table.loyo tr.ours { background: #fff3e6; }
+table.loyo tr.ours th { font-weight: 650; }
+table.loyo tr.sparse { color: var(--ink-3); }
+table.loyo tr.dimrow td { color: var(--ink-3); font-size: 11px; }

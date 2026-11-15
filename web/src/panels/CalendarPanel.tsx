@@ -7,6 +7,7 @@ import { useMemo } from 'react';
 import { computeGlance } from '../lib/glance';
 import { dataScope } from '../lib/export';
 import { AtAGlance } from './AtAGlance';
+import { linkTo } from '../route';
 import { ExportRow } from './ExportRow';
 
 export function CalendarPanel() {
@@ -60,7 +61,7 @@ export function CalendarPanel() {
         )}
         {!scope.global && !manifest.mock && (
           <p className="warn">
-            This build holds {scope.text}. Areas outside it show no activity. <a href="/methodology">Methodology</a>
+            This build holds {scope.text}. Areas outside it show no activity. <a href="/methodology" onClick={linkTo('methodology')}>Methodology</a>
           </p>
         )}
         {strata.has('aoi-sparse') || strata.has('none') ? (

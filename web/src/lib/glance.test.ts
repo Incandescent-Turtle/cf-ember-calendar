@@ -46,7 +46,8 @@ describe('at a glance', () => {
     const g = computeGlance(harmonize(series, m, c.input.calibration), series, m, 2026);
     expect(g.topYears.length).toBe(3);
     expect(g.topYears[0].value).toBeGreaterThanOrEqual(g.topYears[1].value);
-    expect(g.topMonths.length).toBe(3);
+    expect(g.topMonths.length).toBeLessThanOrEqual(3);
+    expect(g.topMonths.every((m) => m.median > 0)).toBe(true); // months with a median of 0 aren't 'busiest'
     expect(g.busiest).not.toBeNull();
     expect(g.busiest!.partial).toBe(false);
   });

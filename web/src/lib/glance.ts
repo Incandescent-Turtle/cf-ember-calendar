@@ -77,7 +77,7 @@ export function computeGlance(h: Harmonized, series: AoiSeries, manifest: Manife
     .slice(0, 3);
   const topMonths = summary.climatology
     .map((c, m) => ({ month: m, median: c.median }))
-    .filter((x) => Number.isFinite(x.median))
+    .filter((x) => x.median > 0)
     .sort((a, b) => b.median - a.median || a.month - b.month)
     .slice(0, 3);
   let busiest: MonthRow | null = null;

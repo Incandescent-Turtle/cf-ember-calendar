@@ -114,6 +114,7 @@ export function AtAGlance({ g, h }: { g: Glance; h: Harmonized }) {
         <div title={`Median of each calendar month over ${base} (harmonized FCD)`}>
           <dt>Busiest months of the year</dt>
           <dd>
+            {!g.topMonths.length && 'no month with typical activity above 0'}
             {g.topMonths.map((m, i) => (
               <span key={m.month}>
                 {i > 0 && ' · '}
