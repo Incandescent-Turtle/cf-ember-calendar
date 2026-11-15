@@ -21,6 +21,17 @@
     -31.2
    ],
    "status": "poor_agreement"
+  },
+  {
+   "id": "sask-2023",
+   "name": "Northern Saskatchewan, Canada (May 2023)",
+   "bbox": [
+    -106.082,
+    55.902,
+    -105.682,
+    56.302
+   ],
+   "status": "poor_agreement"
   }
  ]
 }

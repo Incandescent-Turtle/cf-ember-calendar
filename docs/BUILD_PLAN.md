@@ -57,7 +57,7 @@ Done: Chilecito baseline metrics reported; grid exported; panel loads a run in <
 - [x] Diagnosis (`rekindle.input_check`): the inputs are sane; both fires burst and then stall, which a free-spread model cannot represent. Literature added (REKINDLE.md §5b).
 - [x] Ship Chilecito (A+B) and Córdoba as `poor_agreement` hindcasts, with the burst-and-stall figure and the citations in the Rekindle tab and methodology.
 - [x] EXPLORATORY 24 h re-initialised windows (REKINDLE.md §5b) on both fires (Fir): both fail (Chilecito 8.1 h, Córdoba 9.1 h).
-- [ ] Free-spread pre-screen → blind test on a new fire (Argentina, then Canada < 60°N); grid on Fir if it passes.
+- [x] Free-spread pre-screen → blind test on a new fire (Argentina, then Canada < 60°N): 2 of 600 windows pass; `sask-2023` blind fails (22.4 h vs 1.67 h), shipped baseline-only; no grid.
 - [ ] Optional exploratory inputs: cover-scaled fuel load, lapse-rate T2M.
 
 ## S7 — Polish and freeze (Sun 18:00–20:00)

@@ -89,7 +89,7 @@ def figure(p: dict, figs: Path, name: str) -> None:
            xlim=(0, p["hours"]), ylim=(0, None))
     ax.grid(alpha=0.3)
     ax.legend(fontsize=8, loc="lower right")
-    ax.set_title(f"{p['fire']}: distance from ignition vs time (burst and stall)", fontsize=9)
+    ax.set_title(f"{p['fire']}: distance from ignition vs time", fontsize=9)
     for ext in ("pdf", "png"):
         fig.savefig(figs / f"{name}_spread_profile.{ext}", dpi=150, bbox_inches="tight")
     plt.close(fig)

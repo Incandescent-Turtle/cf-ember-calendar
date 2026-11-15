@@ -22,6 +22,9 @@ const ROWS: Row[] = [
   { fire: 'Chilecito 2026', variant: 'Seeded start: detections in the first 3 h as ignitions', mult: '0.5', medAbs: 10.24, gate: 3.2, label: 'exploratory' },
   { fire: 'Chilecito 2026', variant: 'A+B with the seeded start', mult: '0.5', medAbs: 9.61, gate: 3.2, label: 'exploratory' },
   { fire: 'Córdoba 2024', variant: 'A+B frozen before any Córdoba run', mult: '0.25 (sweep edge)', medAbs: 15.16, gate: 2.9, label: 'blind' },
+  { fire: 'N. Saskatchewan 2023', variant: 'A+B frozen; fire chosen by the free-spread pre-screen', mult: '4.0 (sweep edge)', medAbs: 22.38, gate: 1.7, label: 'blind' },
+  { fire: 'Chilecito 2026', variant: 'A+B restarted every 24 h from the detected extent', mult: '2.0', medAbs: 8.13, gate: 3.2, label: 'exploratory' },
+  { fire: 'Córdoba 2024', variant: 'A+B restarted every 24 h from the detected extent', mult: '0.5', medAbs: 9.13, gate: 2.9, label: 'exploratory' },
 ];
 
 const REFERENCES = [
@@ -37,12 +40,12 @@ export function RekindleFindings({ headingLevel = 3 }: { headingLevel?: 2 | 3 | 
   return (
     <div className="rk-findings">
       <p className="rk-status hindcast" role="note">
-        <strong>Status: hindcasts of real fires, calibrated to their detections. Neither passed the quality gate</strong>, so both ship as baseline only and no what-if runs are shown.
+        <strong>Status: hindcasts of real fires, calibrated to their detections. None passed the quality gate</strong>, so all ship as baseline only and no what-if runs are shown.
       </p>
       <H>What validation showed</H>
       <p>
         <strong>The gate.</strong> A baseline counts as validated only if the median |timing error| between the simulated arrival and each satellite pixel’s first detection is at most the
-        mean interval between overpasses (3.2 h for Chilecito, 2.9 h for Córdoba). The only fitted parameter is one rate-of-spread multiplier, swept over ×0.25 to ×4. The gate and the
+        mean interval between overpasses (3.2 h for Chilecito, 2.9 h for Córdoba, 1.7 h for Saskatchewan). The only fitted parameter is one rate-of-spread multiplier, swept over ×0.25 to ×4. The gate and the
         metrics were fixed before any of the runs below.
       </p>
       <div className="table-wrap">
@@ -78,7 +81,15 @@ export function RekindleFindings({ headingLevel = 3 }: { headingLevel?: 2 | 3 | 
       <p>
         <strong>Chilecito:</strong> seven pre-registered variants (finer fuel cover, hourly fuel moisture, nearer weather grid point, and combinations) each moved the error by less than
         1.3 h. The best, A+B, was frozen as the model. <strong>Córdoba</strong> was then run blind with A+B: 15.2 h, with the best multiplier at the slow edge of the sweep. The seeded start
-        was proposed after seeing Chilecito fail, so it is exploratory and not a validation.
+        was proposed after seeing Chilecito fail, so it is exploratory and not a validation. Restarting the model every 24 h from the detected extent (as Coen &amp; Schroeder 2013
+        do every 12 h) cuts the error to 8–9 h, still above the gate; part of the remaining error is the wait until the next overpass sees new fire.
+      </p>
+      <p>
+        <strong>A third, blind test on a fire chosen to suit the model.</strong> Before simulating anything we screened 600 candidate fires (Argentina and Canada south of 60°N,
+        2023–2026) with fixed rules: one compact start, no early burst, no 48 h plateau, no yearly recurrence. Only 2 passed; most real fires stall for days. The best, in northern
+        Saskatchewan (May 2023), grows in daily steps, and the model reproduces that shape, but even at ×4 (the fast edge of the sweep) it runs behind: 22.4 h median |timing error|
+        vs a 1.7 h gate (overpasses are frequent at 56°N). MERRA-2 humidity was high (median 81 %), so the surface model sees moist fuels; spring boreal fires often run in the
+        conifer crowns, which the model omits.
       </p>
       <Hs>Diagnosis: burst, then stall</Hs>
       <p>

@@ -673,6 +673,18 @@ Screen (`rekindle.candidates --screen`), applied to each `rekindle.candidates` w
 2. −66.614, −30.618, from 2025-11-17 (La Rioja/San Juan) — passes all, but only 31 overpasses and R_final 6.2 km, barely above P0. Second blind test if time allows.
 3. No third window passes. Nearest misses fail only P3 (e.g. −60.332, −23.968, 2024-06-03; −125.908, 53.352, 2024-08-02); they are not used.
 
+## S6b result: `sask-2023` blind test (15:50; Fir job 4240797; A+B frozen, original protocol)
+
+| fire | best ×ROS | median \|Δ\| | median Δ | hit | Sørensen | area km² | gate |
+|---|---|---|---|---|---|---|---|
+| sask-2023 (**blind**) | 4.0 (fast sweep edge) | 22.38 h | −17.25 | 0.78 | 0.72 | 463 | **fail** (1.67 h) |
+
+- ×0.25–2.0 never reach most detected pixels (median |Δ| = inf); ×2.83 gives 27.1 h. The range was not extended.
+- The spread profile (`figures/sask-2023_spread_profile.png`) shows the model now has the right *shape* (daily steps, no burst/stall mismatch) but runs behind the detections even at ×4. Sørensen 0.72 is the best of all runs.
+- Likely reasons (not tested): MERRA-2 RH median 81 %, so the hourly 1-h dead moisture is 7–27 % (median 16.5 %), near or above extinction for the grass/shrub fuel models; a spring boreal fire probably ran in conifer crowns, which a surface model omits; the gate is very strict at 56°N (overpasses every 1.7 h).
+- Shipped as a third `poor_agreement` baseline-only fire (export + spread profile). No grid, no counterfactuals.
+- Second candidate (Argentina −66.614, −30.618, 2025-11-17) not run; time went to shipping.
+
 ## Handoff — S6b (running; updated 2026-11-15 15:30)
 
 **Done**

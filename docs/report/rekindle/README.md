@@ -37,3 +37,5 @@ map only: `--figures-only`):
   (mean interval between overpasses); hit rate 0.66; Sørensen 0.14 (1,479 km² simulated vs
   112 km² detection footprints). Status `poor_agreement`: baseline only, no counterfactuals.
 - Data credits: `rekindle/credits.py` (exact strings) and the data entries in `references.bib`.
+
+S6b additions: `*_spread_profile.*` (all three fires), `sask-2023_*` (blind test of a pre-screened fire), `*_x_win24*_windows.json` (EXPLORATORY 24 h re-initialised windows), `candidates_{argentina,canada}_screen.json` (free-spread pre-screen; thresholds in DECISIONS.md).

@@ -239,7 +239,7 @@ function Body({ v, m, cal }: { v: Validation; m: NonNullable<ReturnType<typeof u
       <section>
         <h2>Rekindle fire-spread hindcasts</h2>
         <p>
-          Rekindle replays two real fires with a level-set + Rothermel surface-spread model (90 m grid, MERRA-2 weather, MODIS fuels), calibrating one rate-of-spread multiplier to each
+          Rekindle replays three real fires with a level-set + Rothermel surface-spread model (90 m grid, MERRA-2 weather, MODIS fuels), calibrating one rate-of-spread multiplier to each
           fire’s own hotspot times. See the <a href="/rekindle" onClick={linkTo('rekindle')}>Rekindle tab</a> for the maps.
         </p>
         <RekindleFindings headingLevel={3} />
