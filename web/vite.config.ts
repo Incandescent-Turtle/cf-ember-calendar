@@ -39,8 +39,6 @@ function devData(): Plugin {
 export default defineConfig({
   plugins: [react(), devData()],
   worker: { format: 'es' },
-  // maplibre-gl 6 loads dist/maplibre-gl-worker.mjs via new URL(…, import.meta.url); pre-bundling breaks that path
-  optimizeDeps: { exclude: ['maplibre-gl'] },
   test: {
     environment: 'node',
     include: ['src/**/*.test.ts', 'scripts/**/*.test.ts'],

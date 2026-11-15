@@ -2,6 +2,9 @@ import { useEffect, useRef } from 'react';
 import * as maplibregl from 'maplibre-gl';
 import type { GeoJSONSource } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
+// MapLibre 6 resolves its (self-contained) worker relative to its own module URL, which breaks once
+// bundled. Emit it as an asset and point MapLibre at it explicitly (works in dev and in the build).
+import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
 import { TerraDraw, TerraDrawPolygonMode, TerraDrawRectangleMode } from 'terra-draw';
 import { TerraDrawMapLibreGLAdapter } from 'terra-draw-maplibre-gl-adapter';
 import { bbox as turfBbox } from '@turf/turf';
@@ -12,6 +15,8 @@ import { AoiTools } from './AoiTools';
 const STYLE_URL =
   (import.meta.env.VITE_BASEMAP_STYLE_URL as string | undefined) ||
   'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json';
+
+maplibregl.setWorkerUrl(maplibreWorkerUrl);
 
 const EMPTY: FeatureCollection = { type: 'FeatureCollection', features: [] };
 

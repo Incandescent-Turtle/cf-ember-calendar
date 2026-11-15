@@ -83,7 +83,8 @@ uv run python -m pipeline.build_all --data-dir "$SCRATCH/ember"   # on the clust
 uv run python -m pipeline.make_golden             # regenerate golden test files
 uv run python -m rekindle.scenario_grid --fire chilecito-2026 --workers 8
 uv run pytest
-cd web && npm i && npm run dev                    # VITE_DATA_BASE_URL=http://localhost:5173/dev-data
+cd web && npm i && npm run dev                    # serves /dev-data from data/processed, falling back to web/mock-data
+cd web && npm run mock                            # regenerate web/mock-data (contract-format mock cubes + JSON)
 cd web && npm test && npm run build               # build → web/dist (Pages)
 ```
 
