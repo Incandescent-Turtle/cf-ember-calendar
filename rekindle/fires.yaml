@@ -1,0 +1,12 @@
+# Curated Rekindle fires (REKINDLE.md "Scope this weekend"). Stop at three.
+# bbox = west,south,east,north (WGS84); dates UTC, inclusive.
+fires:
+  - id: chilecito-2026
+    name: Chilecito, La Rioja, Argentina (July 2026)
+    bbox: [-67.78, -29.24, -67.62, -29.05]
+    start: 2026-07-27
+    end: 2026-08-01
+    points_tiles: [S30W070]
+    source: docs/DECISIONS.md S1 (cluster found in the FIRMS Argentina fixture)
+    notes: >-
+      Peak Jul 28. VIIRS S-NPP SP ends Jul 31, so Aug 1 is NRT only.

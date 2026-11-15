@@ -7,12 +7,14 @@ dependencies = [
     "numpy>=2.5.4",
     "polars>=2.1.0",
     "pyarrow>=26.0.1",
+    "pyyaml>=6.0.3",
     "scikit-fmm>=2025.6.23",
     "scipy>=1.18.1",
 ]
 
 [dependency-groups]
 dev = [
+    "matplotlib>=3.11.2",
     "pytest>=9.2.0",
     "ruff>=0.17.5",
 ]

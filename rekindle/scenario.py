@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import itertools
 import json
 import math
 from dataclasses import asdict, dataclass, field
@@ -43,7 +44,7 @@ class Domain:
 
     def ij(self, x: float, y: float) -> tuple[int, int]:
         ny, _ = self.shape
-        return int(ny - 1 - math.floor(y / self.dx)), int(math.floor(x / self.dx))
+        return int(ny - 1 - math.floor(y / self.dx)), math.floor(x / self.dx)
 
     def burnable(self) -> np.ndarray:
         b = self.fuel > 0
@@ -105,7 +106,7 @@ class Scenario:
             return ws[0].speed_ms, ws[0].from_deg
         if t >= ws[-1].t_s:
             return ws[-1].speed_ms, ws[-1].from_deg
-        for a, b in zip(ws, ws[1:], strict=False):
+        for a, b in itertools.pairwise(ws):
             if a.t_s <= t <= b.t_s:
                 f = (t - a.t_s) / (b.t_s - a.t_s) if b.t_s > a.t_s else 0.0
                 ua, va = _uv(a)

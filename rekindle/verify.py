@@ -59,7 +59,7 @@ def column_width(arrival: np.ndarray, domain: Domain, t: float) -> float:
         rows = np.flatnonzero(col <= t)
         lo, hi = rows[0], rows[-1]
 
-        def frac(i_in: int, i_out: int) -> float:
+        def frac(i_in: int, i_out: int, col: np.ndarray = col) -> float:
             if i_out < 0 or i_out >= col.size or not np.isfinite(col[i_out]):
                 return 0.5
             return float((t - col[i_in]) / (col[i_out] - col[i_in]))
