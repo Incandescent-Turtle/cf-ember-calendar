@@ -35,12 +35,13 @@ Status (2026-11-15, 02:00): code, tests and golden files done; fixture end to en
 ## S4 — Real data, analytics, deploy v0 (Track B items 3–5; Sun 08:00–11:00) — **checkpoint**
 Harmonize + analytics in TS against golden files; At-a-glance panel; export; methodology page; deploy with the real `VITE_DATA_BASE_URL`. Check the deployed URL from a fresh profile.
 Checklist (carried over from S2 — Track B item 4; see the S2 handoff in DECISIONS.md):
-- [ ] TS harmonize/analytics vs `tests/golden/*.json`: k exact; reconcile the k-band bootstrap and percentile rule (S2 choices) with Python.
-- [ ] **At-a-glance panel (F3):** current month-to-date vs the same dekads in baseline years (ratio, percentile, label), top 3 years / months, busiest month, critical period, Theil–Sen + Mann–Kendall trend.
-- [ ] **Export (F5):** calendar CSV (columns in PRODUCT F5; all fields are in `MonthRow`), summary JSON, calendar PNG (ECharts `getDataURL`). Hotspot CSV can reuse `web/src/data/points.ts` (it already reads/filters the Parquet points) — caps + FIRMS link; may slip to S7 as planned.
-- [ ] Methodology page (renders `validation.json`).
-- [ ] Deploy; on the **deployed** URL check: MapLibre worker asset loads (`.mjs` served as JS), cubes load from the data host, and points either load (host must allow CORS + `Range`) or are hidden. If points aren't hosted for some years/tiles, `manifest.points` must say so — the map reads it.
+- [x] TS harmonize/analytics vs `tests/golden/*.json`: k exact; reconcile the k-band bootstrap and percentile rule (S2 choices) with Python.
+- [x] **At-a-glance panel (F3):** current month-to-date vs the same dekads in baseline years (ratio, percentile, label), top 3 years / months, busiest month, critical period, Theil–Sen + Mann–Kendall trend.
+- [x] **Export (F5):** calendar CSV (columns in PRODUCT F5; all fields are in `MonthRow`), summary JSON, calendar PNG (ECharts `getDataURL`). Hotspot CSV can reuse `web/src/data/points.ts` (it already reads/filters the Parquet points) — caps + FIRMS link; may slip to S7 as planned.
+- [x] Methodology page (renders `validation.json`).
+- [x] Deploy; on the **deployed** URL check: MapLibre worker asset loads (`.mjs` served as JS), cubes load from the data host, and points either load (host must allow CORS + `Range`) or are hidden. If points aren't hosted for some years/tiles, `manifest.points` must say so — the map reads it.
 Done: checkpoint met (if not, stop adding features and fix this first).
+Status (2026-11-15, ~03:30): done on the Argentina fixture, including the hotspot CSV (capped). Deployed and checked; see the S4 handoff in DECISIONS.md. The global data swap is still pending (S3 open items).
 
 ## S5 — Rekindle engine (Track C items 1–2; Sun 11:00–13:30)
 Read: REKINDLE.md §1–3. `rothermel.py` + `fuels.py` (verify constants against sources), `ellipse.py`, `levelset.py` with the five solver tests. Needs no FIRMS data, so it can run earlier if S1–S4 stall on cluster waits.
@@ -51,7 +52,7 @@ Read: REKINDLE.md §4–7, CONTRACTS.md (Rekindle files). Prep Chilecito first: 
 Done: Chilecito baseline metrics reported; grid exported; panel loads a run in < 1 s with the correct status caption.
 
 ## S7 — Polish and freeze (Sun 18:00–20:00)
-- [ ] Hotspot CSV export with caps and the FIRMS fallback link.
+- [x] Hotspot CSV export with caps and the FIRMS fallback link (done in S4).
 - [ ] 1280 px layout; CVD check (calendar ramp, map density ramp, sensor colours); captions on every chart; Rekindle wording check (CLAUDE.md).
 - [ ] Optional (priority 6): satellite basemap toggle (light stays default; EOX Sentinel-2 cloudless 2016 = CC-BY, or Esri World Imagery — check terms, add the host to the allowed network calls); bundle split (main chunk ~2 MB); dekad-of-year calendar sub-view.
 - [ ] Re-test on the **deployed** URL in a fresh profile. **20:00 feature freeze.**

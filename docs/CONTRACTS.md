@@ -143,6 +143,14 @@ Tile = the same 10° tile ids. Sorted by `lat` ascending; row group size 100,000
 
 **CSV export columns (in this order):** `latitude,longitude,acq_datetime_utc,sensor,instrument,frp_mw,daynight,confidence_class,scan_km,track_km,bt_mir_k,bt_tir_k,type`. UTF-8, header row, `\n` line endings, ISO-8601 datetimes with `Z`.
 
+## Browser exports (generated client-side, F5)
+
+- **Calendar CSV** (`ember-calendar_<area>_<last-dekad-end>_calendar.csv`): one row per month in the record, ASCII (no BOM), header row, `
+`. Columns: the PRODUCT F5 set first, in order — `year,month,harmonized,harmonized_lo,harmonized_hi,modis_fcd,viirs_fcd,k,k_stratum,percentile` — then `k_lo,k_hi,snpp_fcd,n20_fcd,era,partial,n_dekads,k_source`. `month` is 1–12. Numbers rounded to 4 decimals; empty = not defined (VIIRS before 2012, no k). In the S-NPP era `k = 1`, `k_stratum = reference`. `percentile` = mid-rank vs the same calendar month in full months of other years than the current one; empty for partial months. `viirs_fcd` = S-NPP before the NOAA-20 switch, NOAA-20 after.
+- **Summary JSON** (`…_summary.json`): area (label, kind, bbox, km², resolution, cells, tiles, geometry), data build (host, built_at, dekad_range, scope), k per month with stratum and source, baseline years, climatology, current-year months, month-to-date **with its inputs** (current and baseline dekad values), critical period, trend, annual totals, top years/months, busiest month. NaN → `null`. Informational; not read by any code.
+- **Calendar PNG**: the ECharts canvas at 2× with title, legend and source line.
+- **Hotspot CSV**: the columns above (Points file → CSV export columns), time-ordered; `daynight` written `D`/`N`, `confidence_class` `low`/`nominal`/`high`, `type` empty when 255; lat/lon to 5 decimals. Capped at 200 MiB of row groups to read (estimated from Parquet footers before any data is fetched) or 3 M rows; above either, no file and a link to FIRMS Archive Download.
+
 ## Rekindle files (`web/public/rekindle/`)
 
 `index.json`:
