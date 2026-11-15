@@ -142,11 +142,23 @@ def run_levelset(domain: Domain, scenario: Scenario, cfg: SolverConfig | None = 
         g = phi2[1:-1, 1:-1]
         if not (np.any(g < 0) and np.any(g > 0)):
             return
-        d = skfmm.distance(g, dx=dx, narrow=big)
+        d = skfmm.distance(np.ascontiguousarray(g), dx=dx, narrow=big)  # views misread
         if np.ma.isMaskedArray(d):
             d = np.where(np.ma.getmaskarray(d), np.sign(g) * big, d.filled(0.0))
         g[:] = np.clip(d, -big, big)
         fill_pad(phi)
+
+    can_burn = burnable & (fuels.r0[model] > 0)
+
+    def active_front() -> bool:
+        """Any unburned, spreadable cell next to a burned one?"""
+        b = phi2[1:-1, 1:-1] <= 0
+        nb = np.zeros_like(b)
+        nb[1:, :] |= b[:-1, :]
+        nb[:-1, :] |= b[1:, :]
+        nb[:, 1:] |= b[:, :-1]
+        nb[:, :-1] |= b[:, 1:]
+        return bool(np.any(nb & ~b & can_burn))
 
     def speed(p: np.ndarray, idx: np.ndarray, wind: tuple[float, float, float]):
         """Normal speed S (m/s) and head ROS (m/s) at flat indices idx of padded field p."""
@@ -255,6 +267,8 @@ def run_levelset(domain: Domain, scenario: Scenario, cfg: SolverConfig | None = 
             reinits += 1
             since_reinit = 0
             moved = 0.0
+            if not pending and not active_front():
+                break  # the front is stopped everywhere (barriers, fuel breaks, extinction)
         if np.any(phi2[1:-1, 1:-1][edge] <= 0):
             edge_reached = True
             if cfg.stop_at_edge:
