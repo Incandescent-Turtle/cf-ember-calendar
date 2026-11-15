@@ -10,7 +10,7 @@ T0 = "2026-07-27T00:00:00+00:00"
 
 
 def _obs(x: float, y: float, h: float) -> dict:
-    hh, mm = int(h), int(round((h - int(h)) * 60))
+    hh, mm = int(h), round((h - int(h)) * 60)
     day, hh = divmod(hh, 24)
     return {"x_m": x, "y_m": y, "t": f"2026-07-{27 + day:02d}T{hh:02d}:{mm:02d}:00+00:00",
             "scan": 0.4, "track": 0.4}

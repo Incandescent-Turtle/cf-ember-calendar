@@ -629,6 +629,21 @@ Labelled **EXPLORATORY** everywhere (proposed after Chilecito failed). Gate, met
 - **Pooled metric:** the per-pixel Δ of all windows are pooled for the median |Δ| (the gated number); per-window medians are reported too. Gate threshold = the whole fire's mean overpass interval (3.21 h Chilecito, 2.93 h Córdoba).
 - If a fire passes, it stays not-validated and ships no counterfactuals until the user decides.
 
+## Pre-registration — free-spread pre-screen and the next blind fire (2026-11-15, 15:50, before running the screen)
+
+Screen (`rekindle.candidates --screen`), applied to each `rekindle.candidates` window (0.2° cell × 10 days, ranked by distinct VIIRS overpasses). Fire box = ±0.2° around the cell's mean detection; run window = first day + 6 days (as Chilecito/Córdoba); all FIRMS sensors (as `prep`). Ignition = the detections of the first overpass; R(t) = running max over passes of the farthest detection's distance from the nearest ignition (km, equirectangular).
+
+| rule | reject if | physical reason |
+|---|---|---|
+| P0 enough to score | fewer than 3 days with detections, or R_final < 5 km | a gate needs spread over several overpasses |
+| P1 single start | first-overpass detections span > 3 km | several separate ignitions (Paraná-delta type) |
+| P2 no early burst | R(t ≤ 3 h) > 3 km | > 1 km/h in the first hours, i.e. far from the ignition pixels before the model can get there (Chilecito: 5.8 km at 1.7 h). Distance in any direction, stricter than "upwind" (no wind needed for the screen) |
+| P3 no multi-day plateau | any 48 h interval [t, t + 48 h], t ≥ 6 h, with detections after t + 48 h, where R grows by < max(1 km, 0.15·R_final) | a stall that free spread cannot represent (Chilecito: 60→108 h grows 1.7 km < 2.1 km) |
+| P4 no recurrence | the ±0.05° box around the cell centre has detections on ≥ 20 days in each of ≥ 2 other years (2019–2026) | gas flares, industrial or yearly agricultural burning |
+
+- **Pick:** among windows passing all rules, the most distinct VIIRS overpasses (then most days). The top 3 with reasons are logged before any simulation; the pick goes through `prep` and the frozen A+B sweep (blind, same gate and metrics).
+- Chilecito and Córdoba would fail P2/P3 (sanity check, reported with the screen output).
+
 ## Handoff — S6b (running; updated 2026-11-15 15:30)
 
 **Done**

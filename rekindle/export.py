@@ -20,8 +20,8 @@ import numpy as np
 from rekindle import domain as dm
 from rekindle.credits import CREDITS
 from rekindle.hindcast import MOISTURE_AXIS, load_model
-from rekindle.spread_profile import profile as spread_profile
 from rekindle.scenario_grid import WIND_FROM, WIND_MS, grid_runs, run_key
+from rekindle.spread_profile import profile as spread_profile
 
 WEB = Path("web/public/rekindle")
 LIMITS = (

@@ -40,7 +40,7 @@ def model_head_distance(arrival_s: np.ndarray, meta: dict, dx: float, hours: int
     """Largest distance (km) from the nearest ignition among cells reached by each hour 0..hours."""
     from scipy.spatial import cKDTree
 
-    ny, nx = arrival_s.shape
+    ny = arrival_s.shape[0]
     reached = np.isfinite(arrival_s) & (arrival_s <= hours * 3600)
     ii, jj = np.nonzero(reached)
     if ii.size == 0:
