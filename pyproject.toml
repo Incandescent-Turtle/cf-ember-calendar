@@ -7,6 +7,8 @@ dependencies = [
     "numpy>=2.5.4",
     "polars>=2.1.0",
     "pyarrow>=26.0.1",
+    "scikit-fmm>=2025.6.23",
+    "scipy>=1.18.1",
 ]
 
 [dependency-groups]

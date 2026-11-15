@@ -1,0 +1,15 @@
+# Anderson (1982) INT-122 Table 1: loads (tons/acre), depth (ft), dead moisture of extinction (%). SAV (1/ft) and live herb/woody split from Albini (1976) as tabulated in Andrews (2018) RMRS-GTR-371 Table 8a. 10-h SAV 109, 100-h SAV 30, heat content 8000 Btu/lb for all models (Andrews 2018 Table 8a footnote). Loads like 3.01 are the exact t/ac equivalents of the original lb/ft2 values.
+model,name,w1h,w10h,w100h,wherb,wwoody,sav1h,savherb,savwoody,depth_ft,mx_pct,heat_btu_lb
+1,Short grass (1 ft),0.74,0,0,0,0,3500,,,1.0,12,8000
+2,Timber (grass and understory),2.00,1.00,0.50,0.50,0,3000,1500,,1.0,15,8000
+3,Tall grass (2.5 ft),3.01,0,0,0,0,1500,,,2.5,25,8000
+4,Chaparral (6 ft),5.01,4.01,2.00,0,5.01,2000,,1500,6.0,20,8000
+5,Brush (2 ft),1.00,0.50,0,0,2.00,2000,,1500,2.0,20,8000
+6,Dormant brush / hardwood slash,1.50,2.50,2.00,0,0,1750,,,2.5,25,8000
+7,Southern rough,1.13,1.87,1.50,0,0.37,1750,,1550,2.5,40,8000
+8,Closed timber litter,1.50,1.00,2.50,0,0,2000,,,0.2,30,8000
+9,Hardwood litter,2.92,0.41,0.15,0,0,2500,,,0.2,25,8000
+10,Timber (litter and understory),3.01,2.00,5.01,0,2.00,2000,,1500,1.0,25,8000
+11,Light logging slash,1.50,4.51,5.51,0,0,1500,,,1.0,15,8000
+12,Medium logging slash,4.01,14.03,16.53,0,0,1500,,,2.3,20,8000
+13,Heavy logging slash,7.01,23.04,28.05,0,0,1500,,,3.0,25,8000
