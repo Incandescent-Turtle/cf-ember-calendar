@@ -224,6 +224,8 @@ Grid-run keys: `ws{wind_ms:02d}_wd{deg:03d}_m{moist:02d}`, e.g. `ws09_wd270_m06`
                         "burned_km2_by_hour": [0, "…"], "start_km2": 0, "end_km2": 0, "new_km2": 0,
                         "new_km2_vs_baseline": 0, "new_ratio_vs_baseline": 1.0}]}]}
 ```
+Optional `shape` (S6d, `rekindle.shape_whatif`, whole-fire footprint what-ifs, **shape only**): the same fields as a window plus `kind: "whole_fire_shape"`, `what`, `gate_h`, `dead_1h_pct_baseline` and its own `axes`. Rasters are in `burst/shape/f_u{scale}_d{m|p}{delta}.u16.gz`, with minutes after the first ignition. `rekindle.burst` keeps an existing `shape` entry when it rewrites the index.
+
 `windows` holds only qualifying 24 h windows (rule in `rule`; DECISIONS.md "Pre-registration — S6c"). The window baseline is `wind_scale` 1, `dead_delta_pct` 0. Burst-run keys: `w{index}_u{round(scale·100):03d}_d{m|p}{|delta|}`, e.g. `w1_u150_dm2`. Rasters use the same grid and encoding as `runs/<key>.u16.gz`, but minutes count from the **window start**; cells at 0 are the detected extent that the run restarts from.
 
 Size budget: ≈ 80 KB per run gzipped × (192 grid + baseline) ≈ 15–20 MB per fire → fits Pages (≤ 25 MiB/file, ≤ 20k files). If a second fire doubles it, still fine.

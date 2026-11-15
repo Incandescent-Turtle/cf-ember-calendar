@@ -94,6 +94,7 @@ uv run python -m rekindle.hindcast --fire <id> --tag <variant> [--nonveg-max 50]
 uv run python -m rekindle.fuel_cover --fire <id>             # add MOD44B non-vegetated % to domain.npz (prep does this for new fires)
 uv run python -m rekindle.input_check                        # observed spread vs Rothermel at our inputs (free-spread pre-screen)
 uv run python -m rekindle.burst --fire <id> --workers 6   # S6c burst-window what-ifs (needs <id>_x_win24_AB_windows.json) → web/public/rekindle/<id>/burst
+uv run python -m rekindle.shape_whatif --fire sask-2023 --workers 4   # S6d whole-fire footprint what-ifs (shape only, ~27 min); --flag-only re-flags domain-edge runs
 uv run python -m rekindle.candidates --region argentina|canada   # candidate fires from D:/ember points (read-only)
 # Fir (Alliance): cd ~/scratch/cf-ember-calendar; REKINDLE_VENV=~/scratch/rk-venv sbatch --account=def-hngharti scripts/slurm/rekindle_hindcast.sh <fire> <tag> [opts]
 #                 ... sbatch --account=def-hngharti --array=0-N scripts/slurm/rekindle_grid.sh <fire>

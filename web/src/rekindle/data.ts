@@ -131,6 +131,8 @@ export interface BurstRun {
   new_km2: number;
   new_km2_vs_baseline: number;
   new_ratio_vs_baseline: number | null;
+  /** Footprint what-ifs: the fire reached the domain edge, so the area is a lower bound. */
+  domain_limited?: boolean;
 }
 
 export interface BurstWindow extends BurstWindowEval {
@@ -159,6 +161,17 @@ export interface BurstIndex {
   axes: { wind_scale: number[]; dead_delta_pct: number[]; dead_floor_pct: number };
   all_windows: BurstWindowEval[];
   windows: BurstWindow[];
+  /** S6d whole-fire footprint what-ifs (rekindle.shape_whatif): timing failed, shape matches. */
+  shape?: ShapeWhatIf;
+}
+
+export interface ShapeWhatIf extends BurstWindow {
+  kind: 'whole_fire_shape';
+  what: string;
+  gate_h: number;
+  dead_1h_pct_baseline: number;
+  domain_burnable_km2?: number;
+  axes: { wind_scale: number[]; dead_delta_pct: number[]; dead_floor_pct: number };
 }
 
 export const burstKey = (i: number, scale: number, dpp: number) =>

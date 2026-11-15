@@ -1,6 +1,6 @@
 // S6c burst-window what-ifs (EXPLORATORY, post-hoc; docs/DECISIONS.md "Pre-registration — S6c").
 // Only 24 h windows where the hindcast, restarted from the detected extent, matched the detections.
-import type { BurstIndex, BurstRun, BurstWindow, BurstWindowEval } from './data';
+import type { BurstIndex, BurstRun, BurstWindow, BurstWindowEval, ShapeWhatIf } from './data';
 import { fmtUtc, rampCss } from './data';
 import { AreaChart } from './AreaChart';
 
@@ -145,14 +145,16 @@ export function BurstPanel(p: BurstPanelProps) {
   );
 }
 
-function BurstGrid({ win, scale, dpp }: { win: BurstWindow; scale: number; dpp: number }) {
+function BurstGrid({
+  win, scale, dpp, caption = 'Newly burned area in the window vs the window baseline (wind as observed, moisture as observed)',
+}: { win: BurstWindow; scale: number; dpp: number; caption?: string }) {
   const scales = [...new Set(win.runs.map((r) => r.wind_scale))];
   const dpps = [...new Set(win.runs.map((r) => r.dead_delta_pct))];
   const get = (s: number, d: number) => win.runs.find((r) => r.wind_scale === s && r.dead_delta_pct === d);
   return (
     <div className="table-wrap">
       <table className="rk-variants rk-burst-grid">
-        <caption>Newly burned area in the window vs the window baseline (wind as observed, moisture as observed)</caption>
+        <caption>{caption}</caption>
         <thead>
           <tr>
             <th scope="col">Wind speed</th>
@@ -171,7 +173,7 @@ function BurstGrid({ win, scale, dpp }: { win: BurstWindow; scale: number; dpp: 
                 const r = get(s, d);
                 return (
                   <td key={d} className={s === scale && d === dpp ? 'on' : ''}>
-                    {r ? `× ${f1(r.new_ratio_vs_baseline, 2)}` : '—'}
+                    {r ? `${r.domain_limited ? '≥ ' : ''}× ${f1(r.new_ratio_vs_baseline, 2)}` : '—'}
                   </td>
                 );
               })}
@@ -219,5 +221,93 @@ export function WindowScreen({ burst }: { burst: BurstIndex }) {
       </div>
       <p className="meta">Gate for this fire: ≤ {f1(burst.gate_h)} h (the mean interval between overpasses).</p>
     </details>
+  );
+}
+
+export interface ShapePanelProps extends Omit<BurstPanelProps, 'burst' | 'win' | 'setWin'> {
+  shape: ShapeWhatIf;
+}
+
+/** S6d whole-fire footprint what-ifs: the final footprint matches the detections, the timing does not. */
+export function ShapePanel(p: ShapePanelProps) {
+  const { shape: w, run, base, t } = p;
+  const hours = Math.round(w.hours);
+  const isBase = run.key === base.key;
+  const ratio = w.observed_footprint_km2 > 0 ? w.area_km2 / w.observed_footprint_km2 : null;
+  const dryLabel = (d: number) => (d === 0 ? `${f1(w.dead_1h_pct_baseline, 0)} % (obs.)` : `${d > 0 ? '+' : '−'}${Math.abs(d)}`);
+  return (
+    <div className="rk">
+      <p className="rk-status illustrative" role="status">
+        <strong>Footprint what-if (exploratory, shape only).</strong> The baseline’s final burned footprint matches the satellite detections well (Sørensen {f1(w.sorensen, 2)};{' '}
+        {f1(w.area_km2, 0)} km² simulated vs {f1(w.observed_footprint_km2, 0)} km² of detection pixels), but its timing does not: median |timing error| {f1(w.median_abs_timing_error_h)} h
+        against a {f1(w.gate_h)} h gate. Read where the fire could have gone, not when. Illustrative, not a reconstruction.
+      </p>
+      <p className="meta">
+        Whole fire, {fmtUtc(w.start, 0)} to {fmtUtc(w.start, w.hours)}, from the first-overpass detections, ROS × {w.ros_multiplier} (the fast edge of the calibration sweep). Wind and fuel
+        moisture follow MERRA-2 hour by hour; the what-ifs scale the wind speed (direction unchanged) and shift the dead fuel moisture.
+      </p>
+
+      <div className="rk-sliders">
+        <Seg label="Wind speed" axis={w.axes.wind_scale} value={p.scale} onChange={p.setScale} fmt={windLabel} />
+        <Seg label="Dead fuel moisture (points vs observed)" axis={w.axes.dead_delta_pct} value={p.dpp} onChange={p.setDpp} fmt={dryLabel} />
+        <label className="rk-check">
+          <input type="checkbox" checked={p.compare} onChange={(e) => p.setCompare(e.target.checked)} /> Show the baseline’s burned outline (dashed blue)
+        </label>
+      </div>
+
+      <div className="rk-time">
+        <button onClick={() => (t >= hours ? (p.setT(0), p.setPlaying(true)) : p.setPlaying(!p.playing))} aria-label={p.playing ? 'Pause' : 'Play'}>
+          {p.playing ? '❚❚' : '▶'}
+        </button>
+        <input type="range" min={0} max={hours} step={1} value={t} onChange={(e) => (p.setPlaying(false), p.setT(Number(e.target.value)))} aria-label="Time since the first detection" />
+        <span className="rk-clock">
+          {fmtUtc(w.start, t)} <span className="meta">(+{t} h)</span>
+        </span>
+      </div>
+      <div className="rk-legend">
+        <span>0 h</span>
+        <span className="rk-ramp" style={{ background: rampCss() }} aria-hidden="true" />
+        <span>{hours} h after the first detection</span>
+      </div>
+      <p className="meta">
+        Colour = simulated arrival time (sequence only: the timing is off by about a day); white dots = FIRMS detections up to the clock time. {p.loading && 'Loading run…'}
+      </p>
+
+      <h3>Effect of this what-if</h3>
+      <p className="caption">
+        Wind {windLabel(p.scale)}, dead fuel moisture {moistLabel(p.dpp)}: final footprint <strong>{run.domain_limited ? '≥ ' : ''}{f1(run.end_km2, 0)} km²</strong>
+        {!isBase && (
+          <>
+            {' '}
+            vs {f1(base.end_km2, 0)} km² in the baseline (<strong>{signed(run.end_km2 - base.end_km2, 0)} km²</strong>, × {f1(base.end_km2 > 0 ? run.end_km2 / base.end_km2 : null, 2)})
+          </>
+        )}
+        .
+        {run.domain_limited && (
+          <>
+            {' '}
+            <strong>This run reached the edge of the simulation domain</strong> (about 50 × 50 km, {f1(w.domain_burnable_km2, 0)} km² burnable), so the real footprint would be larger: read
+            it as a lower bound.
+          </>
+        )}
+      </p>
+      <AreaChart start={w.start} baseline={base.burned_km2_by_hour} selected={isBase ? null : run.burned_km2_by_hour} t={t} baseLabel="Baseline (observed weather)" />
+
+      <BurstGrid win={w} scale={p.scale} dpp={p.dpp} caption="Burned area after the whole run vs the baseline (wind as observed, moisture as observed); ≥ = reached the domain edge, a lower bound" />
+
+      <details className="rk-details" open>
+        <summary>What this is, and what it is not</summary>
+        <p>
+          This fire was picked by a pre-screen for fires that spread steadily. The model reproduces its footprint and its day-by-day growth pattern
+          {ratio !== null && <> (it burns {f1(ratio)}× the detection-pixel area)</>}, but not its timing: the median timing error is {f1(w.median_abs_timing_error_h)} h (signed median {f1(w.median_timing_error_h)} h,
+          negative = before the satellites saw fire), and the best multiplier is the fastest we allowed. It never passed the timing gate, so these runs are not validated. We show them, labelled, because the shape match makes them a reasonable picture of how
+          wind and fuel dryness push this kind of fire around, not of what happened hour by hour.
+        </p>
+        <p>
+          MERRA-2 humidity was high (median 81 %), so the observed-weather fuels sit near the moisture at which this grass fuel model stops spreading. Damper scenarios therefore stall
+          almost at once, and drier ones grow quickly. The model also leaves out crown fire, which matters in boreal spring fires.
+        </p>
+      </details>
+    </div>
   );
 }

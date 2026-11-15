@@ -156,6 +156,11 @@ export function RekindleFindings({ headingLevel = 3 }: { headingLevel?: 2 | 3 | 
           </tbody>
         </table>
       </div>
+      <p>
+        <strong>Footprint what-ifs for Saskatchewan (exploratory, shape only).</strong> Saskatchewan has no qualifying window, but its whole-fire footprint matches the detections well (Sørensen 0.72),
+        so on the Rekindle tab it also has whole-fire what-ifs for wind and fuel dryness. Its timing failed the gate by a wide margin (22.4 h vs 1.7 h), so they show where this kind of fire
+        could go under other weather, not when. This view was added at the developer’s request, outside the pre-registered rule, and is labelled that way.
+      </p>
       <Hs>What the literature says</Hs>
       <ul>
         <li>Rate-of-spread models typically err by 20–310 % even during active spread; ±35 % is a proposed benchmark (Cruz &amp; Alexander 2013).</li>

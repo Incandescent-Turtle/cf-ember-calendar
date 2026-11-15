@@ -733,3 +733,11 @@ UI: Rekindle tab gets a "Whole fire (hindcast) | Burst-window what-if (EXPLORATO
 ## Handoff — S6c (2026-11-15)
 
 Done: burst-window what-ifs (Chilecito day 2 only), window check on every fire, Findings rewrite, CONTRACTS `burst/`. pytest 108, vitest 60, ruff/oxlint clean, build OK, checked at 1280 px locally (390 px not checked: browser would not resize). Pushed to `main` (fast-forward from `s6b`). Next: check the deployed `/rekindle` (both views, all three fires) and `/methodology`, including phone width.
+
+## S6d — Saskatchewan whole-fire footprint what-ifs (2026-11-15; user decision; EXPLORATORY, shape only)
+
+The user asked for what-ifs on `sask-2023` because its shape looked right. It did not pass any gate (whole fire 22.4 h vs 1.67 h, signed median −17.2 h; best ×4 = sweep edge), so this goes **outside the gate rule, at the user's request**, and is labelled "shape only: read where, not when". The basis is the footprint match: Sørensen 0.72, 463 km² simulated vs 348 km² detection footprint (1.3×), with per-window Sørensen 0.55–0.91. Entry condition coded in `rekindle.shape_whatif`: whole-fire Sørensen ≥ 0.6 (Chilecito 0.17 and Córdoba fail it).
+
+Design: frozen baseline (calibration.json: A+B, ×4, 122 h, hourly MERRA-2 wind and diurnal moisture), wind speed ×{0, 0.5, 1, 1.5, 2}, dead moisture {−6, −4, −2, 0, +2} points. Shifted toward drier because the observed fuels (dead 1-h 14 %) sit near FM2's extinction moisture, so damper runs stall at once. Output: `burst/index.json` → `shape`, rasters in `burst/shape/`. UI: a third view, "Footprint what-if (SHAPE ONLY)".
+
+S6d results (desktop, 1627 s): baseline rerun 22.38 h / Sør 0.721 = calibration exactly. Final footprint vs the baseline 463 km²: calm ×0.26, wind ×0.5 → ×0.40, ×1.5 → ≥×2.31, ×2 → ≥×3.91; dead −2 → ×2.08, −4 → ≥×3.50, +2 → ×0.39. 11 of 25 runs reached the domain edge (burnable 2372 km²), flagged `domain_limited` from the exported rasters and shown as "≥" lower bounds.

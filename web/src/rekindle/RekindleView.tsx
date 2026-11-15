@@ -8,10 +8,10 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
 import type { FeatureCollection } from 'geojson';
 import {
-  burstKey, fetchBurst, fetchFires, fetchMeta, fetchObserved, fetchRaster, fetchRuns, fmtUtc, hoursSince, isochrones, rampCss,
+  fetchBurst, fetchFires, fetchMeta, fetchObserved, fetchRaster, fetchRuns, fmtUtc, hoursSince, isochrones, rampCss,
   renderRgba, runKey, windAt, type BurstIndex, type FireMeta, type Run,
 } from './data';
-import { BurstPanel, WindowScreen } from './Burst';
+import { BurstPanel, ShapePanel, WindowScreen } from './Burst';
 import { AreaChart } from './AreaChart';
 import { RekindleFindings } from './Findings';
 import { SpreadChart } from './SpreadChart';
@@ -84,16 +84,18 @@ function RkLoaded({ meta, runs, observed, burst, picker }: { meta: FireMeta; run
   const [compare, setCompare] = useState(true);
   const key = mode === 'baseline' || !canWhatIf ? 'baseline' : runKey(ws, wd, mo);
   const run = byKey.get(key) ?? baseline;
-  // S6c burst-window what-ifs (exploratory): only when a 24 h window qualified.
+  // S6c burst-window what-ifs (only when a 24 h window qualified) and S6d whole-fire footprint
+  // what-ifs (shape only); both exploratory, both use the same run layout.
   const canBurst = !!burst && burst.windows.length > 0;
-  const [burstOn, setBurstOn] = useState(false);
+  const shape = burst?.shape ?? null;
+  const [view, setView] = useState<'whole' | 'burst' | 'shape'>('whole');
   const [bwi, setBwi] = useState(0);
   const [bScale, setBScale] = useState(1);
   const [bDpp, setBDpp] = useState(0);
-  const bWin = canBurst ? burst.windows[Math.min(bwi, burst.windows.length - 1)] : null;
+  const bWin = view === 'shape' ? shape : canBurst && view === 'burst' ? burst.windows[Math.min(bwi, burst.windows.length - 1)] : null;
   const bBase = bWin?.runs.find((r) => r.wind_scale === 1 && r.dead_delta_pct === 0) ?? null;
-  const bRun = bWin ? (bWin.runs.find((r) => r.key === burstKey(bWin.index, bScale, bDpp)) ?? bBase) : null;
-  const inBurst = burstOn && !!bWin && !!bRun && !!bBase;
+  const bRun = bWin ? (bWin.runs.find((r) => r.wind_scale === bScale && r.dead_delta_pct === bDpp) ?? bBase) : null;
+  const inBurst = view !== 'whole' && !!bWin && !!bRun && !!bBase;
   const hoursNow = inBurst ? Math.round(bWin.hours) : hours;
   const size = meta.raster.width * meta.raster.height;
   const file = inBurst ? bRun.file : run.file;
@@ -102,10 +104,13 @@ function RkLoaded({ meta, runs, observed, burst, picker }: { meta: FireMeta; run
   const baseRaster = useQuery({ queryKey: ['rk-raster', meta.id, baseFile], queryFn: () => fetchRaster(meta.id, baseFile, size), staleTime: Infinity });
   const showBase = inBurst ? compare && bRun.key !== bBase.key : compare && run.key !== 'baseline';
 
-  const switchView = (b: boolean) => {
+  const switchView = (v: 'whole' | 'burst' | 'shape') => {
     setPlaying(false);
-    setBurstOn(b);
-    setT(b && bWin ? Math.round(bWin.hours) : hours);
+    setView(v);
+    setBScale(1);
+    setBDpp(0);
+    const w = v === 'shape' ? shape : v === 'burst' && canBurst ? burst.windows[0] : null;
+    setT(w ? Math.round(w.hours) : hours);
   };
 
   useEffect(() => {
@@ -126,24 +131,48 @@ function RkLoaded({ meta, runs, observed, burst, picker }: { meta: FireMeta; run
           hours={hoursNow}
           observed={observed}
           offsetH={inBurst ? bWin.start_h_after_t0 : 0}
-          showIgnitions={!inBurst}
+          showIgnitions={view !== 'burst'}
         />
       </div>
       <aside className="panel">
         <Tabs />
         <div className="panel-body">
           {picker}
-          {canBurst && (
+          {(canBurst || shape) && (
             <div className="seg rk-mode" role="radiogroup" aria-label="View">
-              <button className={!burstOn ? 'on' : ''} onClick={() => switchView(false)} role="radio" aria-checked={!burstOn}>
+              <button className={view === 'whole' ? 'on' : ''} onClick={() => switchView('whole')} role="radio" aria-checked={view === 'whole'}>
                 Whole fire (hindcast)
               </button>
-              <button className={burstOn ? 'on' : ''} onClick={() => switchView(true)} role="radio" aria-checked={burstOn}>
-                Burst-window what-if <span className="rk-tag exploratory">EXPLORATORY</span>
-              </button>
+              {canBurst && (
+                <button className={view === 'burst' ? 'on' : ''} onClick={() => switchView('burst')} role="radio" aria-checked={view === 'burst'}>
+                  Burst-window what-if <span className="rk-tag exploratory">EXPLORATORY</span>
+                </button>
+              )}
+              {shape && (
+                <button className={view === 'shape' ? 'on' : ''} onClick={() => switchView('shape')} role="radio" aria-checked={view === 'shape'}>
+                  Footprint what-if <span className="rk-tag exploratory">SHAPE ONLY</span>
+                </button>
+              )}
             </div>
           )}
-          {inBurst ? (
+          {inBurst && view === 'shape' && shape ? (
+            <ShapePanel
+              shape={shape}
+              run={bRun}
+              base={bBase}
+              scale={bScale}
+              setScale={setBScale}
+              dpp={bDpp}
+              setDpp={setBDpp}
+              compare={compare}
+              setCompare={setCompare}
+              t={t}
+              setT={setT}
+              playing={playing}
+              setPlaying={setPlaying}
+              loading={raster.isFetching}
+            />
+          ) : inBurst ? (
             <BurstPanel
               burst={burst!}
               win={bWin}
@@ -325,7 +354,9 @@ function RkPanel(p: PanelProps) {
       : meta.status === 'poor_agreement'
         ? p.burst?.windows.length
           ? 'Poor agreement: the whole-fire baseline did not pass the quality gate, so there are no whole-fire what-ifs. One 24 h window did match (see “Burst-window what-if”, exploratory)'
-          : 'Poor agreement: the baseline did not pass the quality gate, so no what-if runs are shown'
+          : p.burst?.shape
+            ? 'Poor agreement on timing: the baseline did not pass the quality gate, but its footprint matches the detections (see “Footprint what-if”, shape only)'
+            : 'Poor agreement: the baseline did not pass the quality gate, so no what-if runs are shown'
         : 'Uncalibrated: no detections to check against';
 
   return (

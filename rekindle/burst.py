@@ -128,7 +128,7 @@ def _run(job: tuple) -> tuple[str, np.ndarray, float]:
     return key, res.arrival_time_s.astype(np.float32), res.metrics["wall_s"]
 
 
-def rate_table(meta_w: dict, sc, dom, prep: dict) -> dict:
+def rate_table(meta_w: dict, sc, dom, prep: dict, scales=None, dpps=None) -> dict:
     """Rothermel head rate (flat ground) for the dominant fuel model under the window's scored
     detections, at the window's median 10 m wind and median dead moisture, per perturbation."""
     ny = dom.shape[0]
@@ -148,8 +148,8 @@ def rate_table(meta_w: dict, sc, dom, prep: dict) -> dict:
                        d10=float(np.median([s.d10 for s in ser])),
                        d100=float(np.median([s.d100 for s in ser])))
     rows = {}
-    for scale in WIND_SCALE:
-        for dpp in MOIST_DELTA:
+    for scale in scales or WIND_SCALE:
+        for dpp in dpps or MOIST_DELTA:
             m = perturb(replace(sc, moisture=base, moisture_series=()), 1.0, dpp).moisture
             p = spread_params(fuel_bed(fm), m.as_tuple())
             hf = head_fire(p, u10 * scale / 1.15 * sc.waf * MS_TO_FTMIN, 0.0, 0.0, 0.0)
@@ -257,7 +257,10 @@ def main() -> None:
            "axes": {"wind_scale": WIND_SCALE, "dead_delta_pct": MOIST_DELTA,
                     "dead_floor_pct": MOIST_FLOOR * 100},
            "all_windows": ev, "windows": windows}
-    (out / "index.json").write_text(json.dumps(idx, separators=(",", ":")))
+    old_idx = out / "index.json"
+    if old_idx.exists() and "shape" in (prev := json.loads(old_idx.read_text())):
+        idx["shape"] = prev["shape"]  # rekindle.shape_whatif output (burst/shape/), kept
+    old_idx.write_text(json.dumps(idx, separators=(",", ":")))
     REPORT.mkdir(parents=True, exist_ok=True)
     slim = {**idx, "windows": [{k: v for k, v in wd.items() if k != "observed"}
                                for wd in windows]}
