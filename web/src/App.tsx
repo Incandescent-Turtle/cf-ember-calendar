@@ -3,6 +3,8 @@ import { CalendarPanel } from './panels/CalendarPanel';
 import { Tabs } from './Tabs';
 import { linkTo, useRoute } from './route';
 import { lazy, Suspense } from 'react';
+import { Intro } from './Intro';
+import { useIntro } from './introState';
 
 // Methodology and Rekindle load on demand (bundle split, S7).
 const Methodology = lazy(() => import('./methodology/Methodology').then((m) => ({ default: m.Methodology })));
@@ -10,8 +12,10 @@ const RekindleView = lazy(() => import('./rekindle/RekindleView').then((m) => ({
 
 export default function App() {
   const route = useRoute();
+  const intro = useIntro();
   return (
     <div className="app">
+      {intro.open && <Intro onClose={intro.hide} />}
       <header className="topbar">
         <h1>
           <a href="/" onClick={linkTo('app')} className="home">
@@ -20,6 +24,12 @@ export default function App() {
           <span className="tag">harmonized MODIS + VIIRS hotspot activity, 2000 → today</span>
         </h1>
         <nav className="topnav">
+          <a href="/rekindle" onClick={linkTo('rekindle')} className="rk-top" aria-current={route === 'rekindle' ? 'page' : undefined}>
+            🔥 Rekindle: fire simulator
+          </a>
+          <button className="link" onClick={intro.show}>
+            About
+          </button>
           <a href="/methodology" onClick={linkTo('methodology')} aria-current={route === 'methodology' ? 'page' : undefined}>
             Methodology
           </a>

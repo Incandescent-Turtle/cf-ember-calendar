@@ -6,10 +6,10 @@ export function Tabs() {
   return (
     <nav className="tabs" aria-label="Panel">
       <a href="/" onClick={linkTo('app')} className={route === 'app' ? 'on' : ''} aria-current={route === 'app' ? 'page' : undefined}>
-        Calendar
+        📅 Fire calendar
       </a>
-      <a href="/rekindle" onClick={linkTo('rekindle')} className={route === 'rekindle' ? 'on' : ''} aria-current={route === 'rekindle' ? 'page' : undefined}>
-        Rekindle <span className="tab-note">fire-spread hindcast</span>
+      <a href="/rekindle" onClick={linkTo('rekindle')} className={`tab-rk ${route === 'rekindle' ? 'on' : ''}`} aria-current={route === 'rekindle' ? 'page' : undefined}>
+        🔥 Rekindle <span className="tab-note">simulate real fires</span>
       </a>
     </nav>
   );

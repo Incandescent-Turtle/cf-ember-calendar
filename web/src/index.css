@@ -270,3 +270,26 @@ table.loyo tr.dimrow td { color: var(--ink-3); font-size: 11px; }
 .unusual-quiet { color: #2166ac; font-weight: 700; }
 .unusual .link.unusual-high { color: #b2182b; }
 .unusual .link.unusual-quiet { color: #2166ac; }
+
+/* Intro pop-up */
+.intro-backdrop { position: fixed; inset: 0; z-index: 50; background: rgba(20, 16, 12, 0.55); display: flex; align-items: center; justify-content: center; padding: 16px; }
+.intro { position: relative; max-width: 620px; width: 100%; background: #fff; border-radius: 14px; padding: 22px 24px 20px; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3); }
+.intro h2 { margin: 0 0 6px; font-size: 22px; }
+.intro-lede { margin: 0 0 14px; font-size: 15px; line-height: 1.45; }
+.intro-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.intro-cards section { border: 1px solid var(--line); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 6px; }
+.intro-cards h3 { margin: 0; font-size: 15px; }
+.intro-cards p { margin: 0; font-size: 13px; line-height: 1.4; flex: 1; }
+.intro-cards button { align-self: flex-start; }
+.intro-x { position: absolute; top: 10px; right: 10px; border: 0; background: none; font-size: 16px; cursor: pointer; }
+.intro button.rk-cta { background: #c2410c; border-color: #c2410c; color: #fff; }
+.intro button.rk-cta:hover { background: #9a3412; }
+@media (max-width: 560px) { .intro-cards { grid-template-columns: 1fr; } }
+
+/* Rekindle: draw attention */
+.topnav { display: flex; align-items: center; gap: 12px; }
+.topnav .rk-top { padding: 6px 12px; border-radius: 999px; background: #c2410c; color: #fff !important; font-weight: 700; text-decoration: none; }
+.topnav .rk-top:hover { background: #9a3412; }
+.tabs a.tab-rk { font-weight: 600; color: #c2410c; }
+.tabs a.tab-rk.on { border-bottom-color: #c2410c; }
+@media (max-width: 720px) { .topnav .rk-top { padding: 4px 8px; font-size: 12px; } }
