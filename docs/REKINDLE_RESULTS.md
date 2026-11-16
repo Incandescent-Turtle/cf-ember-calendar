@@ -34,10 +34,11 @@ Rekindle replays real wildfires with a physics model (Rothermel surface spread o
 8. **Is the answer key right?** (S6g): overpass waits explain only 0.5–8 h of the error (a fair interval error). MCD64A1 burned area shows the hotspot footprint itself is uncertain (Sørensen 0.3–0.66), and first-detection days match burn days within ±1 day for only 30–74 % of pixels.
 9. **Two references** (S6h): shape judged against burned area plus the inter-reference ceiling; timing against hotspots with the fair interval.
 10. **Shape recalibration** (S6i, pre-registered): multiplier chosen by Sørensen vs MCD64A1 over ×0.125–8. "Shape validated" if the model reaches ≥ 70 % of the ceiling and the ceiling is ≥ 0.3.
+11. **Correction (S6i-b):** the first version scored shape only inside the fire box, and that hid over-burn. Chilecito's box was completely burned at any multiplier above ×0.71 while the model burned 770 km² in the domain, against 135 km² mapped. Final scoring uses the **whole domain** against **MCD64A1 patches connected to this fire's hotspots** (± 1 km), so neighbouring fires don't count and over-burn anywhere does. The in-box numbers are kept in DECISIONS.md as a lesson.
 
 ## Final per-fire status
 
-Inside each fire's box. Ceiling = Sørensen(hotspots, burned area): the most a model can be expected to reach.
+Whole domain, fire-connected MCD64A1 (S6i-b). Ceiling = Sørensen(hotspots, burned area): the most a model can be expected to reach. **All ⏳ S6i-b**; the rows below are the superseded in-box run and will be replaced.
 
 | Fire | Region | Ceiling | Shape-calibrated multiplier | Model vs burned area | Ratio | Shape status | Timing (raw → fair) at shape multiplier | What-if view |
 |---|---|---|---|---|---|---|---|---|
@@ -65,7 +66,7 @@ No fire passes the hour-level timing gate under any calibration. That result sta
 
 - 6 real fires on 3 continents' worth of fuels (Andes foothills, Chaco savanna, Canadian boreal/interior), 2023–2026.
 - 2 of 600 candidate fire windows spread freely for 6 days → stalls are the norm.
-- Two NASA satellite products agree on burned shape at only Sørensen **0.3–0.66**; first-detection day matches burn day within ±1 day for only **30–74 %** of pixels.
+- Two NASA satellite products agree on burned shape at only Sørensen **0.24–0.66** (fire-connected, whole domain; Chaco 0.12); first-detection day matches burn day within ±1 day for only **30–74 %** of pixels.
 - Satellite overpass gaps explain only **0.5–8 h** of the timing error.
 - ⏳ S6i: how many fires are shape validated (provisionally 2–3 of 6).
 - Every number traceable: `docs/report/rekindle/*.json`, logged runs in DECISIONS.md, Fir job ids.
@@ -94,7 +95,7 @@ No fire passes the hour-level timing gate under any calibration. That result sta
 
 - Surface fire only: no crowning, spotting, suppression or fire–atmosphere feedback.
 - Fuels from 500 m land cover through a coarse crosswalk; one ~50 km weather point per fire.
-- Both references are imperfect (pixel size, cloud, smoke, burn-date lag). Sørensen is computed inside the fire box only, so over-burn outside the box is not penalised there (it shows on the map).
+- Both references are imperfect (pixel size, cloud, smoke, burn-date lag). Shape is scored over the whole simulation domain (40–50 km), so a model spreading past the domain edge is under-penalised (flagged "≥" in the what-ifs).
 - The shape calibration and the shape-only windows were defined after the timing tests failed (labelled post-hoc); the timing gate was pre-registered and failed.
 
 ## References (verified in the code base or standard)
