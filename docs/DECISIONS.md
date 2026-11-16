@@ -798,3 +798,4 @@ Whole-fire panel cut to: status caption, big play bar, "what you are seeing", bu
 
 UI (user review ~21:10): sask-2023 shows only its footprint view (`whole_fire: false`, no switcher); bc-2024 drops the day-3 window view (`burst_window: false`) → "Hindcast" + "Footprint what-if"; play button says "Simulate" (Pause while running, Continue mid-way).
 Correction (user): bc-2024 keeps its day-3 window simulation as the first tab, "Hindcast / window" (`whole_fire: false`, window view default), plus "Footprint what-if". The whole-fire BC hindcast tab is not shown.
+Copy (user): Rekindle what-if panels rewritten in plain language: tabs "24-hour simulation" / "Whole fire (shape)"; captions say what is shown and that only part of the fire is simulated; "Why only part of the fire?" / "What this shows" dropdowns without statistics, linking to /methodology. Unused WindowScreen table deleted.
