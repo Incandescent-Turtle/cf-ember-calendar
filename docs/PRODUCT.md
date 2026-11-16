@@ -65,6 +65,7 @@ Source: `challenge_description.md` and the challenge video (Marina Compagnucci, 
 
 **F6. Anomaly view** — calendar re-coloured as anomaly (diverging CVD-safe ramp, centred at the month's median): z-score of log1p(activity) per calendar month. Flags on cells ≥ P90 / ≤ P10.
 - *As shipped ("Above / below normal"):* each month coloured by log₂((value + 1) / (that calendar month's median + 1)), the median taken over complete years with the current year excluded, clipped at ±3 (⅛× … 8×); ColorBrewer RdBu (blue = below normal, white ≈ normal, red = above). The tooltip adds "N× the typical <month> (median …)". Ratios instead of z-scores: easier to read, and robust where many months are zero.
+- *Also shipped:* a **"Most unusual months"** list under the calendar (far above normal: ≥ 5 FCD and ≥ 2×, top 6; unusually quiet: normal ≥ 5 FCD and ≤ ¼ of it, top 3; click to show on the map), and **"Your selection"** in At a glance, which follows the map/calendar time window: a month (value, × typical, label, rank among that month), a year (total vs a typical year, month for month if unfinished, rank) or a month across years (typical, busiest, quietest).
 
 **F7. Seasonality chart** — median monthly curve with IQR band across baseline years; overlay current year and a user-chosen year.
 

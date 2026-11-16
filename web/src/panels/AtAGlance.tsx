@@ -3,6 +3,9 @@ import type { Glance } from '../lib/glance';
 import type { Harmonized } from '../lib/harmonize';
 import { dayRange, fmtP, k2, LABEL_RULE, LABEL_TEXT, monthRun, n0, yearSpan } from '../lib/format';
 import { MONTHS_LONG, MONTHS_SHORT } from '../lib/time';
+import { climatology, label as labelOf, percentile } from '../lib/analytics';
+import { ratioText, rowAt } from '../calendar/option';
+import { useStore } from '../store';
 
 /** Below this median (FCD) the month-to-date label rests on a handful of cell-days. */
 const SMALL_COUNT = 5;
@@ -59,6 +62,7 @@ export function AtAGlance({ g, h }: { g: Glance; h: Harmonized }) {
       )}
       {mtd && (
         <div className="glance-now" title={mtdTip}>
+          <h4 className="glance-h">Right now</h4>
           <div className="glance-k">
             {MONTHS_LONG[mtd.month]} {mtd.year} so far ({dayRange(mtd.tFirst, mtd.tLast)})
           </div>
@@ -86,6 +90,8 @@ export function AtAGlance({ g, h }: { g: Glance; h: Harmonized }) {
           </p>
         </div>
       )}
+      <SelectionGlance h={h} baseYears={s.baselineYears} />
+      <h4 className="glance-h">The usual pattern here ({base})</h4>
       <dl className="glance-grid">
         <div title={cp ? `Shortest run of consecutive months whose median activity (${base}) sums to ≥ 60 % of the sum of all 12 monthly medians.` : ''}>
           <dt>Fire season (critical period)</dt>
@@ -167,3 +173,96 @@ export function AtAGlance({ g, h }: { g: Glance; h: Harmonized }) {
     </section>
   );
 }
+
+/** "Your selection": the year / month picked on the map or in the calendar, against this area's normal. */
+function SelectionGlance({ h, baseYears }: { h: Harmonized; baseYears: number[] }) {
+  const win = useStore((st) => st.window);
+  const val = (y: number, m: number) => {
+    const r = rowAt(h, y, m);
+    return r && Number.isFinite(r.harmonized) ? r.harmonized : NaN;
+  };
+  const head = <h4 className="glance-h">Your selection</h4>;
+  if (win.year === null && win.month === null)
+    return (
+      <div className="glance-sel">
+        {head}
+        <p className="caption">Pick a year or month on the map (or click a square in the calendar) to see whether it was unusual for this area.</p>
+      </div>
+    );
+
+  // one month of one year
+  if (win.year !== null && win.month !== null) {
+    const y = win.year;
+    const m = win.month;
+    const v = val(y, m);
+    const r = rowAt(h, y, m);
+    const base = baseYears.filter((b) => b !== y).map((b) => val(b, m)).filter(Number.isFinite);
+    if (!Number.isFinite(v) || base.length < 3) return <div className="glance-sel">{head}<p className="caption">No harmonized value for {MONTHS_LONG[m]} {y}.</p></div>;
+    const clim = climatology(base);
+    const lab = labelOf(v, clim);
+    const all = h.years.map((yy) => ({ yy, v: val(yy, m), partial: rowAt(h, yy, m)?.partial })).filter((x) => Number.isFinite(x.v) && (!x.partial || x.yy === y));
+    const rank = all.filter((x) => x.v > v).length + 1;
+    return (
+      <div className="glance-sel" title={`Compared with ${MONTHS_LONG[m]} in ${base.length} complete years (${yearSpan(baseYears.filter((b) => b !== y))}): median ${n0(clim.median)}, 25th–75th ${n0(clim.p25)}–${n0(clim.p75)}, 90th ${n0(clim.p90)}. ${Math.round(percentile(v, base))}th percentile. ${LABEL_RULE}`}>
+        {head}
+        <div className="glance-v">
+          {lab && <span className={`chip chip-${lab}`}>{LABEL_TEXT[lab]}</span>} <strong>{MONTHS_LONG[m]} {y}</strong>: <strong>{n0(v)}</strong> fire-cell-days,{' '}
+          <strong>{ratioText(v, clim.median).replace('About the same as', 'about the same as')}</strong> the typical {MONTHS_LONG[m]} ({n0(clim.median)}).
+        </div>
+        <p className="caption">
+          {rank === 1 ? `The busiest ${MONTHS_LONG[m]} of ${all.length} years on record.` : `${ordinal(rank)} busiest ${MONTHS_LONG[m]} of ${all.length} years.`}
+          {r?.partial && ' This month is not finished yet, so it may still grow.'}
+        </p>
+      </div>
+    );
+  }
+
+  // a whole year (the current year: the same months so far)
+  if (win.year !== null) {
+    const y = win.year;
+    const months = Array.from({ length: 12 }, (_, m) => m).filter((m) => Number.isFinite(val(y, m)));
+    const sum = (yy: number) => months.reduce((a, m) => a + val(yy, m), 0);
+    const v = sum(y);
+    const full = months.length === 12 && !months.some((m) => rowAt(h, y, m)?.partial);
+    const base = baseYears.filter((b) => b !== y).map(sum).filter(Number.isFinite);
+    if (!months.length || base.length < 3) return <div className="glance-sel">{head}<p className="caption">No harmonized values for {y}.</p></div>;
+    const clim = climatology(base);
+    const lab = labelOf(v, clim);
+    const others = h.years.filter((yy) => yy !== y && months.every((m) => Number.isFinite(val(yy, m)) && !rowAt(h, yy, m)?.partial));
+    const rank = others.filter((yy) => sum(yy) > v).length + 1;
+    const span = full ? '' : ` (${MONTHS_SHORT[months[0]]}–${MONTHS_SHORT[months[months.length - 1]]}${months.some((m) => rowAt(h, y, m)?.partial) ? ' so far' : ''})`;
+    return (
+      <div className="glance-sel" title={`Total over the same months in ${base.length} complete years: median ${n0(clim.median)}, 25th–75th ${n0(clim.p25)}–${n0(clim.p75)}, 90th ${n0(clim.p90)}. ${LABEL_RULE}`}>
+        {head}
+        <div className="glance-v">
+          {lab && <span className={`chip chip-${lab}`}>{LABEL_TEXT[lab]}</span>} <strong>{y}{span}</strong>: <strong>{n0(v)}</strong> fire-cell-days,{' '}
+          <strong>{ratioText(v, clim.median).replace('About the same as', 'about the same as')}</strong> {full ? 'a typical year' : 'a typical year over the same months'} ({n0(clim.median)}).
+        </div>
+        <p className="caption">
+          {rank === 1 ? `The busiest of ${others.length + 1} years` : `${ordinal(rank)} busiest of ${others.length + 1} years`}
+          {full ? '.' : ' for these months. Compared month for month, so an unfinished year is not penalised.'}
+        </p>
+      </div>
+    );
+  }
+
+  // one calendar month across all years
+  const m = win.month!;
+  const all = h.years.map((yy) => ({ yy, v: val(yy, m), partial: rowAt(h, yy, m)?.partial })).filter((x) => Number.isFinite(x.v) && !x.partial);
+  if (all.length < 3) return <div className="glance-sel">{head}<p className="caption">Not enough years of {MONTHS_LONG[m]} data.</p></div>;
+  const base = baseYears.map((b) => val(b, m)).filter(Number.isFinite);
+  const med = climatology(base).median;
+  const hi = all.reduce((a, b) => (b.v > a.v ? b : a));
+  const lo = all.reduce((a, b) => (b.v < a.v ? b : a));
+  return (
+    <div className="glance-sel">
+      {head}
+      <div className="glance-v">
+        <strong>Every {MONTHS_LONG[m]}</strong>: typically <strong>{n0(med)}</strong> fire-cell-days. Busiest: <strong>{hi.yy}</strong> ({n0(hi.v)}); quietest: {lo.yy} ({n0(lo.v)}).
+      </div>
+      <p className="caption">Pick a year too to see whether that {MONTHS_LONG[m]} was unusual.</p>
+    </div>
+  );
+}
+
+const ordinal = (n: number) => `${n}${n % 100 >= 11 && n % 100 <= 13 ? 'th' : ['th', 'st', 'nd', 'rd'][n % 10] ?? 'th'}`;

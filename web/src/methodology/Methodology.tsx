@@ -135,6 +135,12 @@ function Body({ v, m, cal }: { v: Validation; m: NonNullable<ReturnType<typeof u
             only just started is compared fairly. Labels: Below normal (under the 25th percentile of past years), Normal (25th–75th), Above normal (75th–90th) and Extreme (90th or above).
           </li>
           <li>
+            <strong>Your selection:</strong> the month or year picked on the map or in the calendar, against the same normal. A month gets the same labels as above and its rank
+            among that month in every year. A year is compared on its total, month for month if it is not finished, so the current year is not penalised. The{' '}
+            <strong>most unusual months</strong> list ranks months by the ratio above, among months with at least 5 fire-cell-days and at least twice their normal, plus normally
+            busy months that saw a quarter or less.
+          </li>
+          <li>
             <strong>Fire season (critical period):</strong> the shortest run of consecutive months whose medians add up to at least 60 % of a typical year.
           </li>
           <li>

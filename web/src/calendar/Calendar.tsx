@@ -3,7 +3,7 @@ import * as echarts from 'echarts/core';
 import { BarChart, HeatmapChart } from 'echarts/charts';
 import { GridComponent, TitleComponent, TooltipComponent, VisualMapComponent } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
-import { ANOMALY_RAMP, buildOption, legendTicks, RAMP, rowAt, ZERO_COLOR } from './option';
+import { ANOMALY_RAMP, buildOption, legendTicks, RAMP, ratioText, rowAt, ZERO_COLOR } from './option';
 import { live } from './png';
 import { METRIC_LABEL, metricsFor, valueOf } from './metric';
 import type { Harmonized } from '../lib/harmonize';
@@ -106,6 +106,7 @@ export function Calendar({ h, currentYear }: { h: Harmonized; currentYear: numbe
         </p>
       )}
       {showTable && <CalendarTable h={h} metric={metrics[metrics.length - 1]} />}
+      <UnusualMonths h={h} currentYear={currentYear} />
     </section>
   );
 }
@@ -180,5 +181,63 @@ function CalendarTable({ h, metric }: { h: Harmonized; metric: ReturnType<typeof
         </tbody>
       </table>
     </div>
+  );
+}
+
+/** Months furthest from their normal (harmonized; normal = that calendar month's median over complete
+ * years, current year excluded). Above normal: ≥ 5 FCD and ≥ 2× (with +1 smoothing). Quiet: the month's
+ * normal is ≥ 5 FCD and it saw ≤ ¼ of it. Click to show the month on the map. */
+function UnusualMonths({ h, currentYear }: { h: Harmonized; currentYear: number }) {
+  const setWindow = useStore((st) => st.setWindow);
+  const med = MONTHS_SHORT.map((_, m) => {
+    const xs = h.years
+      .filter((y) => y !== currentYear)
+      .map((y) => rowAt(h, y, m))
+      .filter((r) => !!r && !r.partial && Number.isFinite(r.harmonized))
+      .map((r) => r!.harmonized)
+      .sort((a, b) => a - b);
+    if (!xs.length) return NaN;
+    const k = xs.length >> 1;
+    return xs.length % 2 ? xs[k] : (xs[k - 1] + xs[k]) / 2;
+  });
+  const items: { y: number; m: number; v: number; med: number; r: number; partial: boolean }[] = [];
+  for (const y of h.years)
+    for (let m = 0; m < 12; m++) {
+      const row = rowAt(h, y, m);
+      if (!row || !Number.isFinite(row.harmonized) || !Number.isFinite(med[m])) continue;
+      items.push({ y, m, v: row.harmonized, med: med[m], r: (row.harmonized + 1) / (med[m] + 1), partial: row.partial });
+    }
+  const high = items.filter((x) => x.v >= 5 && x.r >= 2).sort((a, b) => b.r - a.r).slice(0, 6);
+  const quiet = items.filter((x) => !x.partial && x.med >= 5 && x.v <= x.med / 4).sort((a, b) => a.r - b.r).slice(0, 3);
+  const item = (x: (typeof items)[number], cls: string) => (
+    <li key={`${x.y}-${x.m}`}>
+      <button className={`link unusual-${cls}`} onClick={() => setWindow({ year: x.y, month: x.m })} title="Show this month on the map">
+        {MONTHS_SHORT[x.m]} {x.y}
+      </button>{' '}
+      {Math.round(x.v).toLocaleString('en-US')} fire-cell-days, <strong>{ratioText(x.v, x.med).replace('About the same as', '≈')}</strong> the typical {MONTHS_SHORT[x.m]} (
+      {Math.round(x.med).toLocaleString('en-US')}){x.partial ? ', month not finished' : ''}
+    </li>
+  );
+  return (
+    <section className="unusual" aria-label="Most unusual months">
+      <h3>Most unusual months</h3>
+      <p className="caption">
+        Months furthest from what is normal for that time of year here (normal = the month’s median, {h.years[0] + 1}–{currentYear - 1}). Click one to show it on the map.
+      </p>
+      {high.length ? (
+        <>
+          <h4>Far above normal</h4>
+          <ol className="unusual-list">{high.map((x) => item(x, 'high'))}</ol>
+        </>
+      ) : (
+        <p className="caption">No month was more than twice its normal with at least 5 fire-cell-days.</p>
+      )}
+      {quiet.length > 0 && (
+        <>
+          <h4>Unusually quiet</h4>
+          <ol className="unusual-list">{quiet.map((x) => item(x, 'quiet'))}</ol>
+        </>
+      )}
+    </section>
   );
 }
