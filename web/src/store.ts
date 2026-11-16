@@ -46,7 +46,7 @@ export const useStore = create<State>((set) => ({
   window: ALL_TIME,
   showPoints: true,
   showTable: false,
-  satellite: false,
+  satellite: true,
   flyTo: null,
   setAoi: (aoi) => set({ aoi, drawMode: 'none' }),
   setViewMode: (viewMode) => set({ viewMode }),
