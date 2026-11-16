@@ -10,6 +10,11 @@ import { METRIC_LABEL, tooltipHtml, valueOf, type Metric } from './metric';
 export const RAMP = ['#ffeda0', '#fed976', '#feb24c', '#fd8d3c', '#fc4e2a', '#e31a1c', '#bd0026', '#800026'];
 export const ZERO_COLOR = '#e7e4df';
 export const NODATA_COLOR = '#ffffff';
+/** Anomaly view: ColorBrewer RdBu (diverging, CVD-friendly): blue = below the month's normal, red = above. */
+export const ANOMALY_RAMP = ['#2166ac', '#4393c3', '#92c5de', '#d1e5f0', '#f7f7f7', '#fddbc7', '#f4a582', '#d6604d', '#b2182b'];
+/** colour range in log2(ratio to the month's median): ±3 = 8× above / below */
+export const ANOMALY_MAX = 3;
+const anomalyOf = (v: number, med: number) => Math.max(-ANOMALY_MAX, Math.min(ANOMALY_MAX, Math.log2((v + 1) / (med + 1))));
 
 const log = (v: number) => Math.log10(1 + v);
 const median = (xs: number[]) => {
@@ -28,10 +33,22 @@ export interface BuildArgs {
   metrics: Metric[];
   currentYear: number;
   selected: { year: number; month: number } | null;
+  /** colour each month by its ratio to that calendar month's median (complete years, current year excluded) */
+  anomaly?: boolean;
 }
 
-export function buildOption({ h, metrics, currentYear, selected }: BuildArgs): { option: EChartsCoreOption; vmin: number; vmax: number } {
+export function buildOption({ h, metrics, currentYear, selected, anomaly = false }: BuildArgs): { option: EChartsCoreOption; vmin: number; vmax: number } {
   const years = h.years.map(String);
+  const mainMetric = metrics[metrics.length - 1];
+  const medianOf = (m: number) =>
+    median(
+      h.years
+        .filter((y) => y !== currentYear)
+        .map((y) => rowAt(h, y, m))
+        .filter((r): r is MonthRow => !!r && !r.partial)
+        .map((r) => valueOf(r, mainMetric)),
+    );
+  const monthMedians = MONTHS_SHORT.map((_, m) => medianOf(m));
   const split = metrics.length > 1;
   let vmax = 0;
   const logs: number[] = [];
@@ -48,8 +65,11 @@ export function buildOption({ h, metrics, currentYear, selected }: BuildArgs): {
         vmax = Math.max(vmax, lv);
         if (v > 0) logs.push(lv);
         const isSel = selected?.year === y && selected?.month === m;
-        (v > 0 ? data : zeros).push({
-          value: [m, String(y), lv, v],
+        const med = monthMedians[m];
+        if (anomaly && !Number.isFinite(med)) continue;
+        // anomaly view: every month is coloured (a zero month below a non-zero normal is "below normal")
+        (anomaly || v > 0 ? data : zeros).push({
+          value: [m, String(y), anomaly ? anomalyOf(v, med) : lv, v],
           itemStyle: r.partial
             ? { borderColor: '#5b5b5b', borderWidth: 1.5, borderType: 'dashed' }
             : isSel
@@ -85,15 +105,6 @@ export function buildOption({ h, metrics, currentYear, selected }: BuildArgs): {
     }
     return { value: any ? s : null, itemStyle: { color: partial ? '#b9b4ac' : '#7a6f63' }, partial };
   });
-  const monthMedians = MONTHS_SHORT.map((_, m) =>
-    median(
-      h.years
-        .filter((y) => y !== currentYear)
-        .map((y) => rowAt(h, y, m))
-        .filter((r): r is MonthRow => !!r && !r.partial)
-        .map((r) => valueOf(r, main)),
-    ),
-  );
 
   const left = 44;
   const barW = split ? 0 : 64;
@@ -195,8 +206,9 @@ export function buildOption({ h, metrics, currentYear, selected }: BuildArgs): {
     : [];
 
   const fmt = (v: number) => Math.round(v).toLocaleString('en-US');
-  for (const { data } of heat)
-    for (const d of data as { value: [number, string, number, number] }[]) if (d.value[2] < vmin) d.value[2] = vmin;
+  if (!anomaly)
+    for (const { data } of heat)
+      for (const d of data as { value: [number, string, number, number] }[]) if (d.value[2] < vmin) d.value[2] = vmin;
   const option: EChartsCoreOption = {
     title: titles,
     animation: false,
@@ -208,11 +220,11 @@ export function buildOption({ h, metrics, currentYear, selected }: BuildArgs): {
       {
         type: 'continuous',
         show: false,
-        min: vmin,
-        max: vmax,
+        min: anomaly ? -ANOMALY_MAX : vmin,
+        max: anomaly ? ANOMALY_MAX : vmax,
         dimension: 2,
         seriesIndex: heat.map((_, i) => i),
-        inRange: { color: RAMP },
+        inRange: { color: anomaly ? ANOMALY_RAMP : RAMP },
       },
       {
         // zero months: a single neutral colour (ECharts needs a visualMap on every heatmap series)
@@ -232,7 +244,13 @@ export function buildOption({ h, metrics, currentYear, selected }: BuildArgs): {
         if (p.seriesType === 'heatmap') {
           const [m, y] = (p.value as [number, string, number, number]);
           const r = rowAt(h, Number(y), m);
-          return r ? tooltipHtml(r, h, currentYear) : '';
+          if (!r) return '';
+          const med = monthMedians[m];
+          const vs =
+            anomaly && Number.isFinite(med)
+              ? `<br/><b>${ratioText(r.harmonized, med)}</b> the typical ${MONTHS_SHORT[m]} (median ${fmt(med)} FCD, ${h.years[0] + 1}–${currentYear - 1})`
+              : '';
+          return tooltipHtml(r, h, currentYear) + vs;
         }
         if (p.seriesName === 'Per-year total') {
           const t = yearTotals[p.dataIndex];
@@ -244,6 +262,13 @@ export function buildOption({ h, metrics, currentYear, selected }: BuildArgs): {
     },
   };
   return { option, vmin, vmax };
+}
+
+/** "3.2×" / "about the same as" / "0.4×" for a month vs its median (with +1 smoothing, like the colours). */
+export function ratioText(v: number, med: number): string {
+  const r = (v + 1) / (med + 1);
+  if (r > 0.83 && r < 1.2) return 'About the same as';
+  return `${r >= 10 ? Math.round(r) : r.toFixed(1)}×`;
 }
 
 /** Legend ticks (FCD values) for a log scale up to 10^vmax. */

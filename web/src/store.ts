@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import type { Feature, MultiPolygon, Polygon } from 'geojson';
 import type { TimeWindow } from './data/density';
 
-export type ViewMode = 'harmonized' | 'modis' | 'viirs' | 'split';
+export type ViewMode = 'harmonized' | 'anomaly' | 'modis' | 'viirs' | 'split';
 export type DrawMode = 'none' | 'rectangle' | 'polygon' | 'circle';
 
 export interface Aoi {

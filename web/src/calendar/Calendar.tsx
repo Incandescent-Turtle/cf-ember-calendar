@@ -3,7 +3,7 @@ import * as echarts from 'echarts/core';
 import { BarChart, HeatmapChart } from 'echarts/charts';
 import { GridComponent, TitleComponent, TooltipComponent, VisualMapComponent } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
-import { buildOption, legendTicks, RAMP, rowAt, ZERO_COLOR } from './option';
+import { ANOMALY_RAMP, buildOption, legendTicks, RAMP, rowAt, ZERO_COLOR } from './option';
 import { live } from './png';
 import { METRIC_LABEL, metricsFor, valueOf } from './metric';
 import type { Harmonized } from '../lib/harmonize';
@@ -14,6 +14,7 @@ echarts.use([HeatmapChart, BarChart, GridComponent, TooltipComponent, VisualMapC
 
 const MODES: { id: ViewMode; label: string }[] = [
   { id: 'harmonized', label: 'Harmonized' },
+  { id: 'anomaly', label: 'Above / below normal' },
   { id: 'modis', label: 'MODIS raw' },
   { id: 'viirs', label: 'VIIRS raw' },
   { id: 'split', label: 'Side-by-side' },
@@ -30,7 +31,8 @@ export function Calendar({ h, currentYear }: { h: Harmonized; currentYear: numbe
   const { viewMode, setViewMode, window: win, setWindow, showTable, toggleTable } = useStore();
   const selected = selectedCell(win);
   const metrics = metricsFor(viewMode);
-  const { option, vmin, vmax } = useMemo(() => buildOption({ h, metrics, currentYear, selected }), [h, viewMode, currentYear, selected?.year, selected?.month]); // eslint-disable-line react-hooks/exhaustive-deps
+  const anomaly = viewMode === 'anomaly';
+  const { option, vmin, vmax } = useMemo(() => buildOption({ h, metrics, currentYear, selected, anomaly }), [h, viewMode, currentYear, selected?.year, selected?.month]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const c = echarts.init(el.current!, undefined, { renderer: 'canvas' });
@@ -64,7 +66,9 @@ export function Calendar({ h, currentYear }: { h: Harmonized; currentYear: numbe
 
   const caption =
     viewMode === 'harmonized'
-      ? 'Redder = more hotspot activity. MODIS-era months are scaled to VIIRS-equivalent, so the record is continuous through 2012.'
+      ? 'Each square is one month: redder = more hotspot activity. MODIS-era months are scaled to VIIRS-equivalent, so the record is continuous through 2012. Right: yearly totals. Bottom: the typical (median) amount for each month.'
+      : viewMode === 'anomaly'
+        ? `Each month compared with what is normal for that month (its median in ${h.years[0] + 1}–${currentYear - 1}). Red = more hotspot activity than normal, blue = less, white = about normal.`
       : viewMode === 'split'
         ? 'Left: raw values spliced at Feb 2012 (note the jump when VIIRS takes over). Right: harmonized. Same colour scale.'
         : viewMode === 'modis'
@@ -84,7 +88,7 @@ export function Calendar({ h, currentYear }: { h: Harmonized; currentYear: numbe
         {caption} Click a month to show it on the map.
       </p>
       <div ref={el} className={`chart ${viewMode === 'split' ? 'split' : ''}`} />
-      <Legend vmin={vmin} vmax={vmax} />
+      {anomaly ? <AnomalyLegend /> : <Legend vmin={vmin} vmax={vmax} />}
       <div className="calendar-foot">
         <span className="unit" title={UNIT_TIP}>
           Units: {UNIT_LONG} <span aria-hidden>ⓘ</span>
@@ -124,6 +128,25 @@ function Legend({ vmin, vmax }: { vmin: number; vmax: number }) {
         </div>
       </div>
       <span className="legend-note">FCD / month (log{vmin > 0 ? '; lighter = at or below the left end' : ''}) · scale: this area · dashed = partial month</span>
+    </div>
+  );
+}
+
+function AnomalyLegend() {
+  const grad = `linear-gradient(to right, ${ANOMALY_RAMP.join(', ')})`;
+  return (
+    <div className="legend" aria-label="Colour scale: compared with the month's normal">
+      <div className="ramp-wrap">
+        <div className="ramp" style={{ background: grad }} />
+        <div className="ticks">
+          {['⅛×', '¼×', '½×', 'normal', '2×', '4×', '8×'].map((t, i) => (
+            <span key={t} style={{ left: `${(100 * i) / 6}%` }}>
+              {t}
+            </span>
+          ))}
+        </div>
+      </div>
+      <span className="legend-note">compared with the typical amount for that month · dashed = partial month</span>
     </div>
   );
 }

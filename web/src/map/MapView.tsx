@@ -77,7 +77,7 @@ export function MapView() {
           '<a href="https://s2maps.eu" target="_blank" rel="noreferrer">Sentinel-2 cloudless 2020</a> by EOX IT Services GmbH (contains modified Copernicus Sentinel data 2020)',
       });
       const firstLabel = map.getStyle().layers?.find((l) => l.type === 'symbol')?.id;
-      map.addLayer({ id: 'satellite', type: 'raster', source: 'satellite', layout: { visibility: useStore.getState().satellite ? 'visible' : 'none' } }, firstLabel);
+      map.addLayer({ id: 'satellite', type: 'raster', source: 'satellite', paint: { 'raster-saturation': -0.65, 'raster-contrast': -0.1 }, layout: { visibility: useStore.getState().satellite ? 'visible' : 'none' } }, firstLabel);
       map.addSource('density', { type: 'geojson', data: EMPTY });
       map.addLayer({
         id: 'density-fill',
@@ -126,7 +126,8 @@ export function MapView() {
           'circle-radius': ['interpolate', ['linear'], ['zoom'], 3, 1.2, 7, 2.5, 11, 5],
           'circle-stroke-color': '#ffffff',
           'circle-stroke-width': ['interpolate', ['linear'], ['zoom'], 5, 0, 9, 0.6],
-          'circle-opacity': 0.9,
+          'circle-stroke-opacity': 0.5,
+          'circle-opacity': 0.55,
         },
       });
       const popup = new maplibregl.Popup({ closeButton: true, maxWidth: '280px' });

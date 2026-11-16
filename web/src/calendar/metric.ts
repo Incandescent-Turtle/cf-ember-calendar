@@ -13,7 +13,7 @@ export const METRIC_LABEL: Record<Metric, string> = {
 };
 
 export const metricsFor = (mode: ViewMode): Metric[] =>
-  mode === 'split' ? ['spliced', 'harmonized'] : [mode];
+  mode === 'split' ? ['spliced', 'harmonized'] : mode === 'anomaly' ? ['harmonized'] : [mode];
 
 /** Value of a metric; NaN when not observed (VIIRS before 2012, harmonized without k). */
 export function valueOf(r: MonthRow, m: Metric): number {

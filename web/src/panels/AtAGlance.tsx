@@ -1,7 +1,7 @@
 // "At a glance" summary (PRODUCT.md F3). Every number has a tooltip saying where it comes from.
 import type { Glance } from '../lib/glance';
 import type { Harmonized } from '../lib/harmonize';
-import { dayRange, fmtP, k2, LABEL_RULE, LABEL_TEXT, monthRun, n0, ord, yearSpan } from '../lib/format';
+import { dayRange, fmtP, k2, LABEL_RULE, LABEL_TEXT, monthRun, n0, yearSpan } from '../lib/format';
 import { MONTHS_LONG, MONTHS_SHORT } from '../lib/time';
 
 /** Below this median (FCD) the month-to-date label rests on a handful of cell-days. */
@@ -39,15 +39,18 @@ export function AtAGlance({ g, h }: { g: Glance; h: Harmonized }) {
   const trendWords = !tr
     ? ''
     : !signif
-      ? 'no clear trend'
+      ? 'no clear trend (could be chance)'
       : tr.slopePerYear > 0
-        ? 'a statistically significant increase'
-        : 'a statistically significant decrease';
+        ? 'rising (statistically significant)'
+        : 'falling (statistically significant)';
   const b = g.busiest;
 
   return (
     <section className="glance" aria-label="At a glance">
       <h3>At a glance</h3>
+      <p className="caption glance-unit">
+        Hotspot activity is counted in <strong>fire-cell-days</strong>: one ~1 km square with at least one satellite hotspot on one day. Hover any number for its source.
+      </p>
       {g.sparse && (
         <p className="warn">
           Hotspot activity is rare in this area: {Math.round(100 * g.zeroShare)} % of months ({g.zeroMonths} of {g.baseMonths}) have none, so typical
@@ -68,15 +71,15 @@ export function AtAGlance({ g, h }: { g: Glance; h: Harmonized }) {
               </>
             ) : (
               <>
-                <strong>{n0(mtd.value)}</strong> FCD vs a median of {n0(mtd.clim.median)}
-                {mtd.ratio !== null && <> ({mtd.ratio.toFixed(mtd.ratio < 10 ? 1 : 0)}×)</>}
-                {Number.isFinite(mtd.percentile) && <> · {ord(mtd.percentile)} percentile</>}
+                <strong>{n0(mtd.value)}</strong> fire-cell-days so far, vs a usual <strong>{n0(mtd.clim.median)}</strong> for these days
+                {mtd.ratio !== null && <> (about {mtd.ratio.toFixed(mtd.ratio < 10 ? 1 : 0)}× normal)</>}
+                {Number.isFinite(mtd.percentile) && <>. Busier than {Math.round(mtd.percentile)} % of past years.</>}
               </>
             )}
           </div>
           <p className="caption">
-            Same {mtd.dekads === 3 ? 'whole month' : `${mtd.dekads} dekad${mtd.dekads > 1 ? 's' : ''} (10-day period${mtd.dekads > 1 ? 's' : ''})`} in{' '}
-            {yearSpan(mtd.baseYears)}, so a partly observed month is compared fairly.
+            Compared with the same {mtd.dekads === 3 ? 'whole month' : `first ${mtd.dekads * 10} days`} in {yearSpan(mtd.baseYears)}, so a month that has only just started is
+            compared fairly.
             {mtd.droppedIncomplete && ' The latest dekad was still in progress when the data was built and is left out.'}
             {!g.sparse && mtd.clim.median < SMALL_COUNT && mtd.value < 2 * SMALL_COUNT && (mtd.value > 0 || mtd.clim.median > 0) &&
               ' Small numbers: a few fire-cell-days either way would change this label.'}
@@ -85,11 +88,11 @@ export function AtAGlance({ g, h }: { g: Glance; h: Harmonized }) {
       )}
       <dl className="glance-grid">
         <div title={cp ? `Shortest run of consecutive months whose median activity (${base}) sums to ≥ 60 % of the sum of all 12 monthly medians.` : ''}>
-          <dt>Critical period</dt>
+          <dt>Fire season (critical period)</dt>
           <dd>
             {cp ? (
               <>
-                <strong>{monthRun(cp.months)}</strong> <span className="dim">{Math.round(100 * cp.share)} % of a typical year</span>
+                <strong>{monthRun(cp.months)}</strong> <span className="dim">{Math.round(100 * cp.share)} % of a typical year’s activity</span>
               </>
             ) : (
               '—'
@@ -111,9 +114,7 @@ export function AtAGlance({ g, h }: { g: Glance; h: Harmonized }) {
                   {tr.pctPerYear >= 0 ? '+' : '−'}
                   {Math.abs(tr.pctPerYear).toFixed(1)} %/yr
                 </strong>{' '}
-                <span className="dim">
-                  p = {fmtP(tr.p)}, {trendWords}
-                </span>
+                <span className="dim">{trendWords}</span>
               </>
             ) : (
               '—'
@@ -121,24 +122,24 @@ export function AtAGlance({ g, h }: { g: Glance; h: Harmonized }) {
           </dd>
         </div>
         <div title={`Annual totals of complete years ${base} (harmonized FCD)`}>
-          <dt>Top years</dt>
+          <dt>Busiest years</dt>
           <dd>
             {g.topYears.map((y, i) => (
               <span key={y.year}>
                 {i > 0 && ' · '}
-                <strong>{y.year}</strong> <span className="dim">{n0(y.value)}</span>
+                <strong>{y.year}</strong> <span className="dim">{n0(y.value)} FCD</span>
               </span>
             ))}
           </dd>
         </div>
         <div title={`Median of each calendar month over ${base} (harmonized FCD)`}>
-          <dt>Busiest months of the year</dt>
+          <dt>Months that usually burn most</dt>
           <dd>
             {!g.topMonths.length && 'no month with typical activity above 0'}
             {g.topMonths.map((m, i) => (
               <span key={m.month}>
                 {i > 0 && ' · '}
-                <strong>{MONTHS_SHORT[m.month]}</strong> <span className="dim">median {n0(m.median)}</span>
+                <strong>{MONTHS_SHORT[m.month]}</strong> <span className="dim">typically {n0(m.median)}</span>
               </span>
             ))}
           </dd>
@@ -160,7 +161,8 @@ export function AtAGlance({ g, h }: { g: Glance; h: Harmonized }) {
         )}
       </dl>
       <p className="caption">
-        Harmonized {`VIIRS-equivalent fire-cell-days`}; baseline = complete years {base} ({nBase}), the current year excluded. Hover any number for its source.
+        “Usual” and “typically” = the median over the complete years {base} ({nBase} years; the current year is left out). Values are harmonized: MODIS years are converted to
+        what VIIRS would have seen.
       </p>
     </section>
   );

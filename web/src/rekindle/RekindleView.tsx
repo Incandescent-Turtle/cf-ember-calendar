@@ -270,7 +270,7 @@ function RkMap({
           '<a href="https://s2maps.eu" target="_blank" rel="noreferrer">Sentinel-2 cloudless 2020</a> by EOX IT Services GmbH (contains modified Copernicus Sentinel data 2020)',
       });
       const firstLabel = map.getStyle().layers?.find((l) => l.type === 'symbol')?.id;
-      map.addLayer({ id: 'satellite', type: 'raster', source: 'satellite', layout: { visibility: useStore.getState().satellite ? 'visible' : 'none' } }, firstLabel);
+      map.addLayer({ id: 'satellite', type: 'raster', source: 'satellite', paint: { 'raster-saturation': -0.65, 'raster-contrast': -0.1 }, layout: { visibility: useStore.getState().satellite ? 'visible' : 'none' } }, firstLabel);
       const blank = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
       map.addSource('rk-arrival', { type: 'image', url: blank, coordinates: coords });
       map.addLayer({ id: 'rk-arrival', type: 'raster', source: 'rk-arrival', paint: { 'raster-opacity': 0.85, 'raster-resampling': 'nearest', 'raster-fade-duration': 0 } });
