@@ -156,7 +156,7 @@ function RkLoaded({
         <div className="panel-body">
           {picker}
           {reference && (
-            <label className="rk-check">
+            <label className="rk-check rk-burn-toggle">
               <input type="checkbox" checked={showBurn} onChange={(e) => setShowBurn(e.target.checked)} /> Show MODIS burned area (MCD64A1) by burn day, green outline
             </label>
           )}

@@ -166,7 +166,8 @@ table.loyo tr.dimrow td { color: var(--ink-3); font-size: 11px; }
 .rk-status.illustrative { border-left-color: #c2410c; background: #fdf1e8; }
 .rk-badge { display: block; margin-top: 4px; font-size: 12px; color: var(--ink-2); }
 .rk-badge.poor_agreement, .rk-badge.uncalibrated { color: var(--warn-ink); font-weight: 600; }
-.rk-mode { margin: 4px 0 8px; }
+.rk-mode { display: flex; width: fit-content; max-width: 100%; flex-wrap: wrap; margin: 4px 0 8px; }
+.rk-burn-toggle { display: flex; align-items: center; gap: 6px; margin: 2px 0 8px; }
 .rk-sliders { display: grid; gap: 6px; margin: 6px 0 10px; }
 .rk-slider { display: grid; gap: 2px; font-size: 13px; }
 .rk-slider input, .rk-time input { width: 100%; accent-color: var(--accent); }
