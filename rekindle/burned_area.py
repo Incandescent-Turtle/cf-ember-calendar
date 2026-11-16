@@ -118,6 +118,7 @@ def check(fire: str) -> dict:
     t1 = t0 + dt.timedelta(hours=cal["hours"])
     bd, used = burn_dates(fire, meta, t0, t1)
     export_outline(fire, meta, np.isfinite(bd))  # whole domain, for the map
+    np.save(dm.DATA / fire / "mcd64_burnday.npy", bd.astype(np.float32))  # for calibrate_shape
     box = in_bbox(meta)
     bd = np.where(box, bd, np.nan)
     mcd = np.isfinite(bd)
