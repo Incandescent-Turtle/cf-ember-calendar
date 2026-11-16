@@ -46,7 +46,7 @@
     53.552
    ],
    "status": "shape_validated",
-   "burst_window": false
+   "whole_fire": false
   },
   {
    "id": "larioja-2025",

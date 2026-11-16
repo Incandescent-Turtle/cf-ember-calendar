@@ -175,7 +175,7 @@ function RkLoaded({
               )}
               {canBurst && (
                 <button className={view === 'burst' ? 'on' : ''} onClick={() => switchView('burst')} role="radio" aria-checked={view === 'burst'}>
-                  {burst?.windows[0]?.basis === 'shape' ? 'Window what-if' : 'Burst-window what-if'}{' '}
+                  {!wholeFire ? 'Hindcast / window' : burst?.windows[0]?.basis === 'shape' ? 'Window what-if' : 'Burst-window what-if'}{' '}
                   <span className="rk-tag exploratory">{burst?.windows[0]?.basis === 'shape' ? 'SHAPE ONLY' : 'EXPLORATORY'}</span>
                 </button>
               )}
