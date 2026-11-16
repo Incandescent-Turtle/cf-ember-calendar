@@ -1,0 +1,7 @@
+MODIS has watched Earth's fires since 2000 and is retiring. VIIRS took over in 2012, but it sees fire at finer resolution and records about three times more activity, so the raw records can't be compared. A 25-year fire history is about to split in two. Ember Calendar joins it back into one consistent, global record and turns it into a burning activity calendar for any area on Earth.
+
+We processed 490 million NASA FIRMS detections (MODIS, VIIRS S-NPP and NOAA-20, 2000–2026). Both sensors are reduced to a common unit, fire-cell-days, and MODIS is calibrated to VIIRS-equivalent with factors per month and region, fit on the 2013–2021 overlap. In leave-one-year-out tests, calibration cuts the global monthly error from 65% to 2.5%, and the jump at the 2012 sensor switch disappears.
+
+Draw a polygon, enter a point and radius, or pick a country. In about a second the app shows which months and years burn most, the critical period, the trend, and how this month compares with its historical median. Every number shows the raw MODIS and VIIRS values behind it, and everything exports to CSV.
+
+Rekindle, our fire-spread simulator, replays real fires, starting with the Chilecito fire from the challenge video, using NASA land-cover and MERRA-2 weather data. It judges itself against two satellite references, the hotspots and NASA's burned-area maps, and shows what stronger wind or drier fuels would have changed only where it earns that.

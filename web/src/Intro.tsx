@@ -27,8 +27,8 @@ export function Intro({ onClose }: { onClose: () => void }) {
             </button>
           </section>
           <section>
-            <h3>🔥 Rekindle</h3>
-            <p>Replay real fires with a physics model. Change the wind or the fuel dryness, press Simulate, and watch how the fire would have spread.</p>
+            <h3>🔥 Rekindle: replay a real fire</h3>
+            <p>Rewind a real wildfire and watch it spread again across the actual terrain, driven by fire physics and the weather it really had. Then turn up the wind or dry out the fuels, press Simulate, and see how much further it could have run.</p>
             <button
               className="primary rk-cta"
               onClick={() => {
