@@ -1,9 +1,9 @@
 [
  {
   "timing_vs_hotspots": {
-   "median_abs_h": 12.04,
-   "censored_median_h": 10.47,
-   "inside_interval": 0.066,
+   "median_abs_h": 33.7,
+   "censored_median_h": 33.61,
+   "inside_interval": 0.047,
    "gate_h": 3.21
   },
   "fire": "chilecito-2026",
@@ -11,24 +11,24 @@
    "MCD64A1.A2026182.h12v11.061.2026254000735.hdf",
    "MCD64A1.A2026213.h12v11.061.2026286122139.hdf"
   ],
-  "mcd64_km2": 132.9,
+  "mcd64_km2": 134.8,
   "hotspot_footprint_km2": 111.8,
-  "model_km2": 291.4,
-  "sorensen_hotspots_vs_mcd64": 0.659,
-  "sorensen_model_vs_mcd64": 0.613,
-  "sorensen_model_vs_hotspots": 0.535,
-  "mcd64_covered_by_hotspots": 0.607,
-  "hotspots_on_mcd64": 0.721,
+  "model_km2": 770.1,
+  "sorensen_hotspots_vs_mcd64": 0.658,
+  "sorensen_model_vs_mcd64": 0.284,
+  "sorensen_model_vs_hotspots": 0.235,
+  "mcd64_covered_by_hotspots": 0.602,
+  "hotspots_on_mcd64": 0.725,
   "detection_minus_burn_day": {
    "n": 596,
    "median": 0.0,
    "within_1_day": 0.564
   },
   "model_minus_burn_day": {
-   "n": 16062,
-   "median": 0.0,
+   "n": 15867,
+   "median": 1.0,
    "median_abs": 1.0,
-   "within_1_day": 0.613
+   "within_1_day": 0.517
   }
  },
  {
@@ -45,10 +45,10 @@
   ],
   "mcd64_km2": 81.6,
   "hotspot_footprint_km2": 127.7,
-  "model_km2": 302.7,
+  "model_km2": 471.2,
   "sorensen_hotspots_vs_mcd64": 0.593,
-  "sorensen_model_vs_mcd64": 0.32,
-  "sorensen_model_vs_hotspots": 0.547,
+  "sorensen_model_vs_mcd64": 0.223,
+  "sorensen_model_vs_hotspots": 0.393,
   "mcd64_covered_by_hotspots": 0.761,
   "hotspots_on_mcd64": 0.486,
   "detection_minus_burn_day": {
@@ -65,71 +65,71 @@
  },
  {
   "timing_vs_hotspots": {
-   "median_abs_h": 22.38,
-   "censored_median_h": 21.86,
-   "inside_interval": 0.017,
+   "median_abs_h": 27.09,
+   "censored_median_h": 26.88,
+   "inside_interval": 0.015,
    "gate_h": 1.67
   },
   "fire": "sask-2023",
   "granules": [
    "MCD64A1.A2023121.h12v03.061.2023193192847.hdf"
   ],
-  "mcd64_km2": 96.7,
+  "mcd64_km2": 228.3,
   "hotspot_footprint_km2": 348.3,
-  "model_km2": 408.4,
-  "sorensen_hotspots_vs_mcd64": 0.312,
-  "sorensen_model_vs_mcd64": 0.255,
-  "sorensen_model_vs_hotspots": 0.762,
-  "mcd64_covered_by_hotspots": 0.717,
-  "hotspots_on_mcd64": 0.199,
+  "model_km2": 239.4,
+  "sorensen_hotspots_vs_mcd64": 0.245,
+  "sorensen_model_vs_mcd64": 0.221,
+  "sorensen_model_vs_hotspots": 0.684,
+  "mcd64_covered_by_hotspots": 0.31,
+  "hotspots_on_mcd64": 0.203,
   "detection_minus_burn_day": {
    "n": 1579,
    "median": -2.0,
    "within_1_day": 0.299
   },
   "model_minus_burn_day": {
-   "n": 7949,
+   "n": 6371,
    "median": -3.0,
    "median_abs": 3.0,
-   "within_1_day": 0.229
+   "within_1_day": 0.326
   }
  },
  {
   "timing_vs_hotspots": {
-   "median_abs_h": 41.68,
-   "censored_median_h": 41.11,
-   "inside_interval": 0.006,
+   "median_abs_h": 48.2,
+   "censored_median_h": 47.59,
+   "inside_interval": 0.008,
    "gate_h": 1.76
   },
   "fire": "bc-2024",
   "granules": [
    "MCD64A1.A2024214.h10v03.061.2024291133119.hdf"
   ],
-  "mcd64_km2": 132.9,
+  "mcd64_km2": 134.2,
   "hotspot_footprint_km2": 131.9,
-  "model_km2": 343.7,
-  "sorensen_hotspots_vs_mcd64": 0.522,
-  "sorensen_model_vs_mcd64": 0.329,
-  "sorensen_model_vs_hotspots": 0.479,
-  "mcd64_covered_by_hotspots": 0.52,
-  "hotspots_on_mcd64": 0.524,
+  "model_km2": 117.8,
+  "sorensen_hotspots_vs_mcd64": 0.53,
+  "sorensen_model_vs_mcd64": 0.384,
+  "sorensen_model_vs_hotspots": 0.556,
+  "mcd64_covered_by_hotspots": 0.526,
+  "hotspots_on_mcd64": 0.535,
   "detection_minus_burn_day": {
    "n": 1731,
    "median": -1.0,
-   "within_1_day": 0.545
+   "within_1_day": 0.546
   },
   "model_minus_burn_day": {
-   "n": 9684,
+   "n": 5979,
    "median": -3.0,
    "median_abs": 3.0,
-   "within_1_day": 0.211
+   "within_1_day": 0.286
   }
  },
  {
   "timing_vs_hotspots": {
-   "median_abs_h": 17.14,
-   "censored_median_h": 15.5,
-   "inside_interval": 0.05,
+   "median_abs_h": 46.2,
+   "censored_median_h": 45.63,
+   "inside_interval": 0.018,
    "gate_h": 3.28
   },
   "fire": "larioja-2025",
@@ -138,10 +138,10 @@
   ],
   "mcd64_km2": 51.3,
   "hotspot_footprint_km2": 46.1,
-  "model_km2": 510.6,
+  "model_km2": 114.1,
   "sorensen_hotspots_vs_mcd64": 0.395,
-  "sorensen_model_vs_mcd64": 0.066,
-  "sorensen_model_vs_hotspots": 0.15,
+  "sorensen_model_vs_mcd64": 0.109,
+  "sorensen_model_vs_hotspots": 0.286,
   "mcd64_covered_by_hotspots": 0.375,
   "hotspots_on_mcd64": 0.417,
   "detection_minus_burn_day": {
@@ -150,30 +150,30 @@
    "within_1_day": 0.741
   },
   "model_minus_burn_day": {
-   "n": 2275,
-   "median": 0.0,
+   "n": 1109,
+   "median": 1.0,
    "median_abs": 1.0,
-   "within_1_day": 0.655
+   "within_1_day": 0.612
   }
  },
  {
   "timing_vs_hotspots": {
-   "median_abs_h": 61.08,
-   "censored_median_h": 52.85,
-   "inside_interval": 0.064,
+   "median_abs_h": 72.32,
+   "censored_median_h": 72.3,
+   "inside_interval": 0.048,
    "gate_h": 4.91
   },
   "fire": "chaco-2024",
   "granules": [
    "MCD64A1.A2024153.h12v11.061.2024225142756.hdf"
   ],
-  "mcd64_km2": 2.1,
+  "mcd64_km2": 1.7,
   "hotspot_footprint_km2": 25.9,
-  "model_km2": 22.9,
-  "sorensen_hotspots_vs_mcd64": 0.117,
-  "sorensen_model_vs_mcd64": 0.096,
-  "sorensen_model_vs_hotspots": 0.579,
-  "mcd64_covered_by_hotspots": 0.766,
+  "model_km2": 5.2,
+  "sorensen_hotspots_vs_mcd64": 0.119,
+  "sorensen_model_vs_mcd64": 0.258,
+  "sorensen_model_vs_hotspots": 0.333,
+  "mcd64_covered_by_hotspots": 0.949,
   "hotspots_on_mcd64": 0.064,
   "detection_minus_burn_day": {
    "n": 93,
@@ -181,10 +181,10 @@
    "within_1_day": 0.065
   },
   "model_minus_burn_day": {
-   "n": 149,
-   "median": -4.0,
+   "n": 110,
+   "median": 1.0,
    "median_abs": 4.0,
-   "within_1_day": 0.054
+   "within_1_day": 0.027
   }
  }
 ]

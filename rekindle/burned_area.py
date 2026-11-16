@@ -9,7 +9,7 @@ to the run end + SLACK_AFTER_D days). Reports, per fire:
 - Sørensen(model baseline, MCD64A1) vs Sørensen(model, hotspots);
 - burn day vs first-detection day for each scored hotspot pixel (day precision);
 - model arrival day vs burn day over MCD64A1 pixels.
-All comparisons inside the fire bbox (where hotspots were collected; the domain is larger).
+S6i-b: whole domain, against MCD64A1 patches connected to this fire's hotspots (± 1 km).
 Writes docs/report/rekindle/burned_area_check.json.
 """
 
@@ -107,6 +107,16 @@ def export_outline(fire: str, meta: dict, mask: np.ndarray) -> None:
     (WEB / fire / "mcd64.u16.gz").write_bytes(encode(to_3857(a, meta, dst_t, h, w), 1))
 
 
+def fire_connected(burned: np.ndarray, hot: np.ndarray, dx: float, buffer_m: float = 1000.0) -> np.ndarray:
+    """MCD64A1 burned patches (8-connected) touching the hotspot footprint dilated by buffer_m."""
+    from scipy.ndimage import binary_dilation, label
+
+    lab, _ = label(burned, structure=np.ones((3, 3), bool))
+    near = binary_dilation(hot, iterations=max(1, round(buffer_m / dx)))
+    keep = np.unique(lab[near & burned])
+    return np.isin(lab, keep[keep > 0])
+
+
 def sor(a: np.ndarray, b: np.ndarray) -> float:
     return float(2 * (a & b).sum() / max(int(a.sum()) + int(b.sum()), 1))
 
@@ -117,15 +127,15 @@ def check(fire: str) -> dict:
     t0 = dm.parse_t(meta["t0"])
     t1 = t0 + dt.timedelta(hours=cal["hours"])
     bd, used = burn_dates(fire, meta, t0, t1)
-    export_outline(fire, meta, np.isfinite(bd))  # whole domain, for the map
-    np.save(dm.DATA / fire / "mcd64_burnday.npy", bd.astype(np.float32))  # for calibrate_shape
-    box = in_bbox(meta)
-    bd = np.where(box, bd, np.nan)
-    mcd = np.isfinite(bd)
-    arr = np.load(dm.DATA / fire / "baseline.npy")
-    model = np.isfinite(arr) & (arr <= cal["hours"] * 3600) & box
     prep = metrics.prepare(meta, dom.shape, dom.dx, cal["hours"] * 3600)
     hot = prep["union"]
+    # S6i-b: whole domain, MCD64A1 patches connected to this fire's hotspots (± 1 km)
+    bd = np.where(fire_connected(np.isfinite(bd), hot, dom.dx), bd, np.nan)
+    export_outline(fire, meta, np.isfinite(bd))
+    np.save(dm.DATA / fire / "mcd64_burnday.npy", bd.astype(np.float32))  # for calibrate_shape
+    mcd = np.isfinite(bd)
+    arr = np.load(dm.DATA / fire / "baseline.npy")
+    model = np.isfinite(arr) & (arr <= cal["hours"] * 3600)
     epoch0 = (t0 - dt.datetime(1970, 1, 1, tzinfo=t0.tzinfo)).total_seconds() / 86400
     # burn day vs first-detection day, per scored hotspot footprint (median burn day inside it)
     det_d = []

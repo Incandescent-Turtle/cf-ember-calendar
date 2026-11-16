@@ -101,9 +101,9 @@ def main() -> None:
     cal = json.loads((base / "calibration.json").read_text())
     dom, meta = dm.load(a.fire, nonveg_max_pct=cal["model_settings"].get("nonveg_max_pct"))
     t0 = dm.parse_t(meta["t0"])
-    mpath = base / "bbox_mask.npy"  # precomputed on the desktop (no PROJ data on the cluster)
-    box = np.load(mpath) if mpath.exists() else in_bbox(meta)
-    bd = np.where(box, np.load(base / "mcd64_burnday.npy"), np.nan)
+    # S6i-b: whole domain; mcd64_burnday.npy holds only fire-connected patches (burned_area)
+    box = np.ones(dom.shape, bool)
+    bd = np.load(base / "mcd64_burnday.npy").astype(float)
     prep = metrics.prepare(meta, dom.shape, dom.dx, cal["hours"] * 3600)
     ref = {"box": box, "mcd": np.isfinite(bd), "hot": prep["union"], "bd": bd, "prep": prep,
            "hours": cal["hours"], "dx": dom.dx,
@@ -127,8 +127,10 @@ def main() -> None:
     out_dir = base / "variants" / TAG
     out_dir.mkdir(parents=True, exist_ok=True)
     np.save(out_dir / "baseline.npy", out[bi][1])
+    np.savez_compressed(out_dir / "sweep_arrivals.npz",
+                        **{f"x{m:g}": arr for m, arr, _ in out})  # all maps, for re-scoring
     res = dict(cal, variant=TAG, ros_multiplier=best["ros_multiplier"], status=status,
-               calibration_objective="Sørensen(model, MCD64A1) inside the fire bbox (S6i)",
+               calibration_objective="Sørensen(model, fire-connected MCD64A1) over the whole domain (S6i-b)",
                shape={"ceiling_hotspots_vs_mcd64": ceiling, "ratio": ratio,
                       "ratio_min": RATIO_MIN, "ceiling_min": CEILING_MIN, "best": best,
                       "sweep": sweep},
