@@ -4,6 +4,7 @@ import type { Feature, FeatureCollection, MultiPolygon, Polygon } from 'geojson'
 import { useState } from 'react';
 import { newAoiId, useStore } from '../store';
 import { setCircleAoi } from './aoiActions';
+import { PlaceSearch } from './PlaceSearch';
 
 type Country = Feature<Polygon | MultiPolygon, { name: string; iso: string }>;
 
@@ -20,12 +21,11 @@ const useCountries = () =>
   });
 
 export function AoiTools() {
-  const { aoi, drawMode, setDrawMode, setAoi } = useStore();
+  const { aoi, drawMode, setDrawMode, setAoi, satellite, setSatellite } = useStore();
   const countries = useCountries();
   const [lat, setLat] = useState('-29.15');
   const [lon, setLon] = useState('-67.70');
   const [radius, setRadius] = useState('25');
-  const [openRadius, setOpenRadius] = useState(false);
 
   const km2 = aoi ? area(aoi.feature) / 1e6 : 0;
   const submitCircle = (e: React.FormEvent) => {
@@ -35,11 +35,11 @@ export function AoiTools() {
     const r = Number(radius);
     if (!(Math.abs(la) <= 90 && Math.abs(lo) <= 180 && r > 0 && r <= 2000)) return;
     setCircleAoi(lo, la, r, `${la.toFixed(2)}, ${lo.toFixed(2)} · ${r} km`);
-    setOpenRadius(false);
   };
 
   return (
     <div className="aoi-tools" role="toolbar" aria-label="Area of interest tools">
+      <PlaceSearch />
       <div className="btn-row">
         <button className={drawMode === 'rectangle' ? 'on' : ''} onClick={() => setDrawMode(drawMode === 'rectangle' ? 'none' : 'rectangle')}>
           ▭ Rectangle
@@ -47,7 +47,7 @@ export function AoiTools() {
         <button className={drawMode === 'polygon' ? 'on' : ''} onClick={() => setDrawMode(drawMode === 'polygon' ? 'none' : 'polygon')}>
           ⬠ Polygon
         </button>
-        <button className={openRadius ? 'on' : ''} onClick={() => setOpenRadius(!openRadius)}>
+        <button className={drawMode === 'circle' ? 'on' : ''} onClick={() => setDrawMode(drawMode === 'circle' ? 'none' : 'circle')}>
           ◎ Point + radius
         </button>
         {aoi && (
@@ -58,7 +58,10 @@ export function AoiTools() {
       </div>
       {drawMode === 'rectangle' && <p className="hint">Press and drag, or click two opposite corners. Esc to cancel.</p>}
       {drawMode === 'polygon' && <p className="hint">Click each corner; click the first point to close. Esc to cancel.</p>}
-      {openRadius && (
+      {drawMode === 'circle' && (
+        <p className="hint">Press at the centre and drag out to the radius, or click the centre then the edge. Esc to cancel. Or type it:</p>
+      )}
+      {drawMode === 'circle' && (
         <form className="radius-form" onSubmit={submitCircle}>
           <label>
             Lat <input value={lat} onChange={(e) => setLat(e.target.value)} inputMode="decimal" size={7} />
@@ -72,6 +75,9 @@ export function AoiTools() {
           <button type="submit">Go</button>
         </form>
       )}
+      <label className="sat-toggle">
+        <input type="checkbox" checked={satellite} onChange={(e) => setSatellite(e.target.checked)} /> Satellite imagery
+      </label>
       <select
         aria-label="Country"
         value={aoi?.kind === 'country' ? aoi.label : ''}

@@ -5,7 +5,9 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 // MapLibre 6 resolves its (self-contained) worker relative to its own module URL, which breaks once
 // bundled. Emit it as an asset and point MapLibre at it explicitly (works in dev and in the build).
 import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
-import { TerraDraw, TerraDrawPolygonMode, TerraDrawRectangleMode } from 'terra-draw';
+import { TerraDraw, TerraDrawCircleMode, TerraDrawPolygonMode, TerraDrawRectangleMode } from 'terra-draw';
+import { centroid, distance } from '@turf/turf';
+import { setCircleAoi } from './aoiActions';
 import { TerraDrawMapLibreGLAdapter } from 'terra-draw-maplibre-gl-adapter';
 import { bbox as turfBbox } from '@turf/turf';
 import type { Feature, FeatureCollection, Polygon } from 'geojson';
@@ -36,6 +38,8 @@ export function MapView() {
   const drawMode = useStore((s) => s.drawMode);
   const win = useStore((s) => s.window);
   const showPoints = useStore((s) => s.showPoints);
+  const satellite = useStore((s) => s.satellite);
+  const flyTo = useStore((s) => s.flyTo);
   const manifest = useManifest();
   const density = useDensity(aoi, win, view);
   const densityLayer = useMemo(() => (density.data ? densityGeoJson(density.data) : null), [density.data]);
@@ -63,6 +67,17 @@ export function MapView() {
     map.on('moveend', syncView);
     map.once('load', syncView);
     map.on('load', () => {
+      // Satellite basemap (toggle): EOX Sentinel-2 cloudless 2020, under the place labels and our layers.
+      map.addSource('satellite', {
+        type: 'raster',
+        tiles: ['https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2020_3857/default/g/{z}/{y}/{x}.jpg'],
+        tileSize: 256,
+        maxzoom: 15,
+        attribution:
+          '<a href="https://s2maps.eu" target="_blank" rel="noreferrer">Sentinel-2 cloudless 2020</a> by EOX IT Services GmbH (contains modified Copernicus Sentinel data 2020)',
+      });
+      const firstLabel = map.getStyle().layers?.find((l) => l.type === 'symbol')?.id;
+      map.addLayer({ id: 'satellite', type: 'raster', source: 'satellite', layout: { visibility: useStore.getState().satellite ? 'visible' : 'none' } }, firstLabel);
       map.addSource('density', { type: 'geojson', data: EMPTY });
       map.addLayer({
         id: 'density-fill',
@@ -151,15 +166,28 @@ export function MapView() {
       const draw = new TerraDraw({
         adapter: new TerraDrawMapLibreGLAdapter({ map }),
         // rectangle: two clicks or press-and-drag (most people drag)
-        modes: [new TerraDrawRectangleMode({ drawInteraction: 'click-move-or-drag' }), new TerraDrawPolygonMode()],
+        modes: [
+          new TerraDrawRectangleMode({ drawInteraction: 'click-move-or-drag' }),
+          new TerraDrawPolygonMode(),
+          new TerraDrawCircleMode({ drawInteraction: 'click-move-or-drag' }),
+        ],
       });
       draw.start();
       draw.on('finish', (id) => {
         const f = draw.getSnapshotFeature(id);
         if (!f || f.geometry.type !== 'Polygon') return;
-        const kind = draw.getMode() === 'rectangle' ? 'rectangle' : 'polygon';
+        const mode = draw.getMode();
         draw.clear();
         draw.setMode('static');
+        if (mode === 'circle') {
+          // centre + radius from the drawn ring, then the standard 96-step circle
+          const c = centroid(f.geometry as Polygon).geometry.coordinates as [number, number];
+          const edge = (f.geometry as Polygon).coordinates[0][0] as [number, number];
+          const r = Math.max(1, Math.round(distance(c, edge, { units: 'kilometers' })));
+          setCircleAoi(c[0], c[1], r, `${c[1].toFixed(2)}, ${c[0].toFixed(2)} · ${r} km`);
+          return;
+        }
+        const kind = mode === 'rectangle' ? 'rectangle' : 'polygon';
         useStore.getState().setAoi({
           id: newAoiId(),
           kind,
@@ -233,6 +261,20 @@ export function MapView() {
       map.getCanvas().style.cursor = '';
     }
   }, [drawMode, loaded]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !loaded || !map.getLayer('satellite')) return;
+    map.setLayoutProperty('satellite', 'visibility', satellite ? 'visible' : 'none');
+  }, [satellite, loaded]);
+
+  // Place search: fly to the result's extent (or centre).
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !flyTo) return;
+    if (flyTo.bbox) map.fitBounds(flyTo.bbox, { padding: 40, maxZoom: 12, duration: 1200 });
+    else if (flyTo.center) map.flyTo({ center: flyTo.center, zoom: 9, duration: 1200 });
+  }, [flyTo]);
 
   // Esc cancels a drawing tool.
   useEffect(() => {
