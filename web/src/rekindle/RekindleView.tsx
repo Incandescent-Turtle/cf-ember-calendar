@@ -35,6 +35,7 @@ export function RekindleView() {
   const shown = (fires.data?.fires ?? []).filter((f) => !f.hidden);
   const id = fireId ?? shown[0]?.id ?? null;
   const wholeFire = shown.find((f) => f.id === id)?.whole_fire !== false;
+  const burstWindow = shown.find((f) => f.id === id)?.burst_window !== false;
   const meta = useQuery({ queryKey: ['rk-meta', id], queryFn: () => fetchMeta(id!), enabled: !!id, staleTime: Infinity });
   const runs = useQuery({ queryKey: ['rk-runs', id], queryFn: () => fetchRuns(id!), enabled: !!id, staleTime: Infinity });
   const observed = useQuery({ queryKey: ['rk-obs', id], queryFn: () => fetchObserved(id!), enabled: !!id, staleTime: Infinity });
@@ -55,7 +56,7 @@ export function RekindleView() {
           </select>
         </label>
       ) : null;
-    return <RkLoaded key={meta.data.id} meta={meta.data} runs={runs.data.runs} observed={observed.data} burst={burst.data ?? null} reference={reference.data ?? null} picker={picker} wholeFire={wholeFire} />;
+    return <RkLoaded key={meta.data.id} meta={meta.data} runs={runs.data.runs} observed={observed.data} burst={burst.data ?? null} reference={reference.data ?? null} picker={picker} wholeFire={wholeFire} burstWindow={burstWindow} />;
   }
   return (
     <main className="main">
@@ -69,13 +70,23 @@ export function RekindleView() {
 }
 
 function RkLoaded({
-  meta, runs, observed, burst, reference, picker, wholeFire,
-}: { meta: FireMeta; runs: Run[]; observed: FeatureCollection; burst: BurstIndex | null; reference: Reference | null; picker: ReactNode; wholeFire: boolean }) {
+  meta, runs, observed, burst, reference, picker, wholeFire, burstWindow,
+}: {
+  meta: FireMeta;
+  runs: Run[];
+  observed: FeatureCollection;
+  burst: BurstIndex | null;
+  reference: Reference | null;
+  picker: ReactNode;
+  wholeFire: boolean;
+  burstWindow: boolean;
+}) {
   const byKey = useMemo(() => new Map(runs.map((r) => [r.key, r])), [runs]);
   const baseline = byKey.get('baseline')!;
   const hours = baseline.burned_km2_by_hour.length - 1;
   // Fires without a whole-fire view open on their what-if view (burst window first).
-  const initialView: 'whole' | 'burst' | 'shape' = wholeFire ? 'whole' : burst?.windows.length ? 'burst' : burst?.shape ? 'shape' : 'whole';
+  const hasWindows = burstWindow && !!burst?.windows.length;
+  const initialView: 'whole' | 'burst' | 'shape' = wholeFire ? 'whole' : hasWindows ? 'burst' : burst?.shape ? 'shape' : 'whole';
   const [t, setT] = useState(() =>
     initialView === 'burst' ? Math.round(burst!.windows[0].hours) : initialView === 'shape' ? Math.round(burst!.shape!.hours) : hours,
   );
@@ -86,7 +97,7 @@ function RkLoaded({
   const run = baseline;
   // S6c burst-window what-ifs (only when a 24 h window qualified) and S6d whole-fire footprint
   // what-ifs (shape only); both exploratory, both use the same run layout.
-  const canBurst = !!burst && burst.windows.length > 0;
+  const canBurst = hasWindows && !!burst;
   const shape = burst?.shape ?? null;
   const [view, setView] = useState<'whole' | 'burst' | 'shape'>(initialView);
   const [bwi, setBwi] = useState(0);
@@ -159,7 +170,7 @@ function RkLoaded({
             <div className="seg rk-mode" role="radiogroup" aria-label="View">
               {wholeFire && (
                 <button className={view === 'whole' ? 'on' : ''} onClick={() => switchView('whole')} role="radio" aria-checked={view === 'whole'}>
-                  Whole fire (hindcast)
+                  Hindcast
                 </button>
               )}
               {canBurst && (

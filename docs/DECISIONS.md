@@ -795,3 +795,5 @@ Hidden from the fire picker (`index.json` `hidden`): larioja-2025, chaco-2024 (k
 
 ## Rekindle UI simplification (user review, 2026-11-15 ~21:00)
 Whole-fire panel cut to: status caption, big play bar, "what you are seeing", burned area chart, one-line match summary linking to /methodology, collapsed model/data credits. Removed from the tab (kept on /methodology and in REKINDLE_RESULTS.md): metrics table, two-reference block, spread chart, findings, window-check table. Legend moved to a map overlay (calendar style) with the MCD64A1 toggle. Shared `Controls.tsx` (TimeBar, RkLegend). Retired the old validated-grid what-if state in RkLoaded.
+
+UI (user review ~21:10): sask-2023 shows only its footprint view (`whole_fire: false`, no switcher); bc-2024 drops the day-3 window view (`burst_window: false`) → "Hindcast" + "Footprint what-if"; play button says "Simulate" (Pause while running, Continue mid-way).

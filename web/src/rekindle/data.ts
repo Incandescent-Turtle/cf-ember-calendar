@@ -17,6 +17,8 @@ export interface FireRef {
   hidden?: boolean;
   /** UI: false = no whole-fire hindcast view; the fire opens on its what-if view. */
   whole_fire?: boolean;
+  /** UI: false = don't offer the 24 h window what-if (another view covers it). */
+  burst_window?: boolean;
 }
 export type Status = 'validated' | 'poor_agreement' | 'uncalibrated' | 'shape_validated' | 'shape_poor';
 

@@ -7,9 +7,9 @@ export function TimeBar({
   const toggle = () => (t >= hours ? (setT(0), setPlaying(true)) : setPlaying(!playing));
   return (
     <div className="rk-timebar">
-      <button className="rk-play" onClick={toggle} aria-label={playing ? 'Pause' : 'Play the spread'}>
+      <button className="rk-play" onClick={toggle} aria-label={playing ? 'Pause' : 'Simulate the spread'}>
         <span aria-hidden="true">{playing ? '❚❚' : '▶'}</span>
-        <span className="rk-play-text">{playing ? 'Pause' : t >= hours ? 'Replay' : 'Play'}</span>
+        <span className="rk-play-text">{playing ? 'Pause' : t >= hours ? 'Simulate' : 'Continue'}</span>
       </button>
       <div className="rk-timebar-track">
         <div className="rk-clock-big">
