@@ -225,3 +225,6 @@ table.loyo tr.dimrow td { color: var(--ink-3); font-size: 11px; }
 .rk-sym.burn { border-top: 3px solid #4ade80; height: 0; vertical-align: 3px; box-shadow: 0 -1px 0 1px #062b12; }
 .rk-intro { font-size: 13px; line-height: 1.45; }
 @media (max-width: 720px) { .rk-play { padding: 8px 12px; font-size: 14px; } .rk-legend-map .rk-key { display: none; } }
+.rk-params { margin: 10px 0 4px; padding: 10px 12px; border: 1px solid #fdba74; border-radius: 10px; background: #fff7ed; }
+.rk-params-title { margin: 0 0 2px; font-size: 15px; }
+.rk-params > .meta { margin: 0 0 6px; }

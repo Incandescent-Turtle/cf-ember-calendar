@@ -80,7 +80,9 @@ export function BurstPanel(p: BurstPanelProps) {
         the dead fuels drier or damper.
       </p>
 
-      <div className="rk-sliders">
+      <div className="rk-sliders rk-params">
+        <h3 className="rk-params-title">Try different conditions</h3>
+        <p className="meta">Change the wind or the fuel dryness, then press Simulate to see how the fire would have spread.</p>
         <Seg label="Wind speed" axis={burst.axes.wind_scale} value={p.scale} onChange={p.setScale} fmt={windLabel} />
         <Seg label="Dead fuel moisture" axis={burst.axes.dead_delta_pct} value={p.dpp} onChange={p.setDpp} fmt={(d) => (d === 0 ? 'observed' : `${d > 0 ? '+' : '−'}${Math.abs(d)}`)} />
         <label className="rk-check">
@@ -182,7 +184,9 @@ export function ShapePanel(p: ShapePanelProps) {
         speed (same direction) or make the dead fuels drier or damper.
       </p>
 
-      <div className="rk-sliders">
+      <div className="rk-sliders rk-params">
+        <h3 className="rk-params-title">Try different conditions</h3>
+        <p className="meta">Change the wind or the fuel dryness, then press Simulate to see how the fire would have spread.</p>
         <Seg label="Wind speed" axis={w.axes.wind_scale} value={p.scale} onChange={p.setScale} fmt={windLabel} />
         <Seg label="Dead fuel moisture (points vs observed)" axis={w.axes.dead_delta_pct} value={p.dpp} onChange={p.setDpp} fmt={dryLabel} />
         <label className="rk-check">
