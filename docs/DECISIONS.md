@@ -789,3 +789,6 @@ Wording change (user decision): the baseline caption reads "calibrated to its sa
 Next: user deploys `s6b:main`, checks the deployed `/rekindle` (six fires; BC footprint view) and `/methodology`, and updates `docs/SUBMISSION.md` claims (still says "validated against hotspot timestamps").
 
 Observation (map, S6i-b baseline): Chilecito at ×0.125 spreads north-east with the MERRA-2 wind (from ~245°), while the MCD64A1 burn and the hotspots lie south-west of the ignition. The wind direction was likely wrong at the fire (~50 km reanalysis, terrain winds). Not tested; added to Findings as an observation.
+
+## UI changes after user review (2026-11-15 ~20:50)
+Hidden from the fire picker (`index.json` `hidden`): larioja-2025, chaco-2024 (kept in Findings). No whole-fire view (`whole_fire: false`): chilecito-2026, cordoba-2024 (open on their window what-if). MCD64A1 outline: toggle, default off; exported as burn day (minutes from the run start to 00:00 UTC of the burn day) so it grows with the clock. Saskatchewan outline vs hotspots mismatch = the low ceiling (0.24), not a bug. `export.py` keeps extra index keys on re-export.

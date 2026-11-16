@@ -191,8 +191,9 @@ def main() -> None:
     idx = json.loads(idx_path.read_text()) if idx_path.exists() else {"fires": []}
     entry = {"id": a.fire, "name": meta["name"], "bbox": meta["bbox"], "status": status}
     ids = [f["id"] for f in idx["fires"]]
-    if a.fire in ids:  # keep the order (the first fire is the tab's default)
-        idx["fires"][ids.index(a.fire)] = entry
+    if a.fire in ids:  # keep the order (the first fire is the tab's default) and UI flags
+        old = idx["fires"][ids.index(a.fire)]
+        idx["fires"][ids.index(a.fire)] = old | entry
     else:
         idx["fires"].append(entry)
     idx_path.write_text(json.dumps(idx, indent=1))

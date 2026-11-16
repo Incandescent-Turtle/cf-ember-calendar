@@ -9,7 +9,8 @@
     -67.62,
     -29.05
    ],
-   "status": "shape_poor"
+   "status": "shape_poor",
+   "whole_fire": false
   },
   {
    "id": "cordoba-2024",
@@ -20,7 +21,8 @@
     -65.29,
     -31.2
    ],
-   "status": "shape_poor"
+   "status": "shape_poor",
+   "whole_fire": false
   },
   {
    "id": "sask-2023",
@@ -53,7 +55,8 @@
     -66.414,
     -30.418
    ],
-   "status": "shape_poor"
+   "status": "shape_poor",
+   "hidden": true
   },
   {
    "id": "chaco-2024",
@@ -64,7 +67,8 @@
     -60.132,
     -23.768
    ],
-   "status": "shape_poor"
+   "status": "shape_poor",
+   "hidden": true
   }
  ]
 }

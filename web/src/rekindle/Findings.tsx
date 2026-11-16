@@ -69,8 +69,8 @@ export function RekindleFindings({ headingLevel = 3 }: { headingLevel?: 2 | 3 | 
       <p className="rk-status hindcast" role="note">
         <strong>Status: hindcasts of six real fires, judged against hotspots (timing) and MODIS burned area (shape). None passes the hour-level timing gate; one (British Columbia) is
         shape validated</strong> and carries whole-fire footprint what-ifs. One 24 h window (Chilecito, day 2) matched the hotspots in timing and carries <strong>exploratory, post-hoc</strong>{' '}
-        what-ifs. Shape-only views: British Columbia day 3 and Córdoba day 5 (best-matching windows), and Saskatchewan (whole fire, a developer exception). La Rioja and Gran Chaco ship as
-        hindcasts only.
+        what-ifs. Shape-only views: British Columbia day 3 and Córdoba day 5 (best-matching windows), and Saskatchewan (whole fire, a developer exception). La Rioja and Gran Chaco are
+        not shown on the map tab (nothing usable to show), and Chilecito and Córdoba show only their window views; their whole-fire numbers are in the tables below.
       </p>
       <H>What validation showed</H>
       <p>

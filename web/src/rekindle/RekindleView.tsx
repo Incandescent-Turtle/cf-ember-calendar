@@ -35,7 +35,9 @@ type Mode = 'baseline' | 'whatif';
 export function RekindleView() {
   const fires = useQuery({ queryKey: ['rk-fires'], queryFn: fetchFires, staleTime: Infinity });
   const [fireId, setFireId] = useState<string | null>(null);
-  const id = fireId ?? fires.data?.fires[0]?.id ?? null;
+  const shown = (fires.data?.fires ?? []).filter((f) => !f.hidden);
+  const id = fireId ?? shown[0]?.id ?? null;
+  const wholeFire = shown.find((f) => f.id === id)?.whole_fire !== false;
   const meta = useQuery({ queryKey: ['rk-meta', id], queryFn: () => fetchMeta(id!), enabled: !!id, staleTime: Infinity });
   const runs = useQuery({ queryKey: ['rk-runs', id], queryFn: () => fetchRuns(id!), enabled: !!id, staleTime: Infinity });
   const observed = useQuery({ queryKey: ['rk-obs', id], queryFn: () => fetchObserved(id!), enabled: !!id, staleTime: Infinity });
@@ -44,11 +46,11 @@ export function RekindleView() {
   const err = fires.error ?? meta.error ?? runs.error ?? observed.error;
   if (meta.data && runs.data && observed.data && burst.isFetched && reference.isFetched) {
     const picker =
-      fires.data && fires.data.fires.length > 1 ? (
+      shown.length > 1 ? (
         <label className="rk-fire-pick">
           Fire:
           <select value={id ?? ''} onChange={(e) => setFireId(e.target.value)} className="rk-fire-select">
-            {fires.data.fires.map((f) => (
+            {shown.map((f) => (
               <option key={f.id} value={f.id}>
                 {f.name}
               </option>
@@ -56,7 +58,7 @@ export function RekindleView() {
           </select>
         </label>
       ) : null;
-    return <RkLoaded key={meta.data.id} meta={meta.data} runs={runs.data.runs} observed={observed.data} burst={burst.data ?? null} reference={reference.data ?? null} picker={picker} />;
+    return <RkLoaded key={meta.data.id} meta={meta.data} runs={runs.data.runs} observed={observed.data} burst={burst.data ?? null} reference={reference.data ?? null} picker={picker} wholeFire={wholeFire} />;
   }
   return (
     <main className="main">
@@ -70,8 +72,8 @@ export function RekindleView() {
 }
 
 function RkLoaded({
-  meta, runs, observed, burst, reference, picker,
-}: { meta: FireMeta; runs: Run[]; observed: FeatureCollection; burst: BurstIndex | null; reference: Reference | null; picker: ReactNode }) {
+  meta, runs, observed, burst, reference, picker, wholeFire,
+}: { meta: FireMeta; runs: Run[]; observed: FeatureCollection; burst: BurstIndex | null; reference: Reference | null; picker: ReactNode; wholeFire: boolean }) {
   const axes = meta.axes;
   const byKey = useMemo(() => new Map(runs.map((r) => [r.key, r])), [runs]);
   const baseline = byKey.get('baseline')!;
@@ -82,7 +84,12 @@ function RkLoaded({
   const [ws, setWs] = useState(() => (axes ? nearest(axes.wind_ms, meta.baseline.wind_ms) : 0));
   const [wd, setWd] = useState(() => (axes ? nearest(axes.wind_from_deg, meta.baseline.wind_from_deg) : 0));
   const [mo, setMo] = useState(() => meta.baseline.dead_moisture_pct);
-  const [t, setT] = useState(hours);
+  // Fires without a whole-fire view open on their what-if view (burst window first).
+  const initialView: 'whole' | 'burst' | 'shape' = wholeFire ? 'whole' : burst?.windows.length ? 'burst' : burst?.shape ? 'shape' : 'whole';
+  const [t, setT] = useState(() =>
+    initialView === 'burst' ? Math.round(burst!.windows[0].hours) : initialView === 'shape' ? Math.round(burst!.shape!.hours) : hours,
+  );
+  const [showBurn, setShowBurn] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [compare, setCompare] = useState(true);
   const key = mode === 'baseline' || !canWhatIf ? 'baseline' : runKey(ws, wd, mo);
@@ -91,7 +98,7 @@ function RkLoaded({
   // what-ifs (shape only); both exploratory, both use the same run layout.
   const canBurst = !!burst && burst.windows.length > 0;
   const shape = burst?.shape ?? null;
-  const [view, setView] = useState<'whole' | 'burst' | 'shape'>('whole');
+  const [view, setView] = useState<'whole' | 'burst' | 'shape'>(initialView);
   const [bwi, setBwi] = useState(0);
   const [bScale, setBScale] = useState(1);
   const [bDpp, setBDpp] = useState(0);
@@ -108,7 +115,7 @@ function RkLoaded({
   const mcd = useQuery({
     queryKey: ['rk-raster', meta.id, 'mcd64'],
     queryFn: () => fetchRaster(meta.id, 'mcd64.u16.gz', size).catch(() => null),
-    enabled: !!reference,
+    enabled: !!reference && showBurn,
     staleTime: Infinity,
   });
   const showBase = inBurst ? compare && bRun.key !== bBase.key : compare && run.key !== 'baseline';
@@ -140,7 +147,7 @@ function RkLoaded({
           hours={hoursNow}
           observed={observed}
           offsetH={inBurst ? bWin.start_h_after_t0 : 0}
-          mcdMinutes={mcd.data ?? null}
+          mcdMinutes={showBurn ? (mcd.data ?? null) : null}
           showIgnitions={view !== 'burst'}
         />
       </div>
@@ -148,11 +155,18 @@ function RkLoaded({
         <Tabs />
         <div className="panel-body">
           {picker}
-          {(canBurst || shape) && (
+          {reference && (
+            <label className="rk-check">
+              <input type="checkbox" checked={showBurn} onChange={(e) => setShowBurn(e.target.checked)} /> Show MODIS burned area (MCD64A1) by burn day, green outline
+            </label>
+          )}
+          {(canBurst || shape) && (wholeFire || (canBurst && shape)) && (
             <div className="seg rk-mode" role="radiogroup" aria-label="View">
-              <button className={view === 'whole' ? 'on' : ''} onClick={() => switchView('whole')} role="radio" aria-checked={view === 'whole'}>
-                Whole fire (hindcast)
-              </button>
+              {wholeFire && (
+                <button className={view === 'whole' ? 'on' : ''} onClick={() => switchView('whole')} role="radio" aria-checked={view === 'whole'}>
+                  Whole fire (hindcast)
+                </button>
+              )}
               {canBurst && (
                 <button className={view === 'burst' ? 'on' : ''} onClick={() => switchView('burst')} role="radio" aria-checked={view === 'burst'}>
                   {burst?.windows[0]?.basis === 'shape' ? 'Window what-if' : 'Burst-window what-if'}{' '}
@@ -323,8 +337,9 @@ function RkMap({
   useEffect(() => {
     const map = mapRef.current;
     if (!loaded || !map) return;
-    (map.getSource('rk-mcd') as GeoJSONSource).setData(mcdMinutes ? isochrones(mcdMinutes, meta.raster, [0]) : EMPTY);
-  }, [loaded, mcdMinutes, meta.raster]);
+    // burn day ≤ the clock time (day precision; cells are 0 at 00:00 UTC of their burn day)
+    (map.getSource('rk-mcd') as GeoJSONSource).setData(mcdMinutes ? isochrones(mcdMinutes, meta.raster, [Math.max((offsetH + t) * 60, 1)]) : EMPTY);
+  }, [loaded, mcdMinutes, meta.raster, offsetH, t]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -462,7 +477,7 @@ function RkPanel(p: PanelProps) {
       </div>
       <p className="meta">
         Colour = simulated arrival time; thin white lines = simulated burned outline every {hours > 48 ? 12 : 6} h; white dots = FIRMS detections up to the clock time;{' '}
-        {p.reference && 'green outline = MODIS MCD64A1 burned area in the run period (a second, partly independent reference for shape); '}red = ignition (first overpass,{' '}
+        {p.reference && 'green outline (when switched on) = MODIS MCD64A1 burned area by burn day: day precision, dates can lag under cloud (a second, partly independent reference for shape); '}red = ignition (first overpass,{' '}
         {fmtUtc(meta.start, 0)}). {p.loading && 'Loading run…'}
       </p>
       {isBase && (

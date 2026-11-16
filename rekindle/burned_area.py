@@ -96,16 +96,19 @@ def in_bbox(meta: dict) -> np.ndarray:
     return (lon >= w) & (lon <= e) & (lat >= s) & (lat <= n)
 
 
-def export_outline(fire: str, meta: dict, mask: np.ndarray) -> None:
-    """MCD64A1 burned cells as a uint16 raster (0 = burned, 65535 = not) on the web grid, so the
-    SPA can draw the outline with the same isochrone code (rekindle.export encoding)."""
+def export_outline(fire: str, meta: dict, bd: np.ndarray, t0: dt.datetime) -> None:
+    """MCD64A1 burn day as a uint16 raster on the web grid (rekindle.export encoding): minutes
+    from the run start to 00:00 UTC of the burn day (clipped at 0; day precision), 65535 = not
+    burned. The SPA outlines cells burned by the clock time with the isochrone code."""
     from rekindle.export import WEB, encode, target_grid, to_3857
 
     ny, nx = meta["shape"]
     dst_t, h, w, _, _ = target_grid(meta, ny, nx)
-    a = np.where(mask, 0.0, np.inf).astype(np.float32)
+    epoch0 = (t0 - dt.datetime(1970, 1, 1, tzinfo=t0.tzinfo)).total_seconds() / 86400
+    sec = np.where(np.isfinite(bd), np.maximum(bd - epoch0, 0.0) * 86400, np.inf).astype(np.float32)
+    span_h = float(np.nanmax(sec[np.isfinite(sec)]) / 3600 + 1) if np.isfinite(sec).any() else 1.0
     (WEB / fire).mkdir(parents=True, exist_ok=True)
-    (WEB / fire / "mcd64.u16.gz").write_bytes(encode(to_3857(a, meta, dst_t, h, w), 1))
+    (WEB / fire / "mcd64.u16.gz").write_bytes(encode(to_3857(sec, meta, dst_t, h, w), span_h))
 
 
 def fire_connected(burned: np.ndarray, hot: np.ndarray, dx: float, buffer_m: float = 1000.0) -> np.ndarray:
@@ -132,7 +135,7 @@ def check(fire: str) -> dict:
     hot = prep["union"]
     # S6i-b: whole domain, MCD64A1 patches connected to this fire's hotspots (± 1 km)
     bd = np.where(fire_connected(np.isfinite(bd), hot, dom.dx), bd, np.nan)
-    export_outline(fire, meta, np.isfinite(bd))
+    export_outline(fire, meta, bd, t0)
     np.save(dm.DATA / fire / "mcd64_burnday.npy", bd.astype(np.float32))  # for calibrate_shape
     mcd = np.isfinite(bd)
     arr = np.load(dm.DATA / fire / "baseline.npy")

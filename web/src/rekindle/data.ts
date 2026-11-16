@@ -13,6 +13,10 @@ export interface FireRef {
   name: string;
   bbox: [number, number, number, number];
   status?: Status;
+  /** UI: not in the fire picker (still in the findings). */
+  hidden?: boolean;
+  /** UI: false = no whole-fire hindcast view; the fire opens on its what-if view. */
+  whole_fire?: boolean;
 }
 export type Status = 'validated' | 'poor_agreement' | 'uncalibrated' | 'shape_validated' | 'shape_poor';
 

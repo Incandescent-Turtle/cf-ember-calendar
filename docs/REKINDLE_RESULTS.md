@@ -51,6 +51,8 @@ Whole simulation domain, against MCD64A1 burn patches connected to the fire's ho
 | La Rioja / San Juan 2025 | AR | 0.39 | ×0.25: 0.06 / 17.1 h | ×0.125 (edge): 0.11 (0.28) | below bar | 46.2 h | none |
 | Gran Chaco 2024 | AR/PY | 0.12 | ×0.25: 0.10 / 61.1 h | ×0.125 (edge): 0.26 | can't judge (ceiling < 0.3) | 72.3 h | none |
 
+**On the Rekindle tab (user decision, 20:50):** La Rioja and Gran Chaco are hidden from the fire picker (they stay in these tables). Chilecito and Córdoba open on their window what-if and have no whole-fire hindcast view (their whole-fire runs look poor; the numbers stay here). The MCD64A1 burned-area outline is a toggle, off by default, and grows with the clock by burn day (day precision).
+
 **Readings:**
 - **1 of 6 fires is shape validated** (BC).
 - **All four Argentine fires want the slowest multiplier allowed** (1/8 of Rothermel) and still over-burn. That points to fuels (coarse land-cover crosswalk) and missing stalls (suppression, fuel breaks), not to calibration.
