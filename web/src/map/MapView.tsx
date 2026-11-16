@@ -290,6 +290,12 @@ export function MapView() {
   return (
     <div className="map-wrap">
       <div ref={container} className="map" />
+      {(density.isFetching || (showPoints && !pointsWhy && points.isFetching)) && (
+        <div className="map-loading" role="status" aria-live="polite">
+          <span className="spinner" aria-hidden="true" />
+          {density.isFetching ? 'Loading hotspot activity…' : 'Loading individual hotspots…'}
+        </div>
+      )}
       <AoiTools />
       <TimeControl
         density={densityLayer}

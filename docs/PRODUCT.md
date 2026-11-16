@@ -29,11 +29,12 @@ Source: `challenge_description.md` and the challenge video (Marina Compagnucci, 
 **F1. Area of interest (AOI) selection**
 - Draw rectangle or polygon on the map; OR enter lat/lon + radius (km); OR pick a preset (country list + a few named fire regions).
 - AOI shown on map; area in km² displayed.
+- *As shipped:* rectangle (press-and-drag or two clicks), polygon, point + radius (drag from the centre, or type lat/lon/km), country list, **place search** (Photon/OpenStreetMap geocoder; "Select area" uses the place's box), and **six examples** (the four Rekindle fires, NSW Black Summer Dec 2019, Rondônia) that also jump to the fire month. Map panning is locked while drawing; Esc cancels. **Satellite imagery** basemap (EOX Sentinel-2 cloudless 2020, desaturated) is the default, with a street-map toggle.
 - *Accept:* from the deployed static site, a country-size AOI returns a calendar in < 6 s on broadband (Chilecito-size < 2 s); any AOI on Earth works (very large AOIs fall back to the 1° level and say so).
 
 **F2. Burning activity calendar**
 - Grid: rows = years (2001 → current), columns = Jan–Dec. Cell colour = harmonized monthly activity (VIIRS-equivalent fire-cell-days), log-scaled, sequential perceptually uniform CVD-safe ramp (`inferno` or `YlOrRd`-like; validate).
-- Toggle: **Harmonized** (default) / **MODIS raw** / **VIIRS raw** / **Side-by-side** (shows why harmonization matters — the 2012 jump).
+- Toggle: **Harmonized** (default) / **Above / below normal** (anomaly, F6) / **MODIS raw** / **VIIRS raw** / **Side-by-side** (shows why harmonization matters — the 2012 jump).
 - Marginal bars: per-year total (right), per-month median (bottom).
 - Hover tooltip: month, harmonized value + uncertainty band, raw MODIS FCD, raw VIIRS FCD, calibration factor + stratum it came from, percentile vs that calendar month's history.
 - Click a cell → map filters to that month's hotspots; stats panel updates.
@@ -46,6 +47,7 @@ Source: `challenge_description.md` and the challenge video (Marina Compagnucci, 
 - **Critical period**: smallest set of consecutive calendar months containing ≥ 60% of median annual activity (e.g., "Jul–Oct").
 - Trend: Theil–Sen slope of annual totals with Mann–Kendall p-value (one line: "+3.1%/yr, p=0.02").
 - *Accept:* all numbers reproducible from the exported CSV.
+- *As shipped:* plain-language wording ("4 fire-cell-days so far, vs a usual 1 for these days (about 3.9× normal). Busier than 92 % of past years."; trend as rising / falling / no clear trend), with fire-cell-day defined inline; percentiles, p-values and k stay in the hover tooltips.
 
 **F4. Map**
 - Basemap + hotspot points for the selected time window (cluster/heatmap when zoomed out; points when zoomed in), coloured by sensor or by FRP.
@@ -62,6 +64,7 @@ Source: `challenge_description.md` and the challenge video (Marina Compagnucci, 
 ### Tier 2 — SHOULD
 
 **F6. Anomaly view** — calendar re-coloured as anomaly (diverging CVD-safe ramp, centred at the month's median): z-score of log1p(activity) per calendar month. Flags on cells ≥ P90 / ≤ P10.
+- *As shipped ("Above / below normal"):* each month coloured by log₂((value + 1) / (that calendar month's median + 1)), the median taken over complete years with the current year excluded, clipped at ±3 (⅛× … 8×); ColorBrewer RdBu (blue = below normal, white ≈ normal, red = above). The tooltip adds "N× the typical <month> (median …)". Ratios instead of z-scores: easier to read, and robust where many months are zero.
 
 **F7. Seasonality chart** — median monthly curve with IQR band across baseline years; overlay current year and a user-chosen year.
 
@@ -95,7 +98,7 @@ Any server/API/database, live solver, queue / stop / restart, accounts, auto-ing
 - **Left:** map (≈60% width). AOI tools top-left. Time window slider bottom.
 - **Right:** tabbed panel — *Calendar* (default) | *Trends* | *Export* | *Rekindle*.
 - **Top bar:** title, sensor toggle, "Methodology" link, "About."
-- First load: world view with all-time density + a "Try: Chilecito, Argentina (Jul 2026)" button that flies there and loads the hero AOI.
+- First load: world view with all-time density + example buttons (Chilecito first) that select an area and jump to its fire month (originally a single "Try: Chilecito" button).
 - Every chart has a one-line plain-language caption ("Darker = more fire activity. July–September is this area's critical period.").
 
 ## Accessibility

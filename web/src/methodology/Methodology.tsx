@@ -119,6 +119,34 @@ function Body({ v, m, cal }: { v: Validation; m: NonNullable<ReturnType<typeof u
       </section>
 
       <section>
+        <h2>How to read the calendar and its numbers</h2>
+        <ul className="defs">
+          <li>
+            <strong>Calendar (Harmonized):</strong> one square per month, rows = years. Colour = fire-cell-days in the selected area (log scale, ColorBrewer YlOrRd). Grey = no
+            activity; a dashed outline = a month not fully observed yet. Right-hand bars = yearly totals; bottom bars = each month’s median.
+          </li>
+          <li>
+            <strong>Above / below normal (anomaly):</strong> each month against what is normal for that calendar month, the ratio (value + 1) / (median + 1), where the median is taken
+            over complete years with the current year left out. Shown on a log scale from ⅛× (dark blue) through normal (white) to 8× (dark red), ColorBrewer RdBu. The +1 keeps
+            months with no activity readable.
+          </li>
+          <li>
+            <strong>This month so far:</strong> the current month to date against the <em>same days</em> (10-day periods) of that month in past complete years, so a month that has
+            only just started is compared fairly. Labels: Below normal (under the 25th percentile of past years), Normal (25th–75th), Above normal (75th–90th) and Extreme (90th or above).
+          </li>
+          <li>
+            <strong>Fire season (critical period):</strong> the shortest run of consecutive months whose medians add up to at least 60 % of a typical year.
+          </li>
+          <li>
+            <strong>Trend:</strong> Theil–Sen slope of the yearly totals, as % of the median year per year; called rising or falling only when a Mann–Kendall test gives p &lt; 0.05.
+          </li>
+          <li>
+            <strong>Busiest years / months:</strong> the highest yearly totals, and the months with the highest medians, over complete years.
+          </li>
+        </ul>
+      </section>
+
+      <section>
         <h2>The 2012 seam, before and after</h2>
         <p className="caption">
           Monthly FCD, 2008–2016. Raw MODIS sees far fewer fire-cell-days than VIIRS, so splicing raw data puts a false jump at {switchMonth}. The harmonized line

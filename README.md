@@ -5,7 +5,7 @@ NASA Space Apps Challenge 2026 · *Harmonization of MODIS and VIIRS Hot Spots*
 
 > Live app: _TBD_ · 30-second demo: _TBD_
 
-Satellites have watched Earth's fires for 25 years, but the record is split between MODIS (2000–2027, now retiring) and VIIRS (2012–present), which see fire differently. Ember Calendar harmonizes NASA FIRMS hotspots from both sensors into one continuous, VIIRS-equivalent record. Draw any area on Earth and see its **burning activity calendar**: which months and years burn most, its critical period, and how this month compares to the historical median. Everything exports to CSV.
+Satellites have watched Earth's fires for 25 years, but the record is split between MODIS (2000–2027, now retiring) and VIIRS (2012–present), which see fire differently. Ember Calendar harmonizes NASA FIRMS hotspots from both sensors into one continuous, VIIRS-equivalent record. Draw any area on Earth (or search a place, or pick one of the ready-made examples) and see its **burning activity calendar**: which months and years burn most, its fire season, whether each month was above or below normal, the long-term trend, and how this month compares to the historical median. Everything exports to CSV.
 
 **Rekindle** replays real fires with a level-set front solver driven by the Rothermel surface fire model, using real terrain, vegetation and hourly weather. Each replay is judged against two satellite references: the harmonized hotspots for *when* fire was seen, and MODIS burned area (MCD64A1) for *where* it burned. Where the model matches (a 24-hour stretch of a fire, or a whole fire's shape), you can change the wind or the fuel dryness and see how the fire would have spread. These what-ifs are illustrative, not a forecast. The full evaluation, failures included, is on the Methodology page and in `docs/REKINDLE_RESULTS.md`.
 
@@ -14,7 +14,7 @@ Satellites have watched Earth's fires for 25 years, but the record is split betw
 2. **Common unit**: detections become *fire-cell-days*, the distinct 0.01° cells with fire on each day. This removes most of the effects of resolution and overpass count.
 3. **Calibrate**: MODIS is scaled to VIIRS-equivalent units using factors fit on the 2013–2021 overlap. Factors are per month and per region, adapt to the selected area, and carry bootstrap uncertainty.
 4. **Validate**: the method is tested by leaving one year out at a time and by checking the 2012 seam. Results are on the in-app Methodology page.
-5. **Explore**: calendar, anomalies, seasonality, trends, and export for any area.
+5. **Explore**: for any area, the monthly calendar, an *above / below normal* view (each month against that month's typical value), the fire season, busiest years and months, the trend, this month vs normal, and exports (calendar CSV, summary JSON, PNG, hotspot CSV). Draw, search or pick an example; satellite or street basemap.
 
 ## Data and credits
 - **NASA FIRMS** active fire detections (MODIS C6.1 MCD14ML/MCD14DL; VIIRS 375 m S-NPP VNP14IMG and NOAA-20 VJ114IMG): calendar, and Rekindle ignition/validation. "We acknowledge the use of imagery from the NASA LANCE FIRMS (https://earthdata.nasa.gov/firms), part of the NASA Earth Science Data and Information System (ESDIS)."
