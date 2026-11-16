@@ -1,5 +1,6 @@
 // Shared Rekindle controls: the big play/time bar (panel) and the map legend overlay.
 import { rampCss } from './data';
+import { useStore } from '../store';
 
 export function TimeBar({
   t, setT, hours, playing, setPlaying, clock, label,
@@ -65,11 +66,22 @@ export function RkLegend({
           </li>
         )}
       </ul>
+      <SatelliteToggle />
       {burnAvailable && (
         <label className="tc-points">
           <input type="checkbox" checked={showBurn} onChange={(e) => setShowBurn(e.target.checked)} /> MODIS burned area (MCD64A1)
         </label>
       )}
     </div>
+  );
+}
+
+function SatelliteToggle() {
+  const satellite = useStore((s) => s.satellite);
+  const setSatellite = useStore((s) => s.setSatellite);
+  return (
+    <label className="tc-points">
+      <input type="checkbox" checked={satellite} onChange={(e) => setSatellite(e.target.checked)} /> Satellite imagery
+    </label>
   );
 }

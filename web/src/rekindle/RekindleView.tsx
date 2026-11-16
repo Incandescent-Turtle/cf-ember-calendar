@@ -16,6 +16,7 @@ import { RkLegend, TimeBar } from './Controls';
 import { linkTo } from '../route';
 import { AreaChart } from './AreaChart';
 import { Tabs } from '../Tabs';
+import { useStore } from '../store';
 
 maplibregl.setWorkerUrl(maplibreWorkerUrl);
 
@@ -259,6 +260,17 @@ function RkMap({
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'bottom-right');
     map.addControl(new maplibregl.ScaleControl({ unit: 'metric' }), 'bottom-left');
     map.on('load', () => {
+      // Satellite basemap (shared toggle with the calendar map), under the labels and the fire layers.
+      map.addSource('satellite', {
+        type: 'raster',
+        tiles: ['https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2020_3857/default/g/{z}/{y}/{x}.jpg'],
+        tileSize: 256,
+        maxzoom: 15,
+        attribution:
+          '<a href="https://s2maps.eu" target="_blank" rel="noreferrer">Sentinel-2 cloudless 2020</a> by EOX IT Services GmbH (contains modified Copernicus Sentinel data 2020)',
+      });
+      const firstLabel = map.getStyle().layers?.find((l) => l.type === 'symbol')?.id;
+      map.addLayer({ id: 'satellite', type: 'raster', source: 'satellite', layout: { visibility: useStore.getState().satellite ? 'visible' : 'none' } }, firstLabel);
       const blank = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
       map.addSource('rk-arrival', { type: 'image', url: blank, coordinates: coords });
       map.addLayer({ id: 'rk-arrival', type: 'raster', source: 'rk-arrival', paint: { 'raster-opacity': 0.85, 'raster-resampling': 'nearest', 'raster-fade-duration': 0 } });
@@ -333,6 +345,13 @@ function RkMap({
     const fc = { ...observed, features: observed.features.filter((f) => hoursSince(meta.start, (f.properties as { t: string }).t) <= offsetH + t + 1e-6) };
     (map.getSource('rk-obs') as GeoJSONSource).setData(fc);
   }, [loaded, observed, t, meta.start, offsetH]);
+
+  const satellite = useStore((s) => s.satellite);
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!loaded || !map || !map.getLayer('satellite')) return;
+    map.setLayoutProperty('satellite', 'visibility', satellite ? 'visible' : 'none');
+  }, [loaded, satellite]);
 
   // MCD64A1 burned area (second reference, S6h): outline of cells burned in the run period.
   useEffect(() => {
