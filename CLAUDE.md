@@ -27,6 +27,7 @@ A web app for the **NASA Space Apps 2026 challenge "Harmonization of MODIS and V
 | `docs/DATA.md` | Ingest, schemas, FIRMS quirks, cluster notes |
 | `docs/HARMONIZATION.md` | The science core: cleaning, fire-cell-days, calibration, validation |
 | `docs/REKINDLE.md` | The simulator: Rothermel, ellipse, level-set, scenario grid, validation |
+| `docs/REKINDLE_RESULTS.md` | Rekindle results, the evaluation story and wording for the presentation |
 | `docs/BUILD_PLAN.md` | What to do next, in order |
 | `docs/SUBMISSION.md` | Judging criteria mapping, demo video script, project page |
 
