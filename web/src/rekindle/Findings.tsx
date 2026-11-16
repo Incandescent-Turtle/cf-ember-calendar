@@ -133,7 +133,8 @@ export function RekindleFindings({ headingLevel = 3 }: { headingLevel?: 2 | 3 | 
       <p>
         Hotspots record <em>where something hot was seen at overpass time</em>. That is good evidence for when a fire was active and is why we harmonized MODIS and VIIRS. It is a weaker
         outline of what burned: pixels are 375 m–1 km and grow toward the swath edge, cloud and smoke hide fire, and cool or fast grass fronts can burn between passes unseen. So we also
-        compare against MODIS MCD64A1 burned area (500 m, burn date from surface darkening). Shape is judged against both, timing against the hotspots with a fair interval (an arrival
+        compare against MODIS MCD64A1 burned area (500 m, burn date from surface darkening). It is a product of the same MODIS instrument and partly guided by its active
+        fires, so it is a second, partly independent reference, not ground truth. Shape is judged against both, timing against the hotspots with a fair interval (an arrival
         anywhere between the previous overpass and the detection counts as on time). Added after the runs above; the earlier numbers are unchanged.
       </p>
       <div className="table-wrap">

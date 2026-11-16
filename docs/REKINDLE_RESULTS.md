@@ -6,6 +6,8 @@ Status 2026-11-15 ~19:30 Toronto. Items marked **⏳ S6i** are being recomputed 
 
 Rekindle replays real wildfires with a physics model (Rothermel surface spread on a level-set front, real terrain, fuels and hourly weather) and asks *what if the wind or fuel dryness had been different?* We built it to be judged against our harmonized MODIS + VIIRS hotspots: every satellite pixel's first detection gives an "answer key" for when the fire arrived. The strict test we fixed before running (median timing error within one overpass interval, about 2–5 h) failed on every fire, and we report that. Digging into why taught us something about the data itself. Hotspots record **when** something hot was seen at overpass time, a good timing signal, but they are a fuzzy outline of **what burned**. NASA's independent MODIS burned-area product (MCD64A1) agrees with the hotspot footprint only at Sørensen 0.3–0.66. So Rekindle is now judged against **two satellite references**: burned area for shape, hotspots for timing. The model is recalibrated to shape, and what-if scenarios are shown only where the model earns them, with every limit labelled.
 
+**On independence:** MCD64A1 is a *product* made from the MODIS *instrument* (Terra and Aqua), the same sensor as the MODIS half of the hotspots. It measures something different: a burn scar (surface reflectance change over days), not heat at overpass time. Its algorithm is also guided in part by MODIS active fires (Giglio et al. 2018). So call it a **second, partly independent reference**, not a fully independent one. VIIRS (Suomi NPP, NOAA-20/21) is a separate instrument. Shared inputs should make the two references agree *more*, so their low agreement (0.24–0.66) is, if anything, an optimistic ceiling.
+
 ## Motivation (why this matters)
 
 - Fire agencies use spread simulators (FARSITE, Prometheus, Phoenix) daily, but they re-initialise from mapped perimeters every day and adjust rates by hand (Finney 1998; Tymstra et al. 2010). Testing a simulator against satellites, automatically and globally, is still rare.
@@ -86,8 +88,8 @@ No fire passes the hour-level timing gate under any calibration. That result sta
 
 ## Judging criteria angle
 
-- **Creativity:** using the harmonized hotspot record as an automatic answer key for a fire model; a second NASA product as an independent check of that answer key; what-ifs gated by rules, not by eye.
-- **Validity:** pre-registered gates; blind tests; every failure published; a ceiling from two independent references; verification tests of the solver.
+- **Creativity:** using the harmonized hotspot record as an automatic answer key for a fire model; a second NASA product (MCD64A1, a different measurement from the MODIS instrument) as a partly independent check of that answer key; what-ifs gated by rules, not by eye.
+- **Validity:** pre-registered gates; blind tests; every failure published; a ceiling from two partly independent references; verification tests of the solver.
 - **Relevance:** NASA FIRMS MODIS + VIIRS (core), MCD64A1, MCD12Q1, MOD44B, MOD44W, MERRA-2, NASADEM; hero fire = the challenge video's Chilecito fire.
 - **Impact:** a transparent, global, open way to test fire-spread tools against satellites, and to communicate how wind and dryness change real fires.
 

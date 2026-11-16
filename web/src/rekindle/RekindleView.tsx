@@ -461,7 +461,7 @@ function RkPanel(p: PanelProps) {
       </div>
       <p className="meta">
         Colour = simulated arrival time; thin white lines = simulated burned outline every {hours > 48 ? 12 : 6} h; white dots = FIRMS detections up to the clock time;{' '}
-        {p.reference && 'green outline = MODIS MCD64A1 burned area in the run period (an independent reference for shape); '}red = ignition (first overpass,{' '}
+        {p.reference && 'green outline = MODIS MCD64A1 burned area in the run period (a second, partly independent reference for shape); '}red = ignition (first overpass,{' '}
         {fmtUtc(meta.start, 0)}). {p.loading && 'Loading run…'}
       </p>
       {isBase && (
