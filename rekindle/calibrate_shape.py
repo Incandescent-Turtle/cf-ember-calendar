@@ -101,7 +101,8 @@ def main() -> None:
     cal = json.loads((base / "calibration.json").read_text())
     dom, meta = dm.load(a.fire, nonveg_max_pct=cal["model_settings"].get("nonveg_max_pct"))
     t0 = dm.parse_t(meta["t0"])
-    box = in_bbox(meta)
+    mpath = base / "bbox_mask.npy"  # precomputed on the desktop (no PROJ data on the cluster)
+    box = np.load(mpath) if mpath.exists() else in_bbox(meta)
     bd = np.where(box, np.load(base / "mcd64_burnday.npy"), np.nan)
     prep = metrics.prepare(meta, dom.shape, dom.dx, cal["hours"] * 3600)
     ref = {"box": box, "mcd": np.isfinite(bd), "hot": prep["union"], "bd": bd, "prep": prep,

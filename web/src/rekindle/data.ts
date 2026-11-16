@@ -14,7 +14,7 @@ export interface FireRef {
   bbox: [number, number, number, number];
   status?: Status;
 }
-export type Status = 'validated' | 'poor_agreement' | 'uncalibrated';
+export type Status = 'validated' | 'poor_agreement' | 'uncalibrated' | 'shape_validated' | 'shape_poor';
 
 export interface Credit {
   id: string;
@@ -73,6 +73,7 @@ export interface FireMeta {
     metrics: RunMetrics;
     sweep: { ros_multiplier: number; median_abs_timing_error_h: number | null; hit_rate: number | null; sorensen: number }[];
     calibrated_not_blind: string;
+    calibration_objective?: string;
     moisture_estimate: { method: string; rh_pct_median: number; emc_pct_median: number };
   };
   model_settings?: { nonveg_max_pct: number | null; diurnal_moisture: boolean; wind?: string; seed_h?: number };

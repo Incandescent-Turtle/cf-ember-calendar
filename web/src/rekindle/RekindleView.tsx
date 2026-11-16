@@ -380,8 +380,13 @@ function RkPanel(p: PanelProps) {
   const wNow = windAt(meta, t);
   const areaAt = (r: Run) => r.burned_km2_by_hour[Math.min(Math.round(t), r.burned_km2_by_hour.length - 1)];
   const diff = areaAt(run) - areaAt(baseline);
+  const shapeCal = meta.status === 'shape_validated' || meta.status === 'shape_poor';
   const statusText =
-    meta.status === 'validated'
+    meta.status === 'shape_validated'
+      ? 'Shape validated: the simulated footprint reaches at least 70 % of the agreement between the two satellite references. Timing is not validated'
+      : meta.status === 'shape_poor'
+        ? 'Shape below the bar (under 70 % of the satellite references’ own agreement, or references too far apart to judge). Timing not validated'
+        : meta.status === 'validated'
       ? 'Baseline passed the quality gate'
       : meta.status === 'poor_agreement'
         ? p.burst?.windows.length
@@ -405,7 +410,8 @@ function RkPanel(p: PanelProps) {
       <p className={`rk-status ${isBase ? 'hindcast' : 'illustrative'}`} role="status">
         {isBase ? (
           <>
-            <strong>Hindcast of a real fire, calibrated to its detections</strong> (observed MERRA-2 wind, ROS × {meta.baseline.ros_multiplier}). Absolute timings are illustrative.
+            <strong>Hindcast of a real fire, calibrated to {shapeCal ? 'its satellite-mapped burned area' : 'its detections'}</strong> (observed MERRA-2 wind, ROS ×{' '}
+            {meta.baseline.ros_multiplier}). Absolute timings are illustrative.
           </>
         ) : (
           <>
@@ -522,7 +528,8 @@ function RkPanel(p: PanelProps) {
           <tr>
             <th scope="row">ROS multiplier</th>
             <td>
-              × {meta.baseline.ros_multiplier}, fitted on this fire’s own detections (calibrated, not a blind test)
+              × {meta.baseline.ros_multiplier},{' '}
+              {shapeCal ? 'fitted to this fire’s MCD64A1 burned-area shape (calibrated, not a blind test)' : 'fitted on this fire’s own detections (calibrated, not a blind test)'}
             </td>
           </tr>
         </tbody>
