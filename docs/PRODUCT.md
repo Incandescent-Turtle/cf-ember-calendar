@@ -77,7 +77,8 @@ Source: `challenge_description.md` and the challenge video (Marina Compagnucci, 
 - **Counterfactuals** carry the caption "Illustrative what-if: surface fire only, coarse fuels. Not a forecast." Emphasise differences from the baseline over absolute times. If a fire's `status` is `poor_agreement`, show the baseline only.
 - Counterfactual controls (sliders **snap to a precomputed grid**, see CONTRACTS.md): wind speed (0–15 m/s), wind direction (8 compass points), dead fuel moisture (4/6/10/14 %). Optional named scenarios: weather swapped from another real fire; a fixed firebreak. Free-drawn firebreaks, moving the ignition point and fuel overrides are cut.
 - Side-by-side or toggle: baseline vs counterfactual (area burned, time to reach a chosen point).
-- *Accept:* moving a slider loads the matching precomputed run in < 1 s; the baseline run shows its measured timing error against the observed hotspots; the uniform-fuel no-wind solver test is a circle (see REKINDLE.md).
+- *Accept:* moving a slider loads the matching precomputed run in < 1 s; the uniform-fuel no-wind solver test is a circle (see REKINDLE.md).
+- *As shipped (S6–S6i):* what-ifs only where a rule passes (24 h windows; the shape-validated BC fire). The tab shows the animation and a plain explanation; the evaluation against hotspots and MODIS burned area, failures included, lives on /methodology and in `docs/REKINDLE_RESULTS.md`.
 
 **F11. Statistical counterfactuals** (cheap, pitch-worthy): "What if this year had followed the median season?" overlay on the seasonality chart; "MODIS-continuity series": the harmonized record continues the MODIS-era baseline after MODIS ends.
 

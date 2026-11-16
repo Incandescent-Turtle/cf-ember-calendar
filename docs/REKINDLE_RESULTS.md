@@ -94,7 +94,7 @@ Whole simulation domain, against MCD64A1 burn patches connected to the fire's ho
   - "forecast", "predicts", "prediction" as a present capability ("toward prediction" only as roadmap);
   - "validated" without saying *shape*;
   - "the physics is right" (too strong).
-- **Update `docs/SUBMISSION.md`:** its judging table still says Rekindle is "validated against the fire's own hotspot timestamps", and the claims list says it reproduces a fire "to a measured timing error". Replace these with the two-reference framing above.
+- `docs/SUBMISSION.md`, `README.md`, `CLAUDE.md`, `docs/REKINDLE.md` and the methodology page now use this framing (updated 2026-11-15 ~21:30).
 
 ## Judging criteria angle
 

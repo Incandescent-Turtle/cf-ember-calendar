@@ -239,8 +239,9 @@ function Body({ v, m, cal }: { v: Validation; m: NonNullable<ReturnType<typeof u
       <section>
         <h2>Rekindle fire-spread hindcasts</h2>
         <p>
-          Rekindle replays three real fires with a level-set + Rothermel surface-spread model (90 m grid, MERRA-2 weather, MODIS fuels), calibrating one rate-of-spread multiplier to each
-          fire’s own hotspot times. See the <a href="/rekindle" onClick={linkTo('rekindle')}>Rekindle tab</a> for the maps.
+          Rekindle replays six real fires with a level-set + Rothermel surface-spread model (90 m grid, MERRA-2 weather, MODIS fuels) and judges each against two satellite
+          references: the harmonized hotspots for timing and MODIS MCD64A1 burned area for shape. What-if scenarios appear only where the model matches. Below are every test,
+          failures included, and how we reached the final evaluation. See the <a href="/rekindle" onClick={linkTo('rekindle')}>Rekindle tab</a> for the maps.
         </p>
         <RekindleFindings headingLevel={3} />
       </section>

@@ -1,8 +1,10 @@
 # REKINDLE.md — fire-spread hindcast and counterfactual simulator
 
-**Workflow per fire:** (1) *hindcast* the real fire from its first hotspots with the real weather, terrain and fuels; (2) compare simulated arrival times with the observed hotspots and tune **one** global ROS multiplier; (3) if the baseline passes the quality gate (§5), run the counterfactual grid with the multiplier fixed. Hotspots are never modified or used as model input beyond ignition and the check. The satellite data is the answer key, not the physics.
+> **Final evaluation (S6g–S6i):** the timing gate below failed on every fire. The final evaluation uses **two satellite references**: hotspots for timing, MODIS MCD64A1 burned area for shape (with a ceiling from how well the two agree). The multiplier is recalibrated to shape, and what-ifs are shown only where a rule passes (24 h windows, or a shape-validated whole fire). Results, numbers and wording: **`docs/REKINDLE_RESULTS.md`**; every run: `docs/DECISIONS.md`. Sections 5–6 describe the original protocol, kept as history.
 
-**Vocabulary:** *hindcast/baseline* = validated against detections. *Counterfactual* = baseline with one input changed (wind, moisture); nothing can validate it, so it is **illustrative**. Not a forecast: no forecast weather, no live perimeter.
+**Workflow per fire (original protocol):** (1) *hindcast* the real fire from its first hotspots with the real weather, terrain and fuels; (2) compare simulated arrival times with the observed hotspots and tune **one** global ROS multiplier; (3) if the baseline passes the quality gate (§5), run the counterfactual grid with the multiplier fixed. Hotspots are never modified or used as model input beyond ignition and the check. The satellite data is the answer key, not the physics.
+
+**Vocabulary:** *hindcast/baseline* = the real fire under real weather, judged against the satellite references. *Counterfactual* = baseline with one input changed (wind, moisture); nothing can validate it, so it is **illustrative**. Not a forecast: no forecast weather, no live perimeter.
 
 **Method (decided):** level-set front propagation, solved with upwind finite differences, with a direction-dependent rate of spread from the **Rothermel (1972) surface fire model** (Albini 1976 revisions), via an **elliptical fire shape**.
 

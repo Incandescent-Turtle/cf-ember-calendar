@@ -1,5 +1,7 @@
 # Rekindle engine verification (S5) and Chilecito hindcast (S6) — material for the LaTeX report
 
+> **Final results (S6–S6i: six fires, two satellite references, shape recalibration):** see `docs/REKINDLE_RESULTS.md`. The S6 numbers below are the original timing-gate run, kept as history. The later outputs are in this folder: `*_windows.json`, `*_burst.json`, `*_shape_whatif.json`, `burned_area_check.json`, `*_shape_calibration.json`.
+
 Regenerate: `uv run python -m rekindle.verification_report --out docs/report/rekindle`
 (~2 min, desktop). Every number is in `results.json`; BibTeX keys in `references.bib`.
 Detections: `uv run python -m rekindle.hotspots --fire chilecito-2026` (reads data/processed/points).
