@@ -3,7 +3,7 @@ import { area } from '@turf/turf';
 import type { Feature, FeatureCollection, MultiPolygon, Polygon } from 'geojson';
 import { useState } from 'react';
 import { newAoiId, useStore } from '../store';
-import { setCircleAoi } from './aoiActions';
+import { EXAMPLES, selectExample, setCircleAoi } from './aoiActions';
 import { PlaceSearch } from './PlaceSearch';
 
 type Country = Feature<Polygon | MultiPolygon, { name: string; iso: string }>;
@@ -75,6 +75,21 @@ export function AoiTools() {
           <button type="submit">Go</button>
         </form>
       )}
+      <select
+        aria-label="Examples"
+        value=""
+        onChange={(e) => {
+          const ex = EXAMPLES.find((x) => x.id === e.target.value);
+          if (ex) selectExample(ex);
+        }}
+      >
+        <option value="">Examples…</option>
+        {EXAMPLES.map((ex) => (
+          <option key={ex.id} value={ex.id}>
+            {ex.label}
+          </option>
+        ))}
+      </select>
       <label className="sat-toggle">
         <input type="checkbox" checked={satellite} onChange={(e) => setSatellite(e.target.checked)} /> Satellite imagery
       </label>

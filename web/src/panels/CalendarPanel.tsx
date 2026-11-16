@@ -2,7 +2,7 @@ import { useCalendarData } from '../data/hooks';
 import { Calendar } from '../calendar/Calendar';
 import { DekadCalendar } from '../calendar/DekadCalendar';
 import { useStore } from '../store';
-import { HERO, setCircleAoi } from '../map/aoiActions';
+import { EXAMPLES, selectExample } from '../map/aoiActions';
 import { dekadRange } from '../lib/time';
 import { useMemo } from 'react';
 import { computeGlance } from '../lib/glance';
@@ -28,9 +28,17 @@ export function CalendarPanel() {
           Draw a rectangle or polygon, enter a point and radius, or pick a country to see its monthly hotspot activity
           from 2000 to today — MODIS and VIIRS combined into one consistent series.
         </p>
-        <button className="primary" onClick={() => setCircleAoi(HERO.lon, HERO.lat, HERO.radiusKm, HERO.label, 'preset')}>
-          Try: Chilecito, Argentina (Jul 2026)
-        </button>
+        <h3 className="examples-title">Or try an example</h3>
+        <ul className="examples">
+          {EXAMPLES.map((ex, i) => (
+            <li key={ex.id}>
+              <button className={i === 0 ? 'primary' : ''} onClick={() => selectExample(ex)}>
+                {ex.label}
+              </button>
+              <span className="dim">{ex.note}</span>
+            </li>
+          ))}
+        </ul>
       </div>
     );
   if (error) return <div className="error">Couldn’t load data: {error.message}</div>;
