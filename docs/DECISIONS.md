@@ -792,3 +792,6 @@ Observation (map, S6i-b baseline): Chilecito at ×0.125 spreads north-east with 
 
 ## UI changes after user review (2026-11-15 ~20:50)
 Hidden from the fire picker (`index.json` `hidden`): larioja-2025, chaco-2024 (kept in Findings). No whole-fire view (`whole_fire: false`): chilecito-2026, cordoba-2024 (open on their window what-if). MCD64A1 outline: toggle, default off; exported as burn day (minutes from the run start to 00:00 UTC of the burn day) so it grows with the clock. Saskatchewan outline vs hotspots mismatch = the low ceiling (0.24), not a bug. `export.py` keeps extra index keys on re-export.
+
+## Rekindle UI simplification (user review, 2026-11-15 ~21:00)
+Whole-fire panel cut to: status caption, big play bar, "what you are seeing", burned area chart, one-line match summary linking to /methodology, collapsed model/data credits. Removed from the tab (kept on /methodology and in REKINDLE_RESULTS.md): metrics table, two-reference block, spread chart, findings, window-check table. Legend moved to a map overlay (calendar style) with the MCD64A1 toggle. Shared `Controls.tsx` (TimeBar, RkLegend). Retired the old validated-grid what-if state in RkLoaded.

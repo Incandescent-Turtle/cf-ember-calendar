@@ -8,13 +8,13 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
 import type { FeatureCollection } from 'geojson';
 import {
-  fetchBurst, fetchFires, fetchReference, type Reference, fetchMeta, fetchObserved, fetchRaster, fetchRuns, fmtUtc, hoursSince, isochrones, rampCss,
-  renderRgba, runKey, windAt, type BurstIndex, type FireMeta, type Run,
+  fetchBurst, fetchFires, fetchReference, type Reference, fetchMeta, fetchObserved, fetchRaster, fetchRuns, fmtUtc, hoursSince, isochrones,
+  renderRgba, windAt, type BurstIndex, type FireMeta, type Run,
 } from './data';
-import { BurstPanel, ShapePanel, WindowScreen } from './Burst';
+import { BurstPanel, ShapePanel } from './Burst';
+import { RkLegend, TimeBar } from './Controls';
+import { linkTo } from '../route';
 import { AreaChart } from './AreaChart';
-import { RekindleFindings } from './Findings';
-import { SpreadChart } from './SpreadChart';
 import { Tabs } from '../Tabs';
 
 maplibregl.setWorkerUrl(maplibreWorkerUrl);
@@ -28,9 +28,6 @@ const SENSOR: Record<string, string> = {
 const COMPASS = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
 const compass = (deg: number) => COMPASS[Math.round(deg / 45) % 8];
 const f1 = (x: number | null | undefined, d = 1) => (typeof x === 'number' && Number.isFinite(x) ? x.toFixed(d) : '—');
-const pct = (x: number | null | undefined) => (typeof x === 'number' ? `${Math.round(x * 100)} %` : '—');
-
-type Mode = 'baseline' | 'whatif';
 
 export function RekindleView() {
   const fires = useQuery({ queryKey: ['rk-fires'], queryFn: fetchFires, staleTime: Infinity });
@@ -74,16 +71,9 @@ export function RekindleView() {
 function RkLoaded({
   meta, runs, observed, burst, reference, picker, wholeFire,
 }: { meta: FireMeta; runs: Run[]; observed: FeatureCollection; burst: BurstIndex | null; reference: Reference | null; picker: ReactNode; wholeFire: boolean }) {
-  const axes = meta.axes;
   const byKey = useMemo(() => new Map(runs.map((r) => [r.key, r])), [runs]);
   const baseline = byKey.get('baseline')!;
   const hours = baseline.burned_km2_by_hour.length - 1;
-  const canWhatIf = meta.status === 'validated' && !!axes && runs.length > 1;
-  const [mode, setMode] = useState<Mode>('baseline');
-  const nearest = (axis: number[], v: number) => axis.reduce((a, b) => (Math.abs(b - v) < Math.abs(a - v) ? b : a), axis[0]);
-  const [ws, setWs] = useState(() => (axes ? nearest(axes.wind_ms, meta.baseline.wind_ms) : 0));
-  const [wd, setWd] = useState(() => (axes ? nearest(axes.wind_from_deg, meta.baseline.wind_from_deg) : 0));
-  const [mo, setMo] = useState(() => meta.baseline.dead_moisture_pct);
   // Fires without a whole-fire view open on their what-if view (burst window first).
   const initialView: 'whole' | 'burst' | 'shape' = wholeFire ? 'whole' : burst?.windows.length ? 'burst' : burst?.shape ? 'shape' : 'whole';
   const [t, setT] = useState(() =>
@@ -92,8 +82,8 @@ function RkLoaded({
   const [showBurn, setShowBurn] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [compare, setCompare] = useState(true);
-  const key = mode === 'baseline' || !canWhatIf ? 'baseline' : runKey(ws, wd, mo);
-  const run = byKey.get(key) ?? baseline;
+  // The whole-fire view shows the hindcast only (the old validated-grid what-if UI is retired).
+  const run = baseline;
   // S6c burst-window what-ifs (only when a 24 h window qualified) and S6d whole-fire footprint
   // what-ifs (shape only); both exploratory, both use the same run layout.
   const canBurst = !!burst && burst.windows.length > 0;
@@ -150,16 +140,21 @@ function RkLoaded({
           mcdMinutes={showBurn ? (mcd.data ?? null) : null}
           showIgnitions={view !== 'burst'}
         />
+        <RkLegend
+          hours={hoursNow}
+          from={inBurst && view === 'burst' ? 'the window start' : 'the first detection'}
+          isoStepH={hoursNow > 48 ? 12 : 6}
+          showIgnitions={view !== 'burst'}
+          showBase={showBase}
+          burnAvailable={!!reference}
+          showBurn={showBurn}
+          setShowBurn={setShowBurn}
+        />
       </div>
       <aside className="panel">
         <Tabs />
         <div className="panel-body">
           {picker}
-          {reference && (
-            <label className="rk-check rk-burn-toggle">
-              <input type="checkbox" checked={showBurn} onChange={(e) => setShowBurn(e.target.checked)} /> Show MODIS burned area (MCD64A1) by burn day, green outline
-            </label>
-          )}
           {(canBurst || shape) && (wholeFire || (canBurst && shape)) && (
             <div className="seg rk-mode" role="radiogroup" aria-label="View">
               {wholeFire && (
@@ -221,11 +216,7 @@ function RkLoaded({
               loading={raster.isFetching}
             />
           ) : (
-            <RkPanel
-              {...{ meta, run, baseline, hours, t, setT, playing, setPlaying, mode, setMode, canWhatIf, ws, setWs, wd, setWd, mo, setMo, compare, setCompare, burst, reference }}
-              loading={raster.isFetching}
-              missing={key !== run.key}
-            />
+            <RkPanel {...{ meta, baseline, hours, t, setT, playing, setPlaying, reference }} loading={raster.isFetching} />
           )}
         </div>
       </aside>
@@ -352,305 +343,72 @@ function RkMap({
 
 interface PanelProps {
   meta: FireMeta;
-  run: Run;
   baseline: Run;
   hours: number;
   t: number;
   setT: (h: number) => void;
   playing: boolean;
   setPlaying: (b: boolean) => void;
-  mode: Mode;
-  setMode: (m: Mode) => void;
-  canWhatIf: boolean;
-  ws: number;
-  setWs: (v: number) => void;
-  wd: number;
-  setWd: (v: number) => void;
-  mo: number;
-  setMo: (v: number) => void;
-  compare: boolean;
-  setCompare: (b: boolean) => void;
   loading: boolean;
-  missing: boolean;
-  burst: BurstIndex | null;
   reference: Reference | null;
 }
 
-function AxisSlider({ label, axis, value, onChange, fmt }: { label: string; axis: number[]; value: number; onChange: (v: number) => void; fmt: (v: number) => string }) {
-  const i = Math.max(0, axis.indexOf(value));
-  return (
-    <label className="rk-slider">
-      <span>
-        {label}: <strong>{fmt(value)}</strong>
-      </span>
-      <input type="range" min={0} max={axis.length - 1} step={1} value={i} onChange={(e) => onChange(axis[Number(e.target.value)])} aria-valuetext={fmt(value)} />
-    </label>
-  );
-}
-
+/** Whole-fire hindcast: show the animation and explain it. Validation details live on /methodology. */
 function RkPanel(p: PanelProps) {
-  const { meta, run, baseline, hours, t } = p;
-  const v = meta.validation;
-  const bm = v.metrics;
-  const isBase = run.key === 'baseline';
-  const wNow = windAt(meta, t);
-  const areaAt = (r: Run) => r.burned_km2_by_hour[Math.min(Math.round(t), r.burned_km2_by_hour.length - 1)];
-  const diff = areaAt(run) - areaAt(baseline);
+  const { meta, baseline, hours, t } = p;
   const shapeCal = meta.status === 'shape_validated' || meta.status === 'shape_poor';
-  const statusText =
-    meta.status === 'shape_validated'
-      ? 'Shape validated: the simulated footprint reaches at least 70 % of the agreement between the two satellite references. Timing is not validated'
-      : meta.status === 'shape_poor'
-        ? 'Shape below the bar (under 70 % of the satellite references’ own agreement, or references too far apart to judge). Timing not validated'
-        : meta.status === 'validated'
-      ? 'Baseline passed the quality gate'
-      : meta.status === 'poor_agreement'
-        ? p.burst?.windows.length
-          ? p.burst.windows[0].basis === 'shape'
-            ? 'Poor agreement: the baseline did not pass the quality gate. One 24 h window matches the detections in shape, though not in timing (see “Window what-if”, shape only)'
-            : 'Poor agreement: the whole-fire baseline did not pass the quality gate, so there are no whole-fire what-ifs. One 24 h window did match (see “Burst-window what-if”, exploratory)'
-          : p.burst?.shape
-            ? 'Poor agreement on timing: the baseline did not pass the quality gate, but its footprint matches the detections (see “Footprint what-if”, shape only)'
-            : 'Poor agreement: the baseline did not pass the quality gate, so no what-if runs are shown'
-        : 'Uncalibrated: no detections to check against';
-
+  const wNow = windAt(meta, t);
+  const area = baseline.burned_km2_by_hour[Math.min(Math.round(t), baseline.burned_km2_by_hour.length - 1)];
+  const r = p.reference;
   return (
     <div className="rk">
       <div className="panel-head">
-        <h2>Rekindle — {meta.name}</h2>
-        <p className="meta">
-          Fire-spread hindcast with level-set + Rothermel surface spread, 90 m grid. Precomputed scenarios, surface fire only.
-        </p>
+        <h2>{meta.name}</h2>
       </div>
-
-      <p className={`rk-status ${isBase ? 'hindcast' : 'illustrative'}`} role="status">
-        {isBase ? (
-          <>
-            <strong>Hindcast of a real fire, calibrated to {shapeCal ? 'its satellite-mapped burned area' : 'its detections'}</strong> (observed MERRA-2 wind, ROS ×{' '}
-            {meta.baseline.ros_multiplier}). Absolute timings are illustrative.
-          </>
-        ) : (
-          <>
-            <strong>Illustrative what-if</strong>: the baseline with a constant {run.wind_ms} m/s wind from {compass(run.wind_from_deg)} and {run.dead_moisture_pct} % dead fuel moisture. Not
-            a forecast; compare it with the baseline rather than reading absolute times.
-          </>
-        )}
-        <span className={`rk-badge ${meta.status}`}>{statusText}</span>
+      <p className="rk-status hindcast" role="status">
+        <strong>Hindcast of a real fire, calibrated to {shapeCal ? 'its satellite-mapped burned area' : 'its detections'}.</strong> Illustrative: the timing is not validated.
+        {meta.status === 'shape_validated' && <> Its burned shape matches MODIS burned area well enough to pass our shape test.</>}
       </p>
 
-      {p.canWhatIf && (
-        <div className="seg rk-mode" role="radiogroup" aria-label="Run">
-          <button className={p.mode === 'baseline' ? 'on' : ''} onClick={() => p.setMode('baseline')} role="radio" aria-checked={p.mode === 'baseline'}>
-            Hindcast (observed weather)
-          </button>
-          <button className={p.mode === 'whatif' ? 'on' : ''} onClick={() => p.setMode('whatif')} role="radio" aria-checked={p.mode === 'whatif'}>
-            What-if
-          </button>
-        </div>
-      )}
+      <TimeBar t={t} setT={p.setT} hours={hours} playing={p.playing} setPlaying={p.setPlaying} clock={fmtUtc(meta.start, t)} label="Time since the first detection" />
 
-      {p.canWhatIf && p.mode === 'whatif' && meta.axes && (
-        <div className="rk-sliders">
-          <AxisSlider label="Wind speed (10 m)" axis={meta.axes.wind_ms} value={p.ws} onChange={p.setWs} fmt={(x) => `${x} m/s`} />
-          <AxisSlider label="Wind from" axis={meta.axes.wind_from_deg} value={p.wd} onChange={p.setWd} fmt={(x) => (p.ws === 0 ? 'calm' : `${compass(x)} (${x}°)`)} />
-          <AxisSlider label="Dead fuel moisture (1-h)" axis={meta.axes.dead_moisture_pct} value={p.mo} onChange={p.setMo} fmt={(x) => `${x} %`} />
-          <label className="rk-check">
-            <input type="checkbox" checked={p.compare} onChange={(e) => p.setCompare(e.target.checked)} /> Show the baseline’s burned outline (dashed blue)
-          </label>
-          {p.missing && <p className="warn">This combination wasn’t precomputed; showing the baseline.</p>}
-        </div>
-      )}
-
-      <div className="rk-time">
-        <button onClick={() => (t >= hours ? (p.setT(0), p.setPlaying(true)) : p.setPlaying(!p.playing))} aria-label={p.playing ? 'Pause' : 'Play'}>
-          {p.playing ? '❚❚' : '▶'}
-        </button>
-        <input type="range" min={0} max={hours} step={1} value={t} onChange={(e) => (p.setPlaying(false), p.setT(Number(e.target.value)))} aria-label="Time since first detection" />
-        <span className="rk-clock">
-          {fmtUtc(meta.start, t)} <span className="meta">(+{t} h)</span>
-        </span>
-      </div>
-      <div className="rk-legend">
-        <span>0 h</span>
-        <span className="rk-ramp" style={{ background: rampCss() }} aria-hidden="true" />
-        <span>{hours} h after the first detection</span>
-      </div>
+      <h3>What you are seeing</h3>
+      <p className="rk-intro">
+        The colours show the simulated fire spreading hour by hour from the first satellite detection (red), driven by the real terrain, vegetation and hourly weather. White dots are the
+        real satellite hotspots, appearing as the clock runs, so you can compare the model with what was observed. {p.loading && 'Loading…'}
+      </p>
       <p className="meta">
-        Colour = simulated arrival time; thin white lines = simulated burned outline every {hours > 48 ? 12 : 6} h; white dots = FIRMS detections up to the clock time;{' '}
-        {p.reference && 'green outline (when switched on) = MODIS MCD64A1 burned area by burn day: day precision, dates can lag under cloud (a second, partly independent reference for shape); '}red = ignition (first overpass,{' '}
-        {fmtUtc(meta.start, 0)}). {p.loading && 'Loading run…'}
+        Now: wind {f1(wNow.speed_ms)} m/s from {compass(wNow.from_deg)} · simulated burned area <strong>{f1(area)} km²</strong>
       </p>
-      {isBase && (
+
+      <h3>Burned area over time</h3>
+      <AreaChart start={meta.start} baseline={baseline.burned_km2_by_hour} selected={null} t={t} baseLabel="Simulated burned area" />
+
+      {r && (
         <p className="meta">
-          Wind at this hour (MERRA-2): {f1(wNow.speed_ms)} m/s from {compass(wNow.from_deg)} ({Math.round(wNow.from_deg)}°).{' '}
-          {meta.moisture?.baseline === 'hourly' ? (
-            <>
-              Dead fuel moisture follows MERRA-2 humidity hour by hour (1-h fuels {f1(meta.moisture.dead_1h_pct_min)}–{f1(meta.moisture.dead_1h_pct_max)} %, median{' '}
-              {f1(meta.moisture.dead_1h_pct_median)} %).
-            </>
-          ) : (
-            <>
-              Dead fuel moisture {meta.baseline.dead_moisture_pct} % (estimated from MERRA-2 humidity, median EMC {f1(v.moisture_estimate.emc_pct_median)} %).
-            </>
-          )}
+          How close is it? Shape overlap with MODIS burned area {f1(r.sorensen_model_vs_mcd64, 2)} (the two satellite records agree at {f1(r.sorensen_hotspots_vs_mcd64, 2)}).{' '}
+          <a href="/methodology" onClick={linkTo('methodology')}>How we test the model</a>.
         </p>
       )}
-
-      <h3>Burned area</h3>
-      <p className="caption">
-        {isBase ? 'Baseline' : 'This run'}: <strong>{f1(areaAt(run))} km²</strong> by the clock time
-        {!isBase && (
-          <>
-            {' '}
-            — {diff >= 0 ? '+' : '−'}
-            {f1(Math.abs(diff))} km² vs the baseline ({f1(areaAt(baseline))} km²)
-          </>
-        )}
-        .
-      </p>
-      <AreaChart start={meta.start} baseline={baseline.burned_km2_by_hour} selected={isBase ? null : run.burned_km2_by_hour} t={t} />
-
-      <h3>How well the baseline matches the detections</h3>
-      <table className="rk-metrics">
-        <tbody>
-          <tr>
-            <th scope="row" title="T_sim − t_obs for each pixel’s first detection; negative = the simulation arrives before the satellite saw fire (expected: detections are upper bounds)">
-              Timing error, median (IQR)
-            </th>
-            <td>
-              {f1(bm.median_timing_error_h)} h ({f1(bm.iqr_h?.[0])} to {f1(bm.iqr_h?.[1])} h)
-            </td>
-          </tr>
-          <tr>
-            <th scope="row">Median |timing error|</th>
-            <td>
-              {f1(bm.median_abs_timing_error_h)} h (gate: ≤ {f1(v.gate.threshold_h)} h, the mean interval between overpasses)
-            </td>
-          </tr>
-          <tr>
-            <th scope="row" title="Share of detections inside the simulated burned area by the next overpass">
-              Hit rate
-            </th>
-            <td>{pct(bm.hit_rate)}</td>
-          </tr>
-          <tr>
-            <th scope="row" title="2|A∩B|/(|A|+|B|), simulated burned area vs union of detection pixel footprints">
-              Sørensen overlap
-            </th>
-            <td>
-              {f1(bm.sorensen, 2)} (simulated {f1(bm.area_km2, 0)} km² vs detection footprints {f1(bm.observed_footprint_km2, 0)} km²)
-            </td>
-          </tr>
-          <tr>
-            <th scope="row">ROS multiplier</th>
-            <td>
-              × {meta.baseline.ros_multiplier},{' '}
-              {shapeCal ? 'fitted to this fire’s MCD64A1 burned-area shape (calibrated, not a blind test)' : 'fitted on this fire’s own detections (calibrated, not a blind test)'}
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      {p.reference && <TwoReferences r={p.reference} />}
-
-      {meta.spread_profile && (
-        <>
-          <h3>Distance from ignition vs time</h3>
-          <SpreadChart profile={meta.spread_profile} mult={meta.baseline.ros_multiplier} />
-        </>
-      )}
-
-      {p.burst && <WindowScreen burst={p.burst} />}
-
-      <details className="rk-details" open={meta.status !== 'validated'}>
-        <summary>Limits / what validation showed</summary>
-        <RekindleFindings headingLevel={4} />
-      </details>
 
       <details className="rk-details">
-        <summary>Intended use and limits</summary>
+        <summary>Model and data</summary>
         <p>
-          Explore how wind and fuel dryness change the spread of a real past fire, as a step toward planning tools. This is not a forecast: it uses past weather, a fixed set of precomputed
-          scenarios and no live perimeter.
+          Rothermel surface spread on a 90 m level-set grid; fuels from MODIS land cover, terrain from NASADEM/Copernicus, hourly MERRA-2 wind and humidity. Surface fire only: no
+          crowning, spotting or firefighting. Not a forecast.
         </p>
-        <p>{meta.notes}</p>
-        <ul>
-          {meta.prep_notes.map((n) => (
-            <li key={n}>{n}</li>
+        <p className="rk-credits">
+          <strong>Data:</strong>{' '}
+          {meta.credits.map((c, i) => (
+            <span key={c.id}>
+              {i > 0 && ' · '}
+              <a href={c.url} target="_blank" rel="noreferrer" title={c.citation}>
+                {c.short}
+              </a>
+            </span>
           ))}
-        </ul>
+        </p>
       </details>
-
-      <div className="rk-credits">
-        <strong>Data:</strong>{' '}
-        {meta.credits.map((c, i) => (
-          <span key={c.id}>
-            {i > 0 && ' · '}
-            <a href={c.url} target="_blank" rel="noreferrer" title={c.citation}>
-              {c.short}
-            </a>
-          </span>
-        ))}
-        . {meta.credits.find((c) => c.id === 'copdem')?.citation}.
-        <details>
-          <summary>Full citations</summary>
-          <ul>
-            {meta.credits.map((c) => (
-              <li key={c.id}>
-                <em>{c.use}:</em> {c.citation}
-                {c.access ? ` ${c.access}` : ''}
-              </li>
-            ))}
-          </ul>
-        </details>
-      </div>
     </div>
-  );
-}
-
-
-/** S6h: shape against MCD64A1 burned area, timing against hotspots (fair interval). */
-function TwoReferences({ r }: { r: Reference }) {
-  const t = r.timing_vs_hotspots;
-  return (
-    <>
-      <h3>Judged against two satellite references</h3>
-      <p className="meta">
-        Hotspots say <em>when</em> fire was seen; MODIS burned area (MCD64A1, 500 m) says <em>where</em> it burned. Neither is ground truth, so the model is compared with both, and with how
-        well they agree with each other. Whole simulation domain, against burned patches connected to this fire’s hotspots.
-      </p>
-      <table className="rk-metrics">
-        <tbody>
-          <tr>
-            <th scope="row" title="Sørensen overlap of the simulated burned area with MCD64A1 burned area in the run period">
-              Shape vs burned area (MCD64A1)
-            </th>
-            <td>
-              Sørensen {f1(r.sorensen_model_vs_mcd64, 2)} (model {f1(r.model_km2, 0)} km² vs burned area {f1(r.mcd64_km2, 0)} km²)
-            </td>
-          </tr>
-          <tr>
-            <th scope="row" title="How well the two satellite references agree with each other: the most a model could be expected to reach">
-              Hotspots vs burned area (the ceiling)
-            </th>
-            <td>Sørensen {f1(r.sorensen_hotspots_vs_mcd64, 2)}</td>
-          </tr>
-          <tr>
-            <th scope="row" title="Zero when the simulated arrival falls between the last overpass before the detection and the detection itself">
-              Timing vs hotspots, fair interval
-            </th>
-            <td>
-              median {f1(t.censored_median_h)} h (raw {f1(t.median_abs_h)} h; {pct(t.inside_interval)} inside the interval; gate {f1(t.gate_h)} h)
-            </td>
-          </tr>
-          <tr>
-            <th scope="row" title="Share of pixels whose day differs by at most one from the MCD64A1 burn day">Burn day within ±1 day</th>
-            <td>
-              hotspots {pct(r.detection_minus_burn_day.within_1_day)}, model {pct(r.model_minus_burn_day.within_1_day)}
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </>
   );
 }

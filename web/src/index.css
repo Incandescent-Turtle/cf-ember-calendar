@@ -206,3 +206,22 @@ table.loyo tr.dimrow td { color: var(--ink-3); font-size: 11px; }
   .rk-clock { grid-column: 1 / -1; }
   .tabs .tab-note { display: none; }
 }
+
+/* Rekindle: big play bar and on-map legend */
+.rk-timebar { display: flex; align-items: center; gap: 10px; margin: 10px 0 12px; padding: 8px; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+.rk-play { display: inline-flex; align-items: center; gap: 6px; padding: 10px 16px; font-size: 16px; font-weight: 600; border-radius: 999px; border: 0; background: #c2410c; color: #fff; cursor: pointer; flex: none; }
+.rk-play:hover { background: #9a3412; }
+.rk-play:focus-visible { outline: 3px solid #fdba74; outline-offset: 2px; }
+.rk-timebar-track { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+.rk-timebar-track input[type="range"] { width: 100%; }
+.rk-clock-big { font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.rk-legend-map { width: min(300px, calc(100% - 70px)); bottom: 40px; }
+.rk-key { list-style: none; margin: 2px 0 0; padding: 0; display: flex; flex-direction: column; gap: 3px; font-size: 11.5px; color: var(--ink-2); }
+.rk-sym { display: inline-block; width: 16px; height: 10px; margin-right: 5px; vertical-align: -1px; }
+.rk-sym.iso { border-top: 1.5px solid #fff; background: #4b1d6b; height: 6px; }
+.rk-sym.dot { width: 10px; border-radius: 50%; background: #fff; border: 1px solid #1f1f1f; }
+.rk-sym.ign { width: 10px; border-radius: 50%; background: #d7301f; border: 1.5px solid #fff; box-shadow: 0 0 0 1px #999; }
+.rk-sym.base { border-top: 2px dashed #1f6fb2; height: 0; vertical-align: 3px; }
+.rk-sym.burn { border-top: 3px solid #4ade80; height: 0; vertical-align: 3px; box-shadow: 0 -1px 0 1px #062b12; }
+.rk-intro { font-size: 13px; line-height: 1.45; }
+@media (max-width: 720px) { .rk-play { padding: 8px 12px; font-size: 14px; } .rk-legend-map .rk-key { display: none; } }

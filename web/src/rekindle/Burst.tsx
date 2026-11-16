@@ -1,7 +1,8 @@
 // S6c burst-window what-ifs (EXPLORATORY, post-hoc; docs/DECISIONS.md "Pre-registration — S6c").
 // Only 24 h windows where the hindcast, restarted from the detected extent, matched the detections.
 import type { BurstIndex, BurstRun, BurstWindow, BurstWindowEval, ShapeWhatIf } from './data';
-import { fmtUtc, rampCss } from './data';
+import { fmtUtc } from './data';
+import { TimeBar } from './Controls';
 import { AreaChart } from './AreaChart';
 
 const f1 = (x: number | null | undefined, d = 1) => (typeof x === 'number' && Number.isFinite(x) ? x.toFixed(d) : '—');
@@ -95,23 +96,8 @@ export function BurstPanel(p: BurstPanelProps) {
         </label>
       </div>
 
-      <div className="rk-time">
-        <button onClick={() => (t >= hours ? (p.setT(0), p.setPlaying(true)) : p.setPlaying(!p.playing))} aria-label={p.playing ? 'Pause' : 'Play'}>
-          {p.playing ? '❚❚' : '▶'}
-        </button>
-        <input type="range" min={0} max={hours} step={1} value={t} onChange={(e) => (p.setPlaying(false), p.setT(Number(e.target.value)))} aria-label="Time since the window start" />
-        <span className="rk-clock">
-          {fmtUtc(win.start, t)} <span className="meta">(+{t} h)</span>
-        </span>
-      </div>
-      <div className="rk-legend">
-        <span>0 h</span>
-        <span className="rk-ramp" style={{ background: rampCss() }} aria-hidden="true" />
-        <span>{hours} h after the window start</span>
-      </div>
-      <p className="meta">
-        Colour = simulated arrival time in the window (the darkest cells are the detected extent the run restarts from); white dots = FIRMS detections up to the clock time; green outline (when switched on) = MCD64A1 burned area by burn day (day precision). {p.loading && 'Loading run…'}
-      </p>
+      <TimeBar t={t} setT={p.setT} hours={hours} playing={p.playing} setPlaying={p.setPlaying} clock={fmtUtc(win.start, t)} label="Time since the window start" />
+      {p.loading && <p className="meta">Loading run…</p>}
 
       <h3>Effect of this what-if</h3>
       <p className="caption">
@@ -129,7 +115,7 @@ export function BurstPanel(p: BurstPanelProps) {
 
       <BurstGrid win={win} scale={p.scale} dpp={p.dpp} />
 
-      <details className="rk-details" open>
+      <details className="rk-details">
         <summary>What this is, and why only this window</summary>
         <p>
           The spread equations are verified against published Rothermel values and analytic shapes, and their rates are ordinary for these fuels and winds. Over the whole fire the model fails
@@ -152,7 +138,6 @@ export function BurstPanel(p: BurstPanelProps) {
           )}
         </p>
       </details>
-      <WindowScreen burst={burst} />
     </div>
   );
 }
@@ -268,23 +253,8 @@ export function ShapePanel(p: ShapePanelProps) {
         </label>
       </div>
 
-      <div className="rk-time">
-        <button onClick={() => (t >= hours ? (p.setT(0), p.setPlaying(true)) : p.setPlaying(!p.playing))} aria-label={p.playing ? 'Pause' : 'Play'}>
-          {p.playing ? '❚❚' : '▶'}
-        </button>
-        <input type="range" min={0} max={hours} step={1} value={t} onChange={(e) => (p.setPlaying(false), p.setT(Number(e.target.value)))} aria-label="Time since the first detection" />
-        <span className="rk-clock">
-          {fmtUtc(w.start, t)} <span className="meta">(+{t} h)</span>
-        </span>
-      </div>
-      <div className="rk-legend">
-        <span>0 h</span>
-        <span className="rk-ramp" style={{ background: rampCss() }} aria-hidden="true" />
-        <span>{hours} h after the first detection</span>
-      </div>
-      <p className="meta">
-        Colour = simulated arrival time (sequence only: the timing is off by hours to days); white dots = FIRMS detections up to the clock time; green outline (when switched on) = MCD64A1 burned area by burn day (day precision). {p.loading && 'Loading run…'}
-      </p>
+      <TimeBar t={t} setT={p.setT} hours={hours} playing={p.playing} setPlaying={p.setPlaying} clock={fmtUtc(w.start, t)} label="Time since the first detection" />
+      {p.loading && <p className="meta">Loading run…</p>}
 
       <h3>Effect of this what-if</h3>
       <p className="caption">
@@ -308,7 +278,7 @@ export function ShapePanel(p: ShapePanelProps) {
 
       <BurstGrid win={w} scale={p.scale} dpp={p.dpp} caption="Burned area after the whole run vs the baseline (wind as observed, moisture as observed); ≥ = reached the domain edge, a lower bound" />
 
-      <details className="rk-details" open>
+      <details className="rk-details">
         <summary>What this is, and what it is not</summary>
         {p.fireId === 'sask-2023' ? (
           <>
