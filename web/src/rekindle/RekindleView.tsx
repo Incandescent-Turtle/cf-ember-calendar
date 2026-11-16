@@ -168,6 +168,7 @@ function RkLoaded({
           )}
           {inBurst && view === 'shape' && shape ? (
             <ShapePanel
+              fireId={meta.id}
               shape={shape}
               run={bRun}
               base={bBase}
@@ -601,7 +602,7 @@ function TwoReferences({ r }: { r: Reference }) {
       <h3>Judged against two satellite references</h3>
       <p className="meta">
         Hotspots say <em>when</em> fire was seen; MODIS burned area (MCD64A1, 500 m) says <em>where</em> it burned. Neither is ground truth, so the model is compared with both, and with how
-        well they agree with each other. Inside the fire box.
+        well they agree with each other. Whole simulation domain, against burned patches connected to this fire’s hotspots.
       </p>
       <table className="rk-metrics">
         <tbody>

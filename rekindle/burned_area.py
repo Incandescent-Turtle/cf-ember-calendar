@@ -24,6 +24,7 @@ import requests
 
 from rekindle import domain as dm
 from rekindle import earthdata, metrics
+from rekindle.export import web_safe
 from rekindle.prep import CMR, _modis_tile, _read_modis
 
 REPORT = Path("docs/report/rekindle")
@@ -201,7 +202,7 @@ def main() -> None:
             continue
         out.append(r)
         from rekindle.export import WEB
-        (WEB / f / "reference.json").write_text(json.dumps(r, separators=(",", ":")))
+        (WEB / f / "reference.json").write_text(json.dumps(web_safe(r), separators=(",", ":")))
         d, m = r["detection_minus_burn_day"], r["model_minus_burn_day"]
         print(f"{f:15s} MCD64 {r['mcd64_km2']:7.1f} km² | hot {r['hotspot_footprint_km2']:6.1f} "
               f"model {r['model_km2']:7.1f} | Sør hot~MCD {r['sorensen_hotspots_vs_mcd64']:.2f} "

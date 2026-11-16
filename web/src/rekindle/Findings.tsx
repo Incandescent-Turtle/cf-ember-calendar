@@ -43,12 +43,12 @@ const WINDOWS = [
 
 // S6h: docs/report/rekindle/burned_area_check.json (rekindle.burned_area), whole-fire baselines.
 const REFS = [
-  { fire: 'Chilecito 2026', ceil: 0.66, mcd: 0.61, hot: 0.54, raw: 12.0, cens: 10.5 },
-  { fire: 'Córdoba 2024', ceil: 0.59, mcd: 0.32, hot: 0.55, raw: 15.2, cens: 13.6 },
-  { fire: 'N. Saskatchewan 2023', ceil: 0.31, mcd: 0.26, hot: 0.76, raw: 22.4, cens: 21.9 },
-  { fire: 'C. British Columbia 2024', ceil: 0.52, mcd: 0.33, hot: 0.48, raw: 41.7, cens: 41.1 },
-  { fire: 'La Rioja / San Juan 2025', ceil: 0.40, mcd: 0.07, hot: 0.15, raw: 17.1, cens: 15.5 },
-  { fire: 'Gran Chaco 2024', ceil: 0.12, mcd: 0.1, hot: 0.58, raw: 61.1, cens: 52.8 },
+  { fire: 'Chilecito 2026', ceil: 0.66, tMult: '1.41', tMcd: 0.2, tRaw: '12.0 h', sMult: '0.125 (edge)', sMcd: 0.3, ratio: '0.46', status: 'below bar', sRaw: 'median pixel never reached' },
+  { fire: 'Córdoba 2024', ceil: 0.59, tMult: '0.25', tMcd: 0.22, tRaw: '15.2 h', sMult: '0.125 (edge)', sMcd: 0.3, ratio: '0.50', status: 'below bar', sRaw: '76.6 h' },
+  { fire: 'N. Saskatchewan 2023', ceil: 0.25, tMult: '4.0', tMcd: 0.19, tRaw: '22.4 h', sMult: '2.83', sMcd: 0.22, ratio: '0.90', status: "can't judge (ceiling < 0.3)", sRaw: '27.1 h' },
+  { fire: 'C. British Columbia 2024', ceil: 0.53, tMult: '2.0', tMcd: 0.32, tRaw: '41.7 h', sMult: '1.0', sMcd: 0.38, ratio: '0.72', status: 'shape validated', sRaw: '48.2 h' },
+  { fire: 'La Rioja / San Juan 2025', ceil: 0.39, tMult: '0.25', tMcd: 0.06, tRaw: '17.1 h', sMult: '0.125 (edge)', sMcd: 0.11, ratio: '0.28', status: 'below bar', sRaw: '46.2 h' },
+  { fire: 'Gran Chaco 2024', ceil: 0.12, tMult: '0.25', tMcd: 0.1, tRaw: '61.1 h', sMult: '0.125 (edge)', sMcd: 0.26, ratio: '—', status: "can't judge (ceiling < 0.3)", sRaw: '72.3 h' },
 ];
 
 const REFERENCES = [
@@ -67,9 +67,10 @@ export function RekindleFindings({ headingLevel = 3 }: { headingLevel?: 2 | 3 | 
   return (
     <div className="rk-findings">
       <p className="rk-status hindcast" role="note">
-        <strong>Status: hindcasts of real fires, calibrated to their detections. None passed the whole-fire quality gate</strong>, so no whole-fire what-ifs are shown. One 24 h
-        window (Chilecito, day 2) matched the detections in timing and carries <strong>exploratory, post-hoc</strong> what-ifs. Three more views are shape only: Saskatchewan (whole
-        fire), British Columbia (day 3) and Córdoba (day 5) match the detected footprint but not the timing. La Rioja and Gran Chaco match neither and ship as hindcasts only.
+        <strong>Status: hindcasts of six real fires, judged against hotspots (timing) and MODIS burned area (shape). None passes the hour-level timing gate; one (British Columbia) is
+        shape validated</strong> and carries whole-fire footprint what-ifs. One 24 h window (Chilecito, day 2) matched the hotspots in timing and carries <strong>exploratory, post-hoc</strong>{' '}
+        what-ifs. Shape-only views: British Columbia day 3 and Córdoba day 5 (best-matching windows), and Saskatchewan (whole fire, a developer exception). La Rioja and Gran Chaco ship as
+        hindcasts only.
       </p>
       <H>What validation showed</H>
       <p>
@@ -139,14 +140,17 @@ export function RekindleFindings({ headingLevel = 3 }: { headingLevel?: 2 | 3 | 
       </p>
       <div className="table-wrap">
         <table className="rk-variants">
-          <caption>Inside each fire box. Sørensen overlap; “ceiling” = how well the two satellite references agree with each other</caption>
+          <caption>
+            Whole simulation domain, against MCD64A1 burn patches connected to the fire’s hotspots. Sørensen overlap; ceiling = hotspots vs burned area (how well the two references agree)
+          </caption>
           <thead>
             <tr>
               <th scope="col">Fire</th>
-              <th scope="col">Hotspots vs burned area (ceiling)</th>
-              <th scope="col">Model vs burned area</th>
-              <th scope="col">Model vs hotspots</th>
-              <th scope="col">Timing, raw → fair interval</th>
+              <th scope="col">Ceiling</th>
+              <th scope="col">Timing-calibrated: ×ROS, shape, timing</th>
+              <th scope="col">Shape-calibrated: ×ROS, shape, share of ceiling</th>
+              <th scope="col">Shape status</th>
+              <th scope="col">Timing at shape ×</th>
             </tr>
           </thead>
           <tbody>
@@ -154,29 +158,37 @@ export function RekindleFindings({ headingLevel = 3 }: { headingLevel?: 2 | 3 | 
               <tr key={r.fire}>
                 <td>{r.fire}</td>
                 <td>{r.ceil.toFixed(2)}</td>
-                <td>{r.mcd.toFixed(2)}</td>
-                <td>{r.hot.toFixed(2)}</td>
                 <td>
-                  {r.raw.toFixed(1)} → {r.cens.toFixed(1)} h
+                  ×{r.tMult}, {r.tMcd.toFixed(2)}, {r.tRaw}
                 </td>
+                <td>
+                  ×{r.sMult}, {r.sMcd.toFixed(2)}, {r.ratio}
+                </td>
+                <td>{r.status === 'shape validated' ? <strong>{r.status}</strong> : r.status}</td>
+                <td>{r.sRaw}</td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
       <p>
-        <strong>What this changes.</strong> The two satellite references agree only at Sørensen 0.3–0.66 (0.12 for the tiny Chaco fire), and the hotspot first-detection day matches the
-        burned-area day within ±1 day for only 30–74 % of pixels. A model can’t be expected to beat its references. Judged against burned area, Chilecito’s footprint in the fire box (0.61)
-        is about as close as the hotspots themselves (0.66). The others reach about half the ceiling or less, and La Rioja floods its domain. Timing does not improve: crediting every arrival
-        between overpasses cuts the median error by only 0.5–8 h, so the model is still many hours to days off. An hour-level gate was stricter than these references can support,
-        but they also do not show the model was right. Next step: calibrate the spread rate to burned-area shape and check timing against the hotspots with the fair interval.
+        <strong>What this changes.</strong> The two references agree only at Sørensen 0.25–0.66 (0.12 for the tiny Chaco fire), and the hotspot first-detection day matches the
+        burned-area day within ±1 day for only 30–74 % of pixels, so no model should be expected to beat that. We then recalibrated the single spread multiplier to burned-area shape
+        (pre-registered: “shape validated” if the model reaches 70 % of the ceiling and the ceiling is at least 0.3). A first version scored only inside each fire’s box. That hid
+        over-burn, so the final score uses the whole domain, against burned patches connected to the fire’s hotspots. Result: <strong>one of six fires, British Columbia, is shape
+        validated</strong> (0.38 against a 0.53 ceiling). All four Argentine fires want the slowest multiplier allowed (an eighth of the Rothermel rate) and still over-burn, which
+        points to fuels and missing stalls rather than calibration. Fitting shape also makes timing much worse (Córdoba 15 → 77 h; Chilecito’s median pixel is never reached), so one
+        multiplier cannot fit both. Crediting every arrival between overpasses cuts timing errors by only 0.5–8 h. An hour-level gate was stricter than these references can
+        support, but they do not show the model was right. British Columbia gets whole-fire footprint what-ifs; its timing is still about two days off.
       </p>
       <Hs>Equations or data?</Hs>
       <p>
         The spread equations pass 10 verification tests against published Rothermel values and analytic shapes, and their rates are ordinary for these fuels and winds. What fails is everything
         around them: a 500 m land-cover map standing in for fuels, one ~50 km weather point for a whole fire, and no suppression. In Saskatchewan the model gets the shape of each day’s growth
         (Sørensen 0.55–0.91 per window) but runs behind, with humid MERRA-2 fuels near their moisture of extinction. That points to inputs and missing processes (suppression, crowning), not an
-        error in the equations. But it is a diagnosis: the model has not been shown to work over a whole fire.
+        error in the equations. But it is a diagnosis: the model has not been shown to work over a whole fire. The clearest example is Chilecito. With the MERRA-2 wind from the
+        south-west (~245°), the simulated fire runs north-east of the ignition, while the mapped burn and the hotspots lie to the south-west. The wind at the fire was probably
+        different from the ~50 km reanalysis (terrain winds at the foot of the Famatina range), and no multiplier can fix a wrong direction.
       </p>
       <Hs>Burst-window what-ifs (exploratory, post-hoc)</Hs>
       <p>

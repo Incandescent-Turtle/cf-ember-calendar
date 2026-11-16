@@ -42,28 +42,28 @@
  "calibrated_not_blind": "the multiplier is fitted on this fire's own detections",
  "exploratory": null,
  "n_ignitions": 2,
- "wall_s": 124.58506941795349,
- "calibration_objective": "S\u00f8rensen(model, MCD64A1) inside the fire bbox (S6i)",
+ "wall_s": 174.59563159942627,
+ "calibration_objective": "S\u00f8rensen(model, fire-connected MCD64A1) over the whole domain (S6i-b)",
  "shape": {
-  "ceiling_hotspots_vs_mcd64": 0.5223163755391722,
-  "ratio": 0.7451376004511,
+  "ceiling_hotspots_vs_mcd64": 0.5304432537749635,
+  "ratio": 0.7245190573138216,
   "ratio_min": 0.7,
   "ceiling_min": 0.3,
   "best": {
-   "sorensen_mcd64": 0.3891975707455744,
+   "sorensen_mcd64": 0.3843162461835128,
    "sorensen_hotspots": 0.5562943981316293,
    "model_km2_bbox": 117.83879999999999,
    "model_km2_domain": 117.83879999999999,
    "median_abs_h": 48.200755208333334,
    "censored_median_h": 47.58588324652778,
    "inside_interval": 0.0077951002227171495,
-   "burn_day_within_1d": 0.28419654714475434,
+   "burn_day_within_1d": 0.28633550760996823,
    "ros_multiplier": 1.0,
-   "wall_s": 29.417732752044685
+   "wall_s": 31.39491891907528
   },
   "sweep": [
    {
-    "sorensen_mcd64": 0.005950573805331229,
+    "sorensen_mcd64": 0.005893673322107289,
     "sorensen_hotspots": 0.007465426508383307,
     "model_km2_bbox": 0.4941,
     "model_km2_domain": 0.4941,
@@ -72,10 +72,10 @@
     "inside_interval": 0.0,
     "burn_day_within_1d": 0.30612244897959184,
     "ros_multiplier": 0.125,
-    "wall_s": 27.232676785904914
+    "wall_s": 39.58138968003914
    },
    {
-    "sorensen_mcd64": 0.04180444024563061,
+    "sorensen_mcd64": 0.04141561860193039,
     "sorensen_hotspots": 0.06282348741745493,
     "model_km2_bbox": 4.2768,
     "model_km2_domain": 4.2768,
@@ -84,10 +84,10 @@
     "inside_interval": 0.0,
     "burn_day_within_1d": 0.24858757062146894,
     "ros_multiplier": 0.18,
-    "wall_s": 22.20734706998337
+    "wall_s": 25.988119770074263
    },
    {
-    "sorensen_mcd64": 0.06333711691259931,
+    "sorensen_mcd64": 0.06277068451543956,
     "sorensen_hotspots": 0.13845538215286116,
     "model_km2_bbox": 9.8172,
     "model_km2_domain": 9.8172,
@@ -96,10 +96,10 @@
     "inside_interval": 0.0005567928730512249,
     "burn_day_within_1d": 0.35842293906810035,
     "ros_multiplier": 0.25,
-    "wall_s": 25.59815073700156
+    "wall_s": 26.54359640716575
    },
    {
-    "sorensen_mcd64": 0.1088688263409453,
+    "sorensen_mcd64": 0.10795723840117963,
     "sorensen_hotspots": 0.24306261027642626,
     "model_km2_bbox": 19.618199999999998,
     "model_km2_domain": 19.618199999999998,
@@ -108,10 +108,10 @@
     "inside_interval": 0.0016703786191536749,
     "burn_day_within_1d": 0.4292682926829268,
     "ros_multiplier": 0.35,
-    "wall_s": 26.09922721190378
+    "wall_s": 25.692072772886604
    },
    {
-    "sorensen_mcd64": 0.19851046887442034,
+    "sorensen_mcd64": 0.19704296075878744,
     "sorensen_hotspots": 0.37696729808689095,
     "model_km2_bbox": 40.022099999999995,
     "model_km2_domain": 40.022099999999995,
@@ -120,10 +120,10 @@
     "inside_interval": 0.0038975501113585748,
     "burn_day_within_1d": 0.462010382255781,
     "ros_multiplier": 0.5,
-    "wall_s": 28.8561024320079
+    "wall_s": 27.57555370684713
    },
    {
-    "sorensen_mcd64": 0.292256218002983,
+    "sorensen_mcd64": 0.29039493711447567,
     "sorensen_hotspots": 0.4973257698541329,
     "model_km2_bbox": 68.0319,
     "model_km2_domain": 68.0319,
@@ -132,91 +132,91 @@
     "inside_interval": 0.01002227171492205,
     "burn_day_within_1d": 0.3533793103448276,
     "ros_multiplier": 0.71,
-    "wall_s": 27.67687859502621
+    "wall_s": 23.88532409700565
    },
    {
-    "sorensen_mcd64": 0.3891975707455744,
+    "sorensen_mcd64": 0.3843162461835128,
     "sorensen_hotspots": 0.5562943981316293,
     "model_km2_bbox": 117.83879999999999,
     "model_km2_domain": 117.83879999999999,
     "median_abs_h": 48.200755208333334,
     "censored_median_h": 47.58588324652778,
     "inside_interval": 0.0077951002227171495,
-    "burn_day_within_1d": 0.28419654714475434,
+    "burn_day_within_1d": 0.28633550760996823,
     "ros_multiplier": 1.0,
-    "wall_s": 29.417732752044685
+    "wall_s": 31.39491891907528
    },
    {
-    "sorensen_mcd64": 0.3735866565728101,
+    "sorensen_mcd64": 0.36868736012454995,
     "sorensen_hotspots": 0.5612169908382735,
     "model_km2_bbox": 198.78209999999999,
     "model_km2_domain": 198.78209999999999,
     "median_abs_h": 46.42670464409723,
     "censored_median_h": 45.74058702256944,
     "inside_interval": 0.0033407572383073497,
-    "burn_day_within_1d": 0.16694992809517584,
+    "burn_day_within_1d": 0.16851411982053313,
     "ros_multiplier": 1.41,
-    "wall_s": 31.680327271926217
+    "wall_s": 48.085734826978296
    },
    {
-    "sorensen_mcd64": 0.3291974028622905,
-    "sorensen_hotspots": 0.47871633706372324,
-    "model_km2_bbox": 343.6506,
+    "sorensen_mcd64": 0.31589387552690307,
+    "sorensen_hotspots": 0.4667740703217127,
+    "model_km2_bbox": 355.8168,
     "model_km2_domain": 355.8168,
     "median_abs_h": 41.68333333333333,
     "censored_median_h": 41.110745442708335,
     "inside_interval": 0.005567928730512249,
-    "burn_day_within_1d": 0.21148285832300703,
+    "burn_day_within_1d": 0.21433804290947148,
     "ros_multiplier": 2.0,
-    "wall_s": 31.72853700397536
+    "wall_s": 37.59388575912453
    },
    {
-    "sorensen_mcd64": 0.2699330026082954,
-    "sorensen_hotspots": 0.3794070564128834,
-    "model_km2_bbox": 500.6124,
+    "sorensen_mcd64": 0.217699667012062,
+    "sorensen_hotspots": 0.2999687238314315,
+    "model_km2_bbox": 670.9716,
     "model_km2_domain": 670.9716,
     "median_abs_h": 46.24903103298611,
     "censored_median_h": 45.63220486111111,
     "inside_interval": 0.005567928730512249,
-    "burn_day_within_1d": 0.15545661235316408,
+    "burn_day_within_1d": 0.1587800369685767,
     "ros_multiplier": 2.83,
-    "wall_s": 38.88019990106113
+    "wall_s": 61.23434428800829
    },
    {
-    "sorensen_mcd64": 0.2340898976412995,
-    "sorensen_hotspots": 0.2537238156080831,
-    "model_km2_bbox": 831.7323,
+    "sorensen_mcd64": 0.12170168580503299,
+    "sorensen_hotspots": 0.15440059537766723,
+    "model_km2_bbox": 1457.1657,
     "model_km2_domain": 1457.1657,
     "median_abs_h": 62.826284722222226,
     "censored_median_h": 61.6356640625,
     "inside_interval": 0.0038975501113585748,
-    "burn_day_within_1d": 0.10172896190544516,
+    "burn_day_within_1d": 0.12045169385194479,
     "ros_multiplier": 4.0,
-    "wall_s": 61.80891827796586
+    "wall_s": 77.24691605987027
    },
    {
-    "sorensen_mcd64": 0.20535029548427844,
-    "sorensen_hotspots": 0.20326105184401647,
-    "model_km2_bbox": 1123.9641,
+    "sorensen_mcd64": 0.1074338736153022,
+    "sorensen_hotspots": 0.10498975157825695,
+    "model_km2_bbox": 2338.0164,
     "model_km2_domain": 2338.0164,
     "median_abs_h": 65.13278483072916,
     "censored_median_h": 64.46932942708332,
     "inside_interval": 0.0016703786191536749,
-    "burn_day_within_1d": 0.07820738137082602,
+    "burn_day_within_1d": 0.08844159804818542,
     "ros_multiplier": 5.66,
-    "wall_s": 91.27495961799286
+    "wall_s": 101.62732129404321
    },
    {
-    "sorensen_mcd64": 0.20535029548427844,
-    "sorensen_hotspots": 0.20326105184401647,
-    "model_km2_bbox": 1123.9641,
+    "sorensen_mcd64": 0.10618557702583234,
+    "sorensen_hotspots": 0.10376872287391455,
+    "model_km2_bbox": 2367.0791999999997,
     "model_km2_domain": 2367.0791999999997,
     "median_abs_h": 70.6302517361111,
     "censored_median_h": 69.96782172309028,
     "inside_interval": 0.0027839643652561247,
-    "burn_day_within_1d": 0.07054983680642732,
+    "burn_day_within_1d": 0.1633424824641659,
     "ros_multiplier": 8.0,
-    "wall_s": 124.24462048499845
+    "wall_s": 174.022995790001
    }
   ]
  },

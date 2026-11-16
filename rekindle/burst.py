@@ -25,7 +25,7 @@ import numpy as np
 
 from rekindle import domain as dm
 from rekindle import metrics
-from rekindle.export import WEB, burned_by_hour, encode, target_grid, to_3857
+from rekindle.export import WEB, burned_by_hour, encode, target_grid, to_3857, web_safe
 from rekindle.fuels import fuel_bed
 from rekindle.hindcast import (
     CFG,
@@ -282,7 +282,7 @@ def main() -> None:
     old_idx = out / "index.json"
     if old_idx.exists() and "shape" in (prev := json.loads(old_idx.read_text())):
         idx["shape"] = prev["shape"]  # rekindle.shape_whatif output (burst/shape/), kept
-    old_idx.write_text(json.dumps(idx, separators=(",", ":")))
+    old_idx.write_text(json.dumps(web_safe(idx), separators=(",", ":")))
     REPORT.mkdir(parents=True, exist_ok=True)
     slim = {**idx, "windows": [{k: v for k, v in wd.items() if k != "observed"}
                                for wd in windows]}

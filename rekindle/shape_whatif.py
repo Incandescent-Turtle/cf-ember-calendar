@@ -23,7 +23,7 @@ import numpy as np
 from rekindle import domain as dm
 from rekindle import metrics
 from rekindle.burst import REPORT, perturb, rate_table
-from rekindle.export import WEB, burned_by_hour, encode, target_grid, to_3857
+from rekindle.export import WEB, burned_by_hour, encode, target_grid, to_3857, web_safe
 from rekindle.hindcast import CFG, baseline_scenario, load_model
 from rekindle.levelset import run_levelset
 
@@ -73,7 +73,7 @@ def flag_edges(fire: str, out: Path) -> None:
         raw = gzip.decompress((out.parent / r["file"]).read_bytes())
         u16 = np.frombuffer(raw, "<u2").reshape(h, w_px)
         r["domain_limited"] = bool(((u16 != 65535) & ring).any())
-    idx_path.write_text(json.dumps(idx, separators=(",", ":")))
+    idx_path.write_text(json.dumps(web_safe(idx), separators=(",", ":")))
     print("domain-limited runs:", [r["key"] for r in shape["runs"] if r["domain_limited"]])
 
 
@@ -90,9 +90,11 @@ def main() -> None:
     t_wall = time.time()
     cal = json.loads((dm.DATA / a.fire / "calibration.json").read_text())
     bm = cal["baseline_metrics"]
-    if bm["sorensen"] < SORENSEN_MIN:
-        raise SystemExit(f"Sørensen {bm['sorensen']:.2f} < {SORENSEN_MIN}: footprint does not "
-                         "match well enough for shape what-ifs")
+    # S6i: entry = shape validated against MCD64A1 (promote_shape); before S6i (sask S6d, user
+    # decision) it was whole-fire Sørensen vs hotspots ≥ SORENSEN_MIN.
+    if cal.get("status") != "shape_validated" and bm["sorensen"] < SORENSEN_MIN:
+        raise SystemExit(f"status {cal.get('status')}, Sørensen {bm['sorensen']:.2f}: not shape "
+                         "validated, no footprint what-ifs")
     hours = cal["hours"]
     _init(a.fire, cal)
     dom, meta, sc = _G["dom"], _G["meta"], _G["sc"]
@@ -160,7 +162,7 @@ def main() -> None:
     idx_path = out / "index.json"
     idx = json.loads(idx_path.read_text())
     idx["shape"] = shape | {"model_settings": cal["model_settings"]}
-    idx_path.write_text(json.dumps(idx, separators=(",", ":")))
+    idx_path.write_text(json.dumps(web_safe(idx), separators=(",", ":")))
     flag_edges(a.fire, out)
     (REPORT / f"{a.fire}_shape_whatif.json").write_text(json.dumps(
         {k: v for k, v in shape.items() if k != "runs"} | {"runs": [

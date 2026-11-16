@@ -35,6 +35,17 @@ LIMITS = (
 )
 
 
+def web_safe(o):
+    """inf/nan → None recursively: browsers' JSON.parse rejects Infinity/NaN."""
+    if isinstance(o, float):
+        return o if math.isfinite(o) else None
+    if isinstance(o, dict):
+        return {k: web_safe(v) for k, v in o.items()}
+    if isinstance(o, (list, tuple)):
+        return [web_safe(v) for v in o]
+    return o
+
+
 def target_grid(meta: dict, ny: int, nx: int):
     from pyproj import Transformer
     from rasterio.transform import from_bounds
@@ -132,7 +143,7 @@ def main() -> None:
             if ws == 0:  # calm: one file for every direction
                 for d in WIND_FROM[1:]:
                     runs.append(dict(e, key=run_key(0, d, m)))
-    (out / "runs" / "index.json").write_text(json.dumps({"runs": runs}, separators=(",", ":")))
+    (out / "runs" / "index.json").write_text(json.dumps(web_safe({"runs": runs}), separators=(",", ":")))
 
     obs = {"type": "FeatureCollection", "features": [
         {"type": "Feature", "geometry": {"type": "Point", "coordinates": [o["lon"], o["lat"]]},
@@ -175,7 +186,7 @@ def main() -> None:
         "prep_notes": meta["notes"],
         "credits": CREDITS,
     }
-    (out / "meta.json").write_text(json.dumps(web_meta, indent=1))
+    (out / "meta.json").write_text(json.dumps(web_safe(web_meta), indent=1))
     idx_path = a.out / "index.json"
     idx = json.loads(idx_path.read_text()) if idx_path.exists() else {"fires": []}
     entry = {"id": a.fire, "name": meta["name"], "bbox": meta["bbox"], "status": status}

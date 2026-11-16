@@ -1,6 +1,6 @@
 # Rekindle — results and story (for the presentation and project page)
 
-Status 2026-11-15 ~19:30 Toronto. Items marked **⏳ S6i** are being recomputed after the shape recalibration (DECISIONS.md "Pre-registration — S6i") and will be filled in here. Everything else is final. Full history with every run: `docs/DECISIONS.md` (S6b → S6i).
+Status 2026-11-15 ~20:40 Toronto. **All numbers final** (S6i-b shape recalibration done). Full history with every run: `docs/DECISIONS.md` (S6b → S6i).
 
 ## The story in one paragraph
 
@@ -40,18 +40,24 @@ Rekindle replays real wildfires with a physics model (Rothermel surface spread o
 
 ## Final per-fire status
 
-Whole domain, fire-connected MCD64A1 (S6i-b). Ceiling = Sørensen(hotspots, burned area): the most a model can be expected to reach. **All ⏳ S6i-b**; the rows below are the superseded in-box run and will be replaced.
+Whole simulation domain, against MCD64A1 burn patches connected to the fire's hotspots (S6i-b). Ceiling = Sørensen(hotspots, burned area), the most a model can be expected to reach. "Shape validated" = model ≥ 70 % of the ceiling and ceiling ≥ 0.3 (pre-registered).
 
-| Fire | Region | Ceiling | Shape-calibrated multiplier | Model vs burned area | Ratio | Shape status | Timing (raw → fair) at shape multiplier | What-if view |
-|---|---|---|---|---|---|---|---|---|
-| Chilecito 2026 | La Rioja, AR (challenge video fire) | 0.66 | ⏳ S6i | ⏳ | ⏳ | ⏳ | ⏳ | Burst window, day 2 (timing rule) |
-| Córdoba 2024 | Sierras, AR | 0.59 | ×0.25 | 0.32 | 0.54 | below bar | ⏳ | Shape-only window, day 5 |
-| N. Saskatchewan 2023 | boreal CA | 0.31 | ×2.83 | 0.31 | 0.99 | validated (weak: low ceiling) | ⏳ | Footprint what-if, whole fire (⏳ rerun on new baseline) |
-| C. British Columbia 2024 | interior CA | 0.52 | ×1.0 | 0.39 | 0.75 | validated | ⏳ | Shape-only window, day 3; ⏳ footprint what-if |
-| La Rioja / San Juan 2025 | AR | 0.40 | ×0.125 (edge) | 0.11 | 0.28 | below bar | ⏳ | none |
-| Gran Chaco 2024 | AR/PY | 0.12 | ×0.125 (edge) | 0.24 | — | can't judge (references disagree) | ⏳ | none |
+| Fire | Region | Ceiling | Timing-calibrated ×ROS: shape / timing | Shape-calibrated ×ROS: shape (share of ceiling) | Shape status | Timing at shape × | What-if views |
+|---|---|---|---|---|---|---|---|
+| Chilecito 2026 | La Rioja, AR (challenge video fire) | 0.66 | ×1.41: 0.20 / 12.0 h | ×0.125 (edge): 0.30 (0.46) | below bar | median pixel never reached | Burst window, day 2 (timing rule) |
+| Córdoba 2024 | Sierras, AR | 0.59 | ×0.25: 0.22 / 15.2 h | ×0.125 (edge): 0.30 (0.50) | below bar | 76.6 h | Shape-only window, day 5 |
+| N. Saskatchewan 2023 | boreal CA | 0.25 | ×4.0: 0.19 / 22.4 h | ×2.83: 0.22 (0.90) | can't judge (ceiling < 0.3) | 27.1 h | Footprint what-if (developer exception, on the ×4 run) |
+| **C. British Columbia 2024** | interior CA | 0.53 | ×2.0: 0.32 / 41.7 h | ×1.0: 0.38 (0.72) | **shape validated** | 48.2 h | **Footprint what-if (whole fire)** and shape-only window, day 3 |
+| La Rioja / San Juan 2025 | AR | 0.39 | ×0.25: 0.06 / 17.1 h | ×0.125 (edge): 0.11 (0.28) | below bar | 46.2 h | none |
+| Gran Chaco 2024 | AR/PY | 0.12 | ×0.25: 0.10 / 61.1 h | ×0.125 (edge): 0.26 | can't judge (ceiling < 0.3) | 72.3 h | none |
 
-No fire passes the hour-level timing gate under any calibration. That result stands.
+**Readings:**
+- **1 of 6 fires is shape validated** (BC).
+- **All four Argentine fires want the slowest multiplier allowed** (1/8 of Rothermel) and still over-burn. That points to fuels (coarse land-cover crosswalk) and missing stalls (suppression, fuel breaks), not to calibration.
+- **Chilecito shows an input failure you can see on the map:** with the MERRA-2 wind from the south-west (~245°), the simulated fire runs north-east, while the mapped burn (green outline) and hotspots lie south-west. The ~50 km reanalysis wind was probably wrong at the fire (terrain winds at the foot of the Famatina), and no multiplier fixes a direction. A good slide.
+- **Shape and timing can't both be fitted** with one multiplier: fitting shape makes timing much worse (Córdoba 15 → 77 h).
+- **No fire passes the hour-level timing gate** under any calibration.
+- The shipped whole-fire hindcasts are now the shape-calibrated runs. The timing-calibrated runs are kept (`calibration_timing.json`) and reported above.
 
 ## What-if headline numbers (current views)
 
@@ -60,9 +66,10 @@ No fire passes the hour-level timing gate under any calibration. That result sta
 | Chilecito day 2 (new area in 24 h) | ×1.60 | ×0.74 | −2 pts: ×1.09 | +4 pts: ×0.73 |
 | BC day 3 (new area in 24 h) | ×2.23 | ×0.52 | −2 pts: ×1.27 | +4 pts: ×0.43 |
 | Córdoba day 5 (new area in 24 h) | ×2.56 | ×0.49 | −2 pts: ×1.19 | +4 pts: ×0.63 |
-| Saskatchewan whole fire (final footprint) | ≥ ×3.9 | ×0.26 | −4 pts: ≥ ×3.5 | +2 pts: ×0.39 |
+| Saskatchewan whole fire (final footprint; ×4 timing run) | ≥ ×3.9 | ×0.26 | −4 pts: ≥ ×3.5 | +2 pts: ×0.39 |
+| **BC whole fire (final footprint; shape validated, ×1.0)** | **×2.89** | **×0.57** | −2 pts: ×1.38; −6 pts: ×2.43 | +2 pts: ×0.63 |
 
-"≥" = the run reached the edge of the simulated area, so the true value is larger. ⏳ Saskatchewan/BC footprint numbers change with S6i.
+"≥" = the run reached the edge of the simulated area, so the true value is larger (BC: only the wind ×2, −4/−6 pt runs).
 
 ## Key numbers for slides
 
@@ -70,7 +77,8 @@ No fire passes the hour-level timing gate under any calibration. That result sta
 - 2 of 600 candidate fire windows spread freely for 6 days → stalls are the norm.
 - Two NASA satellite products agree on burned shape at only Sørensen **0.24–0.66** (fire-connected, whole domain; Chaco 0.12); first-detection day matches burn day within ±1 day for only **30–74 %** of pixels.
 - Satellite overpass gaps explain only **0.5–8 h** of the timing error.
-- ⏳ S6i: how many fires are shape validated (provisionally 2–3 of 6).
+- **1 of 6** fires shape validated against burned area (BC); 4 of 6 want 1/8 of the Rothermel rate and still over-burn.
+- Fitting shape vs fitting timing: one multiplier can't do both (Córdoba timing 15 → 77 h when fitted to shape).
 - Every number traceable: `docs/report/rekindle/*.json`, logged runs in DECISIONS.md, Fir job ids.
 
 ## Claims we make / don't make (wording rules)

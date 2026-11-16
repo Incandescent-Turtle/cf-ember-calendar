@@ -238,6 +238,7 @@ export function WindowScreen({ burst }: { burst: BurstIndex }) {
 
 export interface ShapePanelProps extends Omit<BurstPanelProps, 'burst' | 'win' | 'setWin'> {
   shape: ShapeWhatIf;
+  fireId: string;
 }
 
 /** S6d whole-fire footprint what-ifs: the final footprint matches the detections, the timing does not. */
@@ -255,7 +256,7 @@ export function ShapePanel(p: ShapePanelProps) {
         against a {f1(w.gate_h)} h gate. Read where the fire could have gone, not when. Illustrative, not a reconstruction.
       </p>
       <p className="meta">
-        Whole fire, {fmtUtc(w.start, 0)} to {fmtUtc(w.start, w.hours)}, from the first-overpass detections, ROS × {w.ros_multiplier} (the fast edge of the calibration sweep). Wind and fuel
+        Whole fire, {fmtUtc(w.start, 0)} to {fmtUtc(w.start, w.hours)}, from the first-overpass detections, ROS × {w.ros_multiplier}{w.ros_multiplier >= 4 ? ' (the fast edge of the calibration sweep)' : ''}. Wind and fuel
         moisture follow MERRA-2 hour by hour; the what-ifs scale the wind speed (direction unchanged) and shift the dead fuel moisture.
       </p>
 
@@ -282,7 +283,7 @@ export function ShapePanel(p: ShapePanelProps) {
         <span>{hours} h after the first detection</span>
       </div>
       <p className="meta">
-        Colour = simulated arrival time (sequence only: the timing is off by about a day); white dots = FIRMS detections up to the clock time; green outline = MCD64A1 burned area (whole run period). {p.loading && 'Loading run…'}
+        Colour = simulated arrival time (sequence only: the timing is off by hours to days); white dots = FIRMS detections up to the clock time; green outline = MCD64A1 burned area (whole run period). {p.loading && 'Loading run…'}
       </p>
 
       <h3>Effect of this what-if</h3>
@@ -309,16 +310,28 @@ export function ShapePanel(p: ShapePanelProps) {
 
       <details className="rk-details" open>
         <summary>What this is, and what it is not</summary>
-        <p>
-          This fire was picked by a pre-screen for fires that spread steadily. The model reproduces its footprint and its day-by-day growth pattern
-          {ratio !== null && <> (it burns {f1(ratio)}× the detection-pixel area)</>}, but not its timing: the median timing error is {f1(w.median_abs_timing_error_h)} h (signed median {f1(w.median_timing_error_h)} h,
-          negative = before the satellites saw fire), and the best multiplier is the fastest we allowed. It never passed the timing gate, so these runs are not validated. We show them, labelled, because the shape match makes them a reasonable picture of how
-          wind and fuel dryness push this kind of fire around, not of what happened hour by hour.
-        </p>
-        <p>
-          MERRA-2 humidity was high (median 81 %), so the observed-weather fuels sit near the moisture at which this grass fuel model stops spreading. Damper scenarios therefore stall
-          almost at once, and drier ones grow quickly. The model also leaves out crown fire, which matters in boreal spring fires.
-        </p>
+        {p.fireId === 'sask-2023' ? (
+          <>
+            <p>
+              This fire was picked by a pre-screen for fires that spread steadily. The model reproduces its footprint against the hotspots and its day-by-day growth pattern
+              {ratio !== null && <> (it burns {f1(ratio)}× the detection-pixel area)</>}, but not its timing: median timing error {f1(w.median_abs_timing_error_h)} h (signed median{' '}
+              {f1(w.median_timing_error_h)} h, negative = before the satellites saw fire), at the fastest multiplier we allowed then. Against MODIS burned area the two references
+              themselves disagree too much to judge (ceiling 0.25), so this view was added at the developer’s request, outside the rules. It shows how wind and dryness push this kind of
+              fire around, not what happened hour by hour.
+            </p>
+            <p>
+              MERRA-2 humidity was high (median 81 %), so the observed-weather fuels sit near the moisture at which this grass fuel model stops spreading. Damper scenarios stall almost at
+              once, and drier ones grow quickly. The model also leaves out crown fire, which matters in boreal spring fires.
+            </p>
+          </>
+        ) : (
+          <p>
+            The spread multiplier was fitted to this fire’s MODIS burned-area shape, and the footprint reaches the pre-registered bar: at least 70 % of how well the two satellite
+            references agree with each other. It is the only one of six fires that does. Its timing is not validated: median timing error {f1(w.median_abs_timing_error_h)} h against a{' '}
+            {f1(w.gate_h)} h gate. So these runs show where this fire could have spread under other wind and fuel dryness, not when. Surface fire only: no crowning or spotting, which
+            matter in conifer forest.
+          </p>
+        )}
       </details>
     </div>
   );

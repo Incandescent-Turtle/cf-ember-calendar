@@ -53,7 +53,7 @@ def main() -> None:
     (base / "calibration.json").write_text(json.dumps(cal, indent=1, default=float))
     shutil.copyfile(var / "baseline.npy", base / "baseline.npy")
     print(f"{a.fire}: ×{timing['ros_multiplier']} (timing) → ×{cal['ros_multiplier']} (shape), "
-          f"{cal['status']}; |Δ| {bm['median_abs_timing_error_h']:.1f} h, Sør hot {bm['sorensen']:.2f}")
+          f"{cal['status']}; |Δ| {bm['median_abs_timing_error_h']} h, Sør hot {bm['sorensen']:.2f}")
 
 
 if __name__ == "__main__":

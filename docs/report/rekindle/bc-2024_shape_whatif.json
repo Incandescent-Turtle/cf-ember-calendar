@@ -1,0 +1,481 @@
+{
+ "kind": "whole_fire_shape",
+ "EXPLORATORY": true,
+ "what": "Whole-fire footprint what-ifs. The baseline's final footprint matches the detections, but its timing failed the gate: read the footprint, not the times.",
+ "index": 0,
+ "t_k_h": 0.0,
+ "ros_multiplier": 1.0,
+ "median_abs_timing_error_h": 48.2,
+ "median_timing_error_h": -3.71,
+ "sorensen": 0.556,
+ "n_pixels": 1796,
+ "hit_rate": 0.528,
+ "area_km2": 117.84,
+ "observed_footprint_km2": 131.88,
+ "qualifies": false,
+ "reasons": [
+  "timing gate failed (48.2 h vs 1.76 h)"
+ ],
+ "gate_h": 1.759,
+ "start": "2024-08-02T05:09:00Z",
+ "start_h_after_t0": 0.0,
+ "hours": 138.0,
+ "n_ignitions": 2,
+ "dead_1h_pct_baseline": 10,
+ "axes": {
+  "wind_scale": [
+   0.0,
+   0.5,
+   1.0,
+   1.5,
+   2.0
+  ],
+  "dead_delta_pct": [
+   -6,
+   -4,
+   -2,
+   0,
+   2
+  ],
+  "dead_floor_pct": 2.0
+ },
+ "rothermel": {
+  "fuel_model": 2,
+  "wind_10m_ms_median": 1.66,
+  "dead_1h_pct_median": 10.31,
+  "ros_multiplier_not_applied": true,
+  "rows": [
+   {
+    "wind_scale": 0.0,
+    "dead_delta_pct": -6,
+    "head_kmh": 0.058,
+    "ratio": 0.624
+   },
+   {
+    "wind_scale": 0.0,
+    "dead_delta_pct": -4,
+    "head_kmh": 0.052,
+    "ratio": 0.557
+   },
+   {
+    "wind_scale": 0.0,
+    "dead_delta_pct": -2,
+    "head_kmh": 0.047,
+    "ratio": 0.511
+   },
+   {
+    "wind_scale": 0.0,
+    "dead_delta_pct": 0,
+    "head_kmh": 0.041,
+    "ratio": 0.448
+   },
+   {
+    "wind_scale": 0.0,
+    "dead_delta_pct": 2,
+    "head_kmh": 0.031,
+    "ratio": 0.333
+   },
+   {
+    "wind_scale": 0.5,
+    "dead_delta_pct": -6,
+    "head_kmh": 0.078,
+    "ratio": 0.84
+   },
+   {
+    "wind_scale": 0.5,
+    "dead_delta_pct": -4,
+    "head_kmh": 0.069,
+    "ratio": 0.75
+   },
+   {
+    "wind_scale": 0.5,
+    "dead_delta_pct": -2,
+    "head_kmh": 0.064,
+    "ratio": 0.688
+   },
+   {
+    "wind_scale": 0.5,
+    "dead_delta_pct": 0,
+    "head_kmh": 0.056,
+    "ratio": 0.603
+   },
+   {
+    "wind_scale": 0.5,
+    "dead_delta_pct": 2,
+    "head_kmh": 0.042,
+    "ratio": 0.449
+   },
+   {
+    "wind_scale": 1.0,
+    "dead_delta_pct": -6,
+    "head_kmh": 0.129,
+    "ratio": 1.393
+   },
+   {
+    "wind_scale": 1.0,
+    "dead_delta_pct": -4,
+    "head_kmh": 0.115,
+    "ratio": 1.244
+   },
+   {
+    "wind_scale": 1.0,
+    "dead_delta_pct": -2,
+    "head_kmh": 0.106,
+    "ratio": 1.142
+   },
+   {
+    "wind_scale": 1.0,
+    "dead_delta_pct": 0,
+    "head_kmh": 0.093,
+    "ratio": 1.0
+   },
+   {
+    "wind_scale": 1.0,
+    "dead_delta_pct": 2,
+    "head_kmh": 0.069,
+    "ratio": 0.744
+   },
+   {
+    "wind_scale": 1.5,
+    "dead_delta_pct": -6,
+    "head_kmh": 0.207,
+    "ratio": 2.239
+   },
+   {
+    "wind_scale": 1.5,
+    "dead_delta_pct": -4,
+    "head_kmh": 0.185,
+    "ratio": 2.001
+   },
+   {
+    "wind_scale": 1.5,
+    "dead_delta_pct": -2,
+    "head_kmh": 0.17,
+    "ratio": 1.835
+   },
+   {
+    "wind_scale": 1.5,
+    "dead_delta_pct": 0,
+    "head_kmh": 0.149,
+    "ratio": 1.608
+   },
+   {
+    "wind_scale": 1.5,
+    "dead_delta_pct": 2,
+    "head_kmh": 0.111,
+    "ratio": 1.197
+   },
+   {
+    "wind_scale": 2.0,
+    "dead_delta_pct": -6,
+    "head_kmh": 0.311,
+    "ratio": 3.359
+   },
+   {
+    "wind_scale": 2.0,
+    "dead_delta_pct": -4,
+    "head_kmh": 0.278,
+    "ratio": 3.001
+   },
+   {
+    "wind_scale": 2.0,
+    "dead_delta_pct": -2,
+    "head_kmh": 0.255,
+    "ratio": 2.753
+   },
+   {
+    "wind_scale": 2.0,
+    "dead_delta_pct": 0,
+    "head_kmh": 0.223,
+    "ratio": 2.412
+   },
+   {
+    "wind_scale": 2.0,
+    "dead_delta_pct": 2,
+    "head_kmh": 0.166,
+    "ratio": 1.795
+   }
+  ]
+ },
+ "baseline_rerun_check": {
+  "median_abs_timing_error_h": 48.2,
+  "sorensen": 0.556
+ },
+ "runs": [
+  {
+   "key": "f_u000_dm6",
+   "file": "burst/shape/f_u000_dm6.u16.gz",
+   "wind_scale": 0.0,
+   "dead_delta_pct": -6,
+   "start_km2": 0.113,
+   "end_km2": 156.419,
+   "new_km2": 156.306,
+   "new_km2_vs_baseline": 38.58,
+   "new_ratio_vs_baseline": 1.328
+  },
+  {
+   "key": "f_u000_dm4",
+   "file": "burst/shape/f_u000_dm4.u16.gz",
+   "wind_scale": 0.0,
+   "dead_delta_pct": -4,
+   "start_km2": 0.113,
+   "end_km2": 126.328,
+   "new_km2": 126.215,
+   "new_km2_vs_baseline": 8.489,
+   "new_ratio_vs_baseline": 1.072
+  },
+  {
+   "key": "f_u000_dm2",
+   "file": "burst/shape/f_u000_dm2.u16.gz",
+   "wind_scale": 0.0,
+   "dead_delta_pct": -2,
+   "start_km2": 0.113,
+   "end_km2": 94.138,
+   "new_km2": 94.025,
+   "new_km2_vs_baseline": -23.701,
+   "new_ratio_vs_baseline": 0.799
+  },
+  {
+   "key": "f_u000_dp0",
+   "file": "burst/shape/f_u000_dp0.u16.gz",
+   "wind_scale": 0.0,
+   "dead_delta_pct": 0,
+   "start_km2": 0.113,
+   "end_km2": 66.606,
+   "new_km2": 66.493,
+   "new_km2_vs_baseline": -51.233,
+   "new_ratio_vs_baseline": 0.565
+  },
+  {
+   "key": "f_u000_dp2",
+   "file": "burst/shape/f_u000_dp2.u16.gz",
+   "wind_scale": 0.0,
+   "dead_delta_pct": 2,
+   "start_km2": 0.113,
+   "end_km2": 39.269,
+   "new_km2": 39.156,
+   "new_km2_vs_baseline": -78.57,
+   "new_ratio_vs_baseline": 0.333
+  },
+  {
+   "key": "f_u050_dm6",
+   "file": "burst/shape/f_u050_dm6.u16.gz",
+   "wind_scale": 0.5,
+   "dead_delta_pct": -6,
+   "start_km2": 0.113,
+   "end_km2": 168.326,
+   "new_km2": 168.213,
+   "new_km2_vs_baseline": 50.487,
+   "new_ratio_vs_baseline": 1.429
+  },
+  {
+   "key": "f_u050_dm4",
+   "file": "burst/shape/f_u050_dm4.u16.gz",
+   "wind_scale": 0.5,
+   "dead_delta_pct": -4,
+   "start_km2": 0.113,
+   "end_km2": 135.1,
+   "new_km2": 134.987,
+   "new_km2_vs_baseline": 17.261,
+   "new_ratio_vs_baseline": 1.147
+  },
+  {
+   "key": "f_u050_dm2",
+   "file": "burst/shape/f_u050_dm2.u16.gz",
+   "wind_scale": 0.5,
+   "dead_delta_pct": -2,
+   "start_km2": 0.113,
+   "end_km2": 101.744,
+   "new_km2": 101.631,
+   "new_km2_vs_baseline": -16.095,
+   "new_ratio_vs_baseline": 0.863
+  },
+  {
+   "key": "f_u050_dp0",
+   "file": "burst/shape/f_u050_dp0.u16.gz",
+   "wind_scale": 0.5,
+   "dead_delta_pct": 0,
+   "start_km2": 0.113,
+   "end_km2": 71.523,
+   "new_km2": 71.41,
+   "new_km2_vs_baseline": -46.316,
+   "new_ratio_vs_baseline": 0.607
+  },
+  {
+   "key": "f_u050_dp2",
+   "file": "burst/shape/f_u050_dp2.u16.gz",
+   "wind_scale": 0.5,
+   "dead_delta_pct": 2,
+   "start_km2": 0.113,
+   "end_km2": 46.154,
+   "new_km2": 46.041,
+   "new_km2_vs_baseline": -71.685,
+   "new_ratio_vs_baseline": 0.391
+  },
+  {
+   "key": "f_u100_dm6",
+   "file": "burst/shape/f_u100_dm6.u16.gz",
+   "wind_scale": 1.0,
+   "dead_delta_pct": -6,
+   "start_km2": 0.113,
+   "end_km2": 286.61,
+   "new_km2": 286.497,
+   "new_km2_vs_baseline": 168.771,
+   "new_ratio_vs_baseline": 2.434
+  },
+  {
+   "key": "f_u100_dm4",
+   "file": "burst/shape/f_u100_dm4.u16.gz",
+   "wind_scale": 1.0,
+   "dead_delta_pct": -4,
+   "start_km2": 0.113,
+   "end_km2": 227.821,
+   "new_km2": 227.708,
+   "new_km2_vs_baseline": 109.982,
+   "new_ratio_vs_baseline": 1.934
+  },
+  {
+   "key": "f_u100_dm2",
+   "file": "burst/shape/f_u100_dm2.u16.gz",
+   "wind_scale": 1.0,
+   "dead_delta_pct": -2,
+   "start_km2": 0.113,
+   "end_km2": 162.535,
+   "new_km2": 162.422,
+   "new_km2_vs_baseline": 44.696,
+   "new_ratio_vs_baseline": 1.38
+  },
+  {
+   "key": "f_u100_dp0",
+   "file": "burst/shape/f_u100_dp0.u16.gz",
+   "wind_scale": 1.0,
+   "dead_delta_pct": 0,
+   "start_km2": 0.113,
+   "end_km2": 117.839,
+   "new_km2": 117.726,
+   "new_km2_vs_baseline": 0.0,
+   "new_ratio_vs_baseline": 1.0
+  },
+  {
+   "key": "f_u100_dp2",
+   "file": "burst/shape/f_u100_dp2.u16.gz",
+   "wind_scale": 1.0,
+   "dead_delta_pct": 2,
+   "start_km2": 0.113,
+   "end_km2": 74.471,
+   "new_km2": 74.358,
+   "new_km2_vs_baseline": -43.368,
+   "new_ratio_vs_baseline": 0.632
+  },
+  {
+   "key": "f_u150_dm6",
+   "file": "burst/shape/f_u150_dm6.u16.gz",
+   "wind_scale": 1.5,
+   "dead_delta_pct": -6,
+   "start_km2": 0.113,
+   "end_km2": 537.872,
+   "new_km2": 537.759,
+   "new_km2_vs_baseline": 420.033,
+   "new_ratio_vs_baseline": 4.568
+  },
+  {
+   "key": "f_u150_dm4",
+   "file": "burst/shape/f_u150_dm4.u16.gz",
+   "wind_scale": 1.5,
+   "dead_delta_pct": -4,
+   "start_km2": 0.113,
+   "end_km2": 411.747,
+   "new_km2": 411.634,
+   "new_km2_vs_baseline": 293.908,
+   "new_ratio_vs_baseline": 3.497
+  },
+  {
+   "key": "f_u150_dm2",
+   "file": "burst/shape/f_u150_dm2.u16.gz",
+   "wind_scale": 1.5,
+   "dead_delta_pct": -2,
+   "start_km2": 0.113,
+   "end_km2": 295.188,
+   "new_km2": 295.075,
+   "new_km2_vs_baseline": 177.349,
+   "new_ratio_vs_baseline": 2.506
+  },
+  {
+   "key": "f_u150_dp0",
+   "file": "burst/shape/f_u150_dp0.u16.gz",
+   "wind_scale": 1.5,
+   "dead_delta_pct": 0,
+   "start_km2": 0.113,
+   "end_km2": 204.112,
+   "new_km2": 203.999,
+   "new_km2_vs_baseline": 86.273,
+   "new_ratio_vs_baseline": 1.733
+  },
+  {
+   "key": "f_u150_dp2",
+   "file": "burst/shape/f_u150_dp2.u16.gz",
+   "wind_scale": 1.5,
+   "dead_delta_pct": 2,
+   "start_km2": 0.113,
+   "end_km2": 130.159,
+   "new_km2": 130.046,
+   "new_km2_vs_baseline": 12.32,
+   "new_ratio_vs_baseline": 1.105
+  },
+  {
+   "key": "f_u200_dm6",
+   "file": "burst/shape/f_u200_dm6.u16.gz",
+   "wind_scale": 2.0,
+   "dead_delta_pct": -6,
+   "start_km2": 0.113,
+   "end_km2": 1098.287,
+   "new_km2": 1098.174,
+   "new_km2_vs_baseline": 980.448,
+   "new_ratio_vs_baseline": 9.328
+  },
+  {
+   "key": "f_u200_dm4",
+   "file": "burst/shape/f_u200_dm4.u16.gz",
+   "wind_scale": 2.0,
+   "dead_delta_pct": -4,
+   "start_km2": 0.113,
+   "end_km2": 770.44,
+   "new_km2": 770.327,
+   "new_km2_vs_baseline": 652.601,
+   "new_ratio_vs_baseline": 6.543
+  },
+  {
+   "key": "f_u200_dm2",
+   "file": "burst/shape/f_u200_dm2.u16.gz",
+   "wind_scale": 2.0,
+   "dead_delta_pct": -2,
+   "start_km2": 0.113,
+   "end_km2": 509.498,
+   "new_km2": 509.385,
+   "new_km2_vs_baseline": 391.659,
+   "new_ratio_vs_baseline": 4.327
+  },
+  {
+   "key": "f_u200_dp0",
+   "file": "burst/shape/f_u200_dp0.u16.gz",
+   "wind_scale": 2.0,
+   "dead_delta_pct": 0,
+   "start_km2": 0.113,
+   "end_km2": 340.176,
+   "new_km2": 340.063,
+   "new_km2_vs_baseline": 222.337,
+   "new_ratio_vs_baseline": 2.889
+  },
+  {
+   "key": "f_u200_dp2",
+   "file": "burst/shape/f_u200_dp2.u16.gz",
+   "wind_scale": 2.0,
+   "dead_delta_pct": 2,
+   "start_km2": 0.113,
+   "end_km2": 218.165,
+   "new_km2": 218.052,
+   "new_km2_vs_baseline": 100.326,
+   "new_ratio_vs_baseline": 1.852
+  }
+ ]
+}
