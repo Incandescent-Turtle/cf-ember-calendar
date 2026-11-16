@@ -56,8 +56,8 @@ export function AoiTools() {
           </button>
         )}
       </div>
-      {drawMode === 'rectangle' && <p className="hint">Click two opposite corners.</p>}
-      {drawMode === 'polygon' && <p className="hint">Click vertices; click the first point to close.</p>}
+      {drawMode === 'rectangle' && <p className="hint">Press and drag, or click two opposite corners. Esc to cancel.</p>}
+      {drawMode === 'polygon' && <p className="hint">Click each corner; click the first point to close. Esc to cancel.</p>}
       {openRadius && (
         <form className="radius-form" onSubmit={submitCircle}>
           <label>

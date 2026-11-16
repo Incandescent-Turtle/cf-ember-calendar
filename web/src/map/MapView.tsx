@@ -150,7 +150,8 @@ export function MapView() {
       }
       const draw = new TerraDraw({
         adapter: new TerraDrawMapLibreGLAdapter({ map }),
-        modes: [new TerraDrawRectangleMode(), new TerraDrawPolygonMode()],
+        // rectangle: two clicks or press-and-drag (most people drag)
+        modes: [new TerraDrawRectangleMode({ drawInteraction: 'click-move-or-drag' }), new TerraDrawPolygonMode()],
       });
       draw.start();
       draw.on('finish', (id) => {
@@ -212,11 +213,35 @@ export function MapView() {
     map.setPaintProperty('density-fill', 'fill-opacity', pointsOn && pointsFc!.features.length > 0 ? 0.35 : 0.78);
   }, [pointsFc, pointsOn, loaded]);
 
+  // Apply the draw mode once the map (and Terra Draw) exist, and re-apply on load: a tool picked
+  // before load used to be lost, leaving the map in pan mode. While drawing, a drag must never
+  // pan the map, so drag-pan and double-click zoom are off (wheel zoom stays on).
   useEffect(() => {
     const draw = drawRef.current;
-    if (!draw) return;
+    const map = mapRef.current;
+    if (!draw || !map || !loaded) return;
     draw.clear();
     draw.setMode(drawMode === 'none' ? 'static' : drawMode);
+    const drawing = drawMode !== 'none';
+    if (drawing) {
+      map.dragPan.disable();
+      map.doubleClickZoom.disable();
+      map.getCanvas().style.cursor = 'crosshair';
+    } else {
+      map.dragPan.enable();
+      map.doubleClickZoom.enable();
+      map.getCanvas().style.cursor = '';
+    }
+  }, [drawMode, loaded]);
+
+  // Esc cancels a drawing tool.
+  useEffect(() => {
+    if (drawMode === 'none') return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') useStore.getState().setDrawMode('none');
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
   }, [drawMode]);
 
   return (
