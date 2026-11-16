@@ -2,6 +2,7 @@
 // manifest: every number comes from the current build.
 import { useQuery } from '@tanstack/react-query';
 import { RekindleFindings } from '../rekindle/Findings';
+import { RekindleLimits, RekindleMethod } from './RekindleMethod';
 import { DATA_BASE_URL, fetchJson } from '../data/client';
 import { useCalibration, useManifest } from '../data/hooks';
 import { dataScope, globalTableLinks } from '../lib/export';
@@ -32,8 +33,22 @@ export function Methodology() {
         </p>
         <h1>Methodology and validation</h1>
         <p className="lede">
-          How MODIS (2000→) and VIIRS (2012→) hotspots become one record, and how well it holds up. Every number on this page is read from the
-          current data build (<code>validation.json</code>, <code>calibration.json</code>, <code>manifest.json</code>).
+          Two parts: how MODIS (2000→) and VIIRS (2012→) hotspots become one consistent record and how well it holds up, then how the Rekindle fire-spread simulator works and how
+          we test it. Each part explains the method before its results.
+        </p>
+          <nav className="mth-parts" aria-label="Parts of this page">
+            <a href="#harmonization">
+              <span>Part 1</span> Harmonizing MODIS and VIIRS hotspots
+            </a>
+            <a href="#rekindle">
+              <span>Part 2</span> Rekindle fire-spread simulation
+            </a>
+          </nav>
+          <h2 className="part-title" id="harmonization">
+            Part 1 · Harmonizing MODIS and VIIRS hotspots
+          </h2>
+        <p className="meta">
+          Every number in Part 1 is read from the current data build (<code>validation.json</code>, <code>calibration.json</code>, <code>manifest.json</code>).
         </p>
         {err && <p className="error">Couldn’t load the validation files: {(err as Error).message}</p>}
         {!v || !m ? (
@@ -41,6 +56,15 @@ export function Methodology() {
         ) : (
           <Body v={v} m={m} cal={calibration.data ?? null} />
         )}
+          <h2 className="part-title" id="rekindle">
+            Part 2 · Rekindle fire-spread simulation
+          </h2>
+          <RekindleMethod />
+          <section>
+            <h2>Results</h2>
+            <RekindleFindings headingLevel={3} />
+          </section>
+          <RekindleLimits />
       </article>
     </div>
   );
@@ -67,16 +91,7 @@ function Body({ v, m, cal }: { v: Validation; m: NonNullable<ReturnType<typeof u
         {!scope.global && ' “Global” below means the whole build, not the whole world.'}
         {v.mock && <strong> Mock validation file (development only).</strong>}
       </section>
-      <GlobalTable m={m} />
 
-      <section>
-        <h2>Findings</h2>
-        <ul className="findings">
-          {findings(v).map((t) => (
-            <li key={t.slice(0, 40)}>{t}</li>
-          ))}
-        </ul>
-      </section>
 
       <section>
         <h2>How the record is built</h2>
@@ -91,7 +106,8 @@ function Body({ v, m, cal }: { v: Validation; m: NonNullable<ReturnType<typeof u
             per sensor group (MODIS = Terra + Aqua). Summed per 0.1° and 1° cell and per dekad (10-day period). Any drawn area is an exact sum of those cells.
           </li>
           <li>
-            <strong>Calibrate.</strong> k = VIIRS S-NPP FCD ÷ MODIS FCD, a ratio of sums per calendar month over {overlap[0].slice(0, 4)}–{overlap[1].slice(0, 4)}{' '}
+            <strong>Calibrate.</strong> <em>k</em> is a conversion factor: how many VIIRS fire-cell-days correspond to one MODIS fire-cell-day for the same fire activity
+            (VIIRS sees more, because its pixels are smaller). k = VIIRS S-NPP FCD ÷ MODIS FCD, a ratio of sums per calendar month over {overlap[0].slice(0, 4)}–{overlap[1].slice(0, 4)}{' '}
             (both sensors stable; Terra’s orbit drifts after that). The app uses the drawn area’s own k when it has ≥ {m.min_modis_fcd} MODIS FCD in that month,
             otherwise its 10° tile’s, otherwise the whole build’s. The band is the 5th–95th percentile of 200 bootstrap resamples of the years.
           </li>
@@ -216,6 +232,14 @@ function Body({ v, m, cal }: { v: Validation; m: NonNullable<ReturnType<typeof u
       </section>
 
       <section>
+        <h2>What the tests show</h2>
+        <ul className="findings">
+          {findings(v).map((t) => (
+            <li key={t.slice(0, 40)}>{t}</li>
+          ))}
+        </ul>
+      </section>
+      <section>
         <h2>Limitations</h2>
         <ul className="limits">
           <li>Hotspots are not fires and not burned area. Clouds, smoke and overpass timing cause omissions; one fire spans many fire-cell-days.</li>
@@ -236,15 +260,7 @@ function Body({ v, m, cal }: { v: Validation; m: NonNullable<ReturnType<typeof u
           </li>
         </ul>
       </section>
-      <section>
-        <h2>Rekindle fire-spread hindcasts</h2>
-        <p>
-          Rekindle replays six real fires with a level-set + Rothermel surface-spread model (90 m grid, MERRA-2 weather, MODIS fuels) and judges each against two satellite
-          references: the harmonized hotspots for timing and MODIS MCD64A1 burned area for shape. What-if scenarios appear only where the model matches. Below are every test,
-          failures included, and how we reached the final evaluation. See the <a href="/rekindle" onClick={linkTo('rekindle')}>Rekindle tab</a> for the maps.
-        </p>
-        <RekindleFindings headingLevel={3} />
-      </section>
+      <GlobalTable m={m} />
       <p className="dim">
         Data: NASA FIRMS — MODIS Collection 6.1 (Terra, Aqua) and VIIRS 375 m (Suomi NPP, NOAA-20) active fire products. Analytics rules are written once in{' '}
         <code>pipeline/analytics.py</code> and checked against the browser code with shared test files.
