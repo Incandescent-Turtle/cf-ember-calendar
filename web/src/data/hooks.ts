@@ -156,7 +156,7 @@ export function useDensity(aoi: Aoi | null, window: TimeWindow, view: MapViewpor
  * viewport must also cover ≤ MAX_POINT_TILES tiles.
  */
 export function pointsEligible(aoi: Aoi | null, w: TimeWindow, manifest: Manifest | undefined, view: MapViewport): string | null {
-  if (w.year === null) return 'Pick a year or month (or click a calendar month) to see individual hotspots.';
+  if (w.year === null) return 'Pick a year (top left) or click a calendar month to see individual hotspots.';
   const p = manifest?.points;
   if (!p || !p.tiles.length) return 'No hotspot point files on this data host.';
   if (w.year < p.years[0] || w.year > p.years[1]) return `Hotspot points cover ${p.years[0]}–${p.years[1]}.`;

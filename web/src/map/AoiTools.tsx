@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { newAoiId, useStore } from '../store';
 import { EXAMPLES, selectExample, setCircleAoi } from './aoiActions';
 import { PlaceSearch } from './PlaceSearch';
+import { MapTimePicker } from './TimeControl';
 
 type Country = Feature<Polygon | MultiPolygon, { name: string; iso: string }>;
 
@@ -39,6 +40,7 @@ export function AoiTools() {
 
   return (
     <div className="aoi-tools" role="toolbar" aria-label="Area of interest tools">
+      <h3 className="tools-title">Pick a region to analyze</h3>
       <PlaceSearch />
       <div className="btn-row">
         <button className={drawMode === 'rectangle' ? 'on' : ''} onClick={() => setDrawMode(drawMode === 'rectangle' ? 'none' : 'rectangle')}>
@@ -90,9 +92,6 @@ export function AoiTools() {
           </option>
         ))}
       </select>
-      <label className="sat-toggle">
-        <input type="checkbox" checked={satellite} onChange={(e) => setSatellite(e.target.checked)} /> Satellite imagery
-      </label>
       <select
         aria-label="Country"
         value={aoi?.kind === 'country' ? aoi.label : ''}
@@ -113,6 +112,11 @@ export function AoiTools() {
           <strong>{aoi.label}</strong> · {km2 < 10 ? km2.toFixed(1) : Math.round(km2).toLocaleString('en-US')} km²
         </p>
       )}
+      <h3 className="tools-title">Time shown on the map</h3>
+      <MapTimePicker />
+      <label className="sat-toggle">
+        <input type="checkbox" checked={satellite} onChange={(e) => setSatellite(e.target.checked)} /> Satellite imagery
+      </label>
     </div>
   );
 }
