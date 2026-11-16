@@ -43,6 +43,16 @@ CREDITS: list[dict] = [
         "url": "https://doi.org/10.5067/MODIS/MOD44W.061",
     },
     {
+        "id": "mcd64a1",
+        "short": "MODIS MCD64A1 v061 burned area (NASA LP DAAC)",
+        "use": "independent burned-area reference for shape and burn day (S6h)",
+        "citation": "Giglio, L., Justice, C., Boschetti, L., Roy, D. (2021). MODIS/Terra+Aqua Burned "
+        "Area Monthly L3 Global 500m SIN Grid V061. NASA EOSDIS Land Processes Distributed Active "
+        f"Archive Center. Accessed: {ACCESSED}. doi:10.5067/MODIS/MCD64A1.061",
+        "doi": "10.5067/MODIS/MCD64A1.061",
+        "url": "https://doi.org/10.5067/MODIS/MCD64A1.061",
+    },
+    {
         "id": "mod44b",
         "short": "MODIS MOD44B v061 Vegetation Continuous Fields (NASA LP DAAC)",
         "use": "fractional cover: non-burnable where non-vegetated > 50 % (S6b)",

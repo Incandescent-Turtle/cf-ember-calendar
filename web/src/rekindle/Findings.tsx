@@ -41,10 +41,21 @@ const WINDOWS = [
   { fire: 'Córdoba 2024', day: 'Day 5', mult: '0.5', medAbs: 10.4, gate: 2.9, sor: 0.65, verdict: 'shape only: what-ifs shown (post-hoc rule)' },
 ];
 
+// S6h: docs/report/rekindle/burned_area_check.json (rekindle.burned_area), whole-fire baselines.
+const REFS = [
+  { fire: 'Chilecito 2026', ceil: 0.66, mcd: 0.61, hot: 0.54, raw: 12.0, cens: 10.5 },
+  { fire: 'Córdoba 2024', ceil: 0.59, mcd: 0.32, hot: 0.55, raw: 15.2, cens: 13.6 },
+  { fire: 'N. Saskatchewan 2023', ceil: 0.31, mcd: 0.26, hot: 0.76, raw: 22.4, cens: 21.9 },
+  { fire: 'C. British Columbia 2024', ceil: 0.52, mcd: 0.33, hot: 0.48, raw: 41.7, cens: 41.1 },
+  { fire: 'La Rioja / San Juan 2025', ceil: 0.40, mcd: 0.07, hot: 0.15, raw: 17.1, cens: 15.5 },
+  { fire: 'Gran Chaco 2024', ceil: 0.12, mcd: 0.1, hot: 0.58, raw: 61.1, cens: 52.8 },
+];
+
 const REFERENCES = [
   'Cruz, M. G. & Alexander, M. E. (2013). Uncertainty associated with model predictions of surface and crown fire rates of spread. Environmental Modelling & Software 47, 16–28. doi:10.1016/j.envsoft.2013.04.004',
   'Price, W. J. & Germino, M. J. (2022). Modeling of fire spread in sagebrush steppe using FARSITE. Fire Ecology 18, 23. doi:10.1186/s42408-022-00147-2',
   'Coen, J. L. & Schroeder, W. (2013). Use of spatially refined satellite remote sensing fire detection data to initialize and evaluate coupled weather-wildfire growth model simulations. Geophysical Research Letters. doi:10.1002/2013GL057868',
+  'Giglio, L., Boschetti, L., Roy, D. P., Humber, M. L. & Justice, C. O. (2018). The Collection 6 MODIS burned area mapping algorithm and product. Remote Sensing of Environment 217, 72–85. doi:10.1016/j.rse.2018.08.005',
   'Finney, M. A. (1998). FARSITE: Fire Area Simulator — model development and evaluation. Research Paper RMRS-RP-4, USDA Forest Service, Rocky Mountain Research Station.',
   'Tymstra, C., Bryce, R. W., Wotton, B. M., Taylor, S. W. & Armitage, O. B. (2010). Development and structure of Prometheus: the Canadian Wildland Fire Growth Simulation Model. Information Report NOR-X-417, Natural Resources Canada.',
   'Benali, A. et al. (2016). Deciphering the impact of uncertainty on the accuracy of large wildfire spread simulations. Science of the Total Environment 569–570, 73–85. doi:10.1016/j.scitotenv.2016.06.112',
@@ -117,6 +128,47 @@ export function RekindleFindings({ headingLevel = 3 }: { headingLevel?: 2 | 3 | 
         was seen 5.8 km from its first pixels within 2 h, then moved only ~8 km more in 4.5 days; Córdoba covered 6 km in 12 h, then stalled for about 2 days. A free-spread model keeps
         going, so one multiplier can only trade “too slow early” against “too fast later”. What stops a real fire here (suppression near towns, fuel breaks finer than 250–500 m land cover,
         local weather) is not in the inputs. The chart “distance from ignition vs time” above shows this for the selected fire.
+      </p>
+      <Hs>Two references, not one answer key</Hs>
+      <p>
+        Hotspots record <em>where something hot was seen at overpass time</em>. That is good evidence for when a fire was active and is why we harmonized MODIS and VIIRS. It is a weaker
+        outline of what burned: pixels are 375 m–1 km and grow toward the swath edge, cloud and smoke hide fire, and cool or fast grass fronts can burn between passes unseen. So we also
+        compare against MODIS MCD64A1 burned area (500 m, burn date from surface darkening). Shape is judged against both, timing against the hotspots with a fair interval (an arrival
+        anywhere between the previous overpass and the detection counts as on time). Added after the runs above; the earlier numbers are unchanged.
+      </p>
+      <div className="table-wrap">
+        <table className="rk-variants">
+          <caption>Inside each fire box. Sørensen overlap; “ceiling” = how well the two satellite references agree with each other</caption>
+          <thead>
+            <tr>
+              <th scope="col">Fire</th>
+              <th scope="col">Hotspots vs burned area (ceiling)</th>
+              <th scope="col">Model vs burned area</th>
+              <th scope="col">Model vs hotspots</th>
+              <th scope="col">Timing, raw → fair interval</th>
+            </tr>
+          </thead>
+          <tbody>
+            {REFS.map((r) => (
+              <tr key={r.fire}>
+                <td>{r.fire}</td>
+                <td>{r.ceil.toFixed(2)}</td>
+                <td>{r.mcd.toFixed(2)}</td>
+                <td>{r.hot.toFixed(2)}</td>
+                <td>
+                  {r.raw.toFixed(1)} → {r.cens.toFixed(1)} h
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>What this changes.</strong> The two satellite references agree only at Sørensen 0.3–0.66 (0.12 for the tiny Chaco fire), and the hotspot first-detection day matches the
+        burned-area day within ±1 day for only 30–74 % of pixels. A model can’t be expected to beat its references. Judged against burned area, Chilecito’s footprint in the fire box (0.61)
+        is about as close as the hotspots themselves (0.66). The others reach about half the ceiling or less, and La Rioja floods its domain. Timing does not improve: crediting every arrival
+        between overpasses cuts the median error by only 0.5–8 h, so the model is still many hours to days off. An hour-level gate was stricter than these references can support,
+        but they also do not show the model was right. Next step: calibrate the spread rate to burned-area shape and check timing against the hotspots with the fair interval.
       </p>
       <Hs>Equations or data?</Hs>
       <p>

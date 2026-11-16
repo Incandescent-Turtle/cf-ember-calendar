@@ -110,7 +110,7 @@ export function BurstPanel(p: BurstPanelProps) {
         <span>{hours} h after the window start</span>
       </div>
       <p className="meta">
-        Colour = simulated arrival time in the window (the darkest cells are the detected extent the run restarts from); white dots = FIRMS detections up to the clock time. {p.loading && 'Loading run…'}
+        Colour = simulated arrival time in the window (the darkest cells are the detected extent the run restarts from); white dots = FIRMS detections up to the clock time; green outline = MCD64A1 burned area (whole run period). {p.loading && 'Loading run…'}
       </p>
 
       <h3>Effect of this what-if</h3>
@@ -282,7 +282,7 @@ export function ShapePanel(p: ShapePanelProps) {
         <span>{hours} h after the first detection</span>
       </div>
       <p className="meta">
-        Colour = simulated arrival time (sequence only: the timing is off by about a day); white dots = FIRMS detections up to the clock time. {p.loading && 'Loading run…'}
+        Colour = simulated arrival time (sequence only: the timing is off by about a day); white dots = FIRMS detections up to the clock time; green outline = MCD64A1 burned area (whole run period). {p.loading && 'Loading run…'}
       </p>
 
       <h3>Effect of this what-if</h3>

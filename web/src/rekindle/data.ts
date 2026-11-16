@@ -189,6 +189,27 @@ async function getJson<T>(path: string): Promise<T> {
 export const fetchFires = () => getJson<{ fires: FireRef[] }>('index.json');
 export const fetchMeta = (id: string) => getJson<FireMeta>(`${id}/meta.json`);
 export const fetchRuns = (id: string) => getJson<{ runs: Run[] }>(`${id}/runs/index.json`);
+/** S6h second reference: MCD64A1 burned area vs hotspots vs model (rekindle.burned_area). */
+export interface Reference {
+  fire: string;
+  mcd64_km2: number;
+  hotspot_footprint_km2: number;
+  model_km2: number;
+  sorensen_hotspots_vs_mcd64: number;
+  sorensen_model_vs_mcd64: number;
+  sorensen_model_vs_hotspots: number;
+  timing_vs_hotspots: { median_abs_h: number; censored_median_h: number; inside_interval: number; gate_h: number };
+  detection_minus_burn_day: { n: number; median: number | null; within_1_day: number | null };
+  model_minus_burn_day: { n: number; median: number | null; median_abs: number | null; within_1_day: number | null };
+}
+
+/** Optional per-fire file; null if absent. */
+export async function fetchReference(id: string): Promise<Reference | null> {
+  const r = await fetch(`${BASE}/${id}/reference.json`);
+  if (!r.ok || (r.headers.get('content-type') ?? '').includes('text/html')) return null;
+  return (await r.json()) as Reference;
+}
+
 /** Burst-window what-ifs; null when the fire has none exported (older exports). */
 export async function fetchBurst(id: string): Promise<BurstIndex | null> {
   const r = await fetch(`${BASE}/${id}/burst/index.json`);

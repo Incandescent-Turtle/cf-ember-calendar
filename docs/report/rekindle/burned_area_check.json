@@ -1,5 +1,11 @@
 [
  {
+  "timing_vs_hotspots": {
+   "median_abs_h": 12.04,
+   "censored_median_h": 10.47,
+   "inside_interval": 0.066,
+   "gate_h": 3.21
+  },
   "fire": "chilecito-2026",
   "granules": [
    "MCD64A1.A2026182.h12v11.061.2026254000735.hdf",
@@ -26,6 +32,12 @@
   }
  },
  {
+  "timing_vs_hotspots": {
+   "median_abs_h": 15.16,
+   "censored_median_h": 13.59,
+   "inside_interval": 0.052,
+   "gate_h": 2.93
+  },
   "fire": "cordoba-2024",
   "granules": [
    "MCD64A1.A2024245.h12v12.061.2024317164432.hdf",
@@ -52,6 +64,12 @@
   }
  },
  {
+  "timing_vs_hotspots": {
+   "median_abs_h": 22.38,
+   "censored_median_h": 21.86,
+   "inside_interval": 0.017,
+   "gate_h": 1.67
+  },
   "fire": "sask-2023",
   "granules": [
    "MCD64A1.A2023121.h12v03.061.2023193192847.hdf"
@@ -77,6 +95,12 @@
   }
  },
  {
+  "timing_vs_hotspots": {
+   "median_abs_h": 41.68,
+   "censored_median_h": 41.11,
+   "inside_interval": 0.006,
+   "gate_h": 1.76
+  },
   "fire": "bc-2024",
   "granules": [
    "MCD64A1.A2024214.h10v03.061.2024291133119.hdf"
@@ -102,6 +126,12 @@
   }
  },
  {
+  "timing_vs_hotspots": {
+   "median_abs_h": 17.14,
+   "censored_median_h": 15.5,
+   "inside_interval": 0.05,
+   "gate_h": 3.28
+  },
   "fire": "larioja-2025",
   "granules": [
    "MCD64A1.A2025305.h12v12.061.2026006154730.hdf"
@@ -127,6 +157,12 @@
   }
  },
  {
+  "timing_vs_hotspots": {
+   "median_abs_h": 61.08,
+   "censored_median_h": 52.85,
+   "inside_interval": 0.064,
+   "gate_h": 4.91
+  },
   "fire": "chaco-2024",
   "granules": [
    "MCD64A1.A2024153.h12v11.061.2024225142756.hdf"

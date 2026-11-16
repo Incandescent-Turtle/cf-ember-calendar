@@ -95,6 +95,18 @@ def in_bbox(meta: dict) -> np.ndarray:
     return (lon >= w) & (lon <= e) & (lat >= s) & (lat <= n)
 
 
+def export_outline(fire: str, meta: dict, mask: np.ndarray) -> None:
+    """MCD64A1 burned cells as a uint16 raster (0 = burned, 65535 = not) on the web grid, so the
+    SPA can draw the outline with the same isochrone code (rekindle.export encoding)."""
+    from rekindle.export import WEB, encode, target_grid, to_3857
+
+    ny, nx = meta["shape"]
+    dst_t, h, w, _, _ = target_grid(meta, ny, nx)
+    a = np.where(mask, 0.0, np.inf).astype(np.float32)
+    (WEB / fire).mkdir(parents=True, exist_ok=True)
+    (WEB / fire / "mcd64.u16.gz").write_bytes(encode(to_3857(a, meta, dst_t, h, w), 1))
+
+
 def sor(a: np.ndarray, b: np.ndarray) -> float:
     return float(2 * (a & b).sum() / max(int(a.sum()) + int(b.sum()), 1))
 
@@ -105,6 +117,7 @@ def check(fire: str) -> dict:
     t0 = dm.parse_t(meta["t0"])
     t1 = t0 + dt.timedelta(hours=cal["hours"])
     bd, used = burn_dates(fire, meta, t0, t1)
+    export_outline(fire, meta, np.isfinite(bd))  # whole domain, for the map
     box = in_bbox(meta)
     bd = np.where(box, bd, np.nan)
     mcd = np.isfinite(bd)
@@ -124,8 +137,27 @@ def check(fire: str) -> dict:
     # model arrival day vs burn day over MCD64A1 pixels the model reaches
     both = mcd & model
     mod_d = np.floor(epoch0 + arr[both] / 86400) - bd[both]
+    # timing vs hotspots: raw |Δ| and interval-censored (credit for any arrival between the last
+    # overpass before the detection and the detection)
+    passes = prep["passes"]
+    raw_d, cen_d = [], []
+    for key, t in prep["first"].items():
+        if t <= 0:
+            continue
+        a = arr[key[0]:key[1], key[2]:key[3]]
+        ts = float(a.min()) if a.size else np.inf
+        prev = passes[passes < t]
+        tp = prev[-1] if prev.size else -np.inf
+        raw_d.append(abs(ts - t) / 3600)
+        cen_d.append(0.0 if tp < ts <= t else (tp - ts if ts <= tp else ts - t) / 3600)
+    raw_d, cen_d = np.array(raw_d), np.array(cen_d)
     cell = dom.dx ** 2 / 1e6
     res = {
+        "timing_vs_hotspots": {
+            "median_abs_h": round(float(np.median(raw_d)), 2),
+            "censored_median_h": round(float(np.median(cen_d)), 2),
+            "inside_interval": round(float(np.mean(cen_d == 0)), 3),
+            "gate_h": round(float(cal["gate"]["threshold_h"]), 2)},
         "fire": fire, "granules": used,
         "mcd64_km2": round(float(mcd.sum() * cell), 1),
         "hotspot_footprint_km2": round(float(hot.sum() * cell), 1),
@@ -157,6 +189,8 @@ def main() -> None:
             print(f"{f}: failed ({exc})")
             continue
         out.append(r)
+        from rekindle.export import WEB
+        (WEB / f / "reference.json").write_text(json.dumps(r, separators=(",", ":")))
         d, m = r["detection_minus_burn_day"], r["model_minus_burn_day"]
         print(f"{f:15s} MCD64 {r['mcd64_km2']:7.1f} km² | hot {r['hotspot_footprint_km2']:6.1f} "
               f"model {r['model_km2']:7.1f} | Sør hot~MCD {r['sorensen_hotspots_vs_mcd64']:.2f} "

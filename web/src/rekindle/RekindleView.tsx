@@ -8,7 +8,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
 import type { FeatureCollection } from 'geojson';
 import {
-  fetchBurst, fetchFires, fetchMeta, fetchObserved, fetchRaster, fetchRuns, fmtUtc, hoursSince, isochrones, rampCss,
+  fetchBurst, fetchFires, fetchReference, type Reference, fetchMeta, fetchObserved, fetchRaster, fetchRuns, fmtUtc, hoursSince, isochrones, rampCss,
   renderRgba, runKey, windAt, type BurstIndex, type FireMeta, type Run,
 } from './data';
 import { BurstPanel, ShapePanel, WindowScreen } from './Burst';
@@ -40,8 +40,9 @@ export function RekindleView() {
   const runs = useQuery({ queryKey: ['rk-runs', id], queryFn: () => fetchRuns(id!), enabled: !!id, staleTime: Infinity });
   const observed = useQuery({ queryKey: ['rk-obs', id], queryFn: () => fetchObserved(id!), enabled: !!id, staleTime: Infinity });
   const burst = useQuery({ queryKey: ['rk-burst', id], queryFn: () => fetchBurst(id!).catch(() => null), enabled: !!id, staleTime: Infinity });
+  const reference = useQuery({ queryKey: ['rk-ref', id], queryFn: () => fetchReference(id!).catch(() => null), enabled: !!id, staleTime: Infinity });
   const err = fires.error ?? meta.error ?? runs.error ?? observed.error;
-  if (meta.data && runs.data && observed.data && burst.isFetched) {
+  if (meta.data && runs.data && observed.data && burst.isFetched && reference.isFetched) {
     const picker =
       fires.data && fires.data.fires.length > 1 ? (
         <label className="rk-fire-pick">
@@ -55,7 +56,7 @@ export function RekindleView() {
           </select>
         </label>
       ) : null;
-    return <RkLoaded key={meta.data.id} meta={meta.data} runs={runs.data.runs} observed={observed.data} burst={burst.data ?? null} picker={picker} />;
+    return <RkLoaded key={meta.data.id} meta={meta.data} runs={runs.data.runs} observed={observed.data} burst={burst.data ?? null} reference={reference.data ?? null} picker={picker} />;
   }
   return (
     <main className="main">
@@ -68,7 +69,9 @@ export function RekindleView() {
   );
 }
 
-function RkLoaded({ meta, runs, observed, burst, picker }: { meta: FireMeta; runs: Run[]; observed: FeatureCollection; burst: BurstIndex | null; picker: ReactNode }) {
+function RkLoaded({
+  meta, runs, observed, burst, reference, picker,
+}: { meta: FireMeta; runs: Run[]; observed: FeatureCollection; burst: BurstIndex | null; reference: Reference | null; picker: ReactNode }) {
   const axes = meta.axes;
   const byKey = useMemo(() => new Map(runs.map((r) => [r.key, r])), [runs]);
   const baseline = byKey.get('baseline')!;
@@ -102,6 +105,12 @@ function RkLoaded({ meta, runs, observed, burst, picker }: { meta: FireMeta; run
   const baseFile = inBurst ? bBase.file : baseline.file;
   const raster = useQuery({ queryKey: ['rk-raster', meta.id, file], queryFn: () => fetchRaster(meta.id, file, size), staleTime: Infinity });
   const baseRaster = useQuery({ queryKey: ['rk-raster', meta.id, baseFile], queryFn: () => fetchRaster(meta.id, baseFile, size), staleTime: Infinity });
+  const mcd = useQuery({
+    queryKey: ['rk-raster', meta.id, 'mcd64'],
+    queryFn: () => fetchRaster(meta.id, 'mcd64.u16.gz', size).catch(() => null),
+    enabled: !!reference,
+    staleTime: Infinity,
+  });
   const showBase = inBurst ? compare && bRun.key !== bBase.key : compare && run.key !== 'baseline';
 
   const switchView = (v: 'whole' | 'burst' | 'shape') => {
@@ -131,6 +140,7 @@ function RkLoaded({ meta, runs, observed, burst, picker }: { meta: FireMeta; run
           hours={hoursNow}
           observed={observed}
           offsetH={inBurst ? bWin.start_h_after_t0 : 0}
+          mcdMinutes={mcd.data ?? null}
           showIgnitions={view !== 'burst'}
         />
       </div>
@@ -197,7 +207,7 @@ function RkLoaded({ meta, runs, observed, burst, picker }: { meta: FireMeta; run
             />
           ) : (
             <RkPanel
-              {...{ meta, run, baseline, hours, t, setT, playing, setPlaying, mode, setMode, canWhatIf, ws, setWs, wd, setWd, mo, setMo, compare, setCompare, burst }}
+              {...{ meta, run, baseline, hours, t, setT, playing, setPlaying, mode, setMode, canWhatIf, ws, setWs, wd, setWd, mo, setMo, compare, setCompare, burst, reference }}
               loading={raster.isFetching}
               missing={key !== run.key}
             />
@@ -209,8 +219,18 @@ function RkLoaded({ meta, runs, observed, burst, picker }: { meta: FireMeta; run
 }
 
 function RkMap({
-  meta, minutes, baseMinutes, t, hours, observed, offsetH = 0, showIgnitions = true,
-}: { meta: FireMeta; minutes: Uint16Array | null; baseMinutes: Uint16Array | null; t: number; hours: number; observed: FeatureCollection; offsetH?: number; showIgnitions?: boolean }) {
+  meta, minutes, baseMinutes, t, hours, observed, offsetH = 0, showIgnitions = true, mcdMinutes = null,
+}: {
+  meta: FireMeta;
+  minutes: Uint16Array | null;
+  baseMinutes: Uint16Array | null;
+  t: number;
+  hours: number;
+  observed: FeatureCollection;
+  offsetH?: number;
+  showIgnitions?: boolean;
+  mcdMinutes?: Uint16Array | null;
+}) {
   const container = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const [loaded, setLoaded] = useState(false);
@@ -228,6 +248,9 @@ function RkMap({
       map.addLayer({ id: 'rk-arrival', type: 'raster', source: 'rk-arrival', paint: { 'raster-opacity': 0.85, 'raster-resampling': 'nearest', 'raster-fade-duration': 0 } });
       map.addSource('rk-iso', { type: 'geojson', data: EMPTY });
       map.addLayer({ id: 'rk-iso', type: 'line', source: 'rk-iso', paint: { 'line-color': '#ffffff', 'line-width': 0.8, 'line-opacity': 0.75 } });
+      map.addSource('rk-mcd', { type: 'geojson', data: EMPTY });
+      map.addLayer({ id: 'rk-mcd-casing', type: 'line', source: 'rk-mcd', paint: { 'line-color': '#062b12', 'line-width': 4.5, 'line-opacity': 0.9 } });
+      map.addLayer({ id: 'rk-mcd', type: 'line', source: 'rk-mcd', paint: { 'line-color': '#4ade80', 'line-width': 2.2 } });
       map.addSource('rk-base', { type: 'geojson', data: EMPTY });
       map.addLayer({ id: 'rk-base', type: 'line', source: 'rk-base', paint: { 'line-color': '#1f6fb2', 'line-width': 2, 'line-dasharray': [2, 1.5] } });
       map.addSource('rk-obs', { type: 'geojson', data: EMPTY });
@@ -295,6 +318,13 @@ function RkMap({
     (map.getSource('rk-obs') as GeoJSONSource).setData(fc);
   }, [loaded, observed, t, meta.start, offsetH]);
 
+  // MCD64A1 burned area (second reference, S6h): outline of cells burned in the run period.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!loaded || !map) return;
+    (map.getSource('rk-mcd') as GeoJSONSource).setData(mcdMinutes ? isochrones(mcdMinutes, meta.raster, [0]) : EMPTY);
+  }, [loaded, mcdMinutes, meta.raster]);
+
   useEffect(() => {
     const map = mapRef.current;
     if (!loaded || !map) return;
@@ -327,6 +357,7 @@ interface PanelProps {
   loading: boolean;
   missing: boolean;
   burst: BurstIndex | null;
+  reference: Reference | null;
 }
 
 function AxisSlider({ label, axis, value, onChange, fmt }: { label: string; axis: number[]; value: number; onChange: (v: number) => void; fmt: (v: number) => string }) {
@@ -423,7 +454,8 @@ function RkPanel(p: PanelProps) {
         <span>{hours} h after the first detection</span>
       </div>
       <p className="meta">
-        Colour = simulated arrival time; thin white lines = simulated burned outline every {hours > 48 ? 12 : 6} h; white dots = FIRMS detections up to the clock time; red = ignition (first overpass,{' '}
+        Colour = simulated arrival time; thin white lines = simulated burned outline every {hours > 48 ? 12 : 6} h; white dots = FIRMS detections up to the clock time;{' '}
+        {p.reference && 'green outline = MODIS MCD64A1 burned area in the run period (an independent reference for shape); '}red = ignition (first overpass,{' '}
         {fmtUtc(meta.start, 0)}). {p.loading && 'Loading run…'}
       </p>
       {isBase && (
@@ -496,6 +528,8 @@ function RkPanel(p: PanelProps) {
         </tbody>
       </table>
 
+      {p.reference && <TwoReferences r={p.reference} />}
+
       {meta.spread_profile && (
         <>
           <h3>Distance from ignition vs time</h3>
@@ -551,3 +585,49 @@ function RkPanel(p: PanelProps) {
   );
 }
 
+
+/** S6h: shape against MCD64A1 burned area, timing against hotspots (fair interval). */
+function TwoReferences({ r }: { r: Reference }) {
+  const t = r.timing_vs_hotspots;
+  return (
+    <>
+      <h3>Judged against two satellite references</h3>
+      <p className="meta">
+        Hotspots say <em>when</em> fire was seen; MODIS burned area (MCD64A1, 500 m) says <em>where</em> it burned. Neither is ground truth, so the model is compared with both, and with how
+        well they agree with each other. Inside the fire box.
+      </p>
+      <table className="rk-metrics">
+        <tbody>
+          <tr>
+            <th scope="row" title="Sørensen overlap of the simulated burned area with MCD64A1 burned area in the run period">
+              Shape vs burned area (MCD64A1)
+            </th>
+            <td>
+              Sørensen {f1(r.sorensen_model_vs_mcd64, 2)} (model {f1(r.model_km2, 0)} km² vs burned area {f1(r.mcd64_km2, 0)} km²)
+            </td>
+          </tr>
+          <tr>
+            <th scope="row" title="How well the two satellite references agree with each other: the most a model could be expected to reach">
+              Hotspots vs burned area (the ceiling)
+            </th>
+            <td>Sørensen {f1(r.sorensen_hotspots_vs_mcd64, 2)}</td>
+          </tr>
+          <tr>
+            <th scope="row" title="Zero when the simulated arrival falls between the last overpass before the detection and the detection itself">
+              Timing vs hotspots, fair interval
+            </th>
+            <td>
+              median {f1(t.censored_median_h)} h (raw {f1(t.median_abs_h)} h; {pct(t.inside_interval)} inside the interval; gate {f1(t.gate_h)} h)
+            </td>
+          </tr>
+          <tr>
+            <th scope="row" title="Share of pixels whose day differs by at most one from the MCD64A1 burn day">Burn day within ±1 day</th>
+            <td>
+              hotspots {pct(r.detection_minus_burn_day.within_1_day)}, model {pct(r.model_minus_burn_day.within_1_day)}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </>
+  );
+}

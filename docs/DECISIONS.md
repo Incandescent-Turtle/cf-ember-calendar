@@ -756,3 +756,9 @@ S6f results (desktop): bc-2024 day 3 (start 2024-08-04 05:09 UTC, ×1.0) rerun 8
 
 ## Handoff — S6e/S6f (2026-11-15 ~18:30)
 Six fires on the Rekindle tab. What-if views: Chilecito burst window (timing rule), Saskatchewan whole-fire footprint, BC day 3 and Córdoba day 5 shape-only windows. La Rioja and Chaco are hindcast-only. Fir bridge was used for S6e (jobs 4255620–24). Next: deploy (user pushes `s6b:main`), check the deployed `/rekindle` for all six fires and phone width.
+
+## S6g/S6h — a second reference: MCD64A1 burned area (2026-11-15, ~18:45–19:10; user decision)
+
+`rekindle.burned_area`: MCD64A1 v061 (500 m, monthly) per fire, burn day in [first detection day − 1, run end + 7 d] (burn dates lag under cloud), compared **inside the fire bbox** (where hotspots were collected; a first pass over the whole domain wrongly penalised the hotspots, corrected). Hotspots vs burned area agree only at Sørensen 0.31–0.66 (Chaco 0.12; MCD64A1 sees 2 km²), and the first-detection day matches the burn day within ±1 d for 30–74 % of pixels. Model vs burned area: Chilecito 0.61 (ceiling 0.66), Córdoba 0.32, Saskatchewan 0.26, BC 0.33, La Rioja 0.07, Chaco 0.10. Fair-interval timing (zero if the arrival falls between the previous overpass and the detection) cuts the median error by only 0.5–8 h.
+
+User decision: the final submission is the only one, so the analysis adopts both references. Shape is judged against hotspots and burned area (with the inter-reference ceiling); timing against hotspots with the fair interval. Earlier gates and numbers stay as logged and shown. UI: green MCD64A1 outline on every Rekindle map, "Judged against two satellite references" on every fire, Findings "Two references, not one answer key", MCD64A1 credit (Giglio et al. 2018/2021). Not done (time): recalibrating the multiplier to burned-area shape, which is the stated next step.
